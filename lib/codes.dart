@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-
+//nasılsın
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
