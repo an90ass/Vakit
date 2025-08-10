@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:namaz/screens/homeContent.dart';
 import 'package:namaz/screens/prayerTracking/views/prayer_tracking_screen.dart';
-import 'package:namaz/screens/qiblahScreen.dart';
+import 'package:namaz/screens/quran/views/quranScreen.dart';
+import 'package:namaz/screens/quran/views/quran_sura_page.dart';
 import 'package:namaz/utlis/thems/colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
    final List<Widget> _pages = [
     HomeContent(),
     PrayerTrackingScreen(),
-    QuranMainScreen(),
+    QuranPage(),
     Center(child: Text("Profil", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
   ];
     int _selectedIndex = 0;
@@ -26,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedIndex = index;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
   items: [
     TabItem(icon: Icons.home, title: 'Ana Sayfa'),
     TabItem(icon: Icons.map, title: 'Namazlarım'),
-    TabItem(icon: Icons.add, title: 'Kıble'),
+    TabItem(icon: Icons.add, title: 'Kuran'),
     TabItem(icon: Icons.people, title: 'Ayarlar'),
   ],
   onTap: _onItemTapped,
