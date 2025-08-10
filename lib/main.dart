@@ -3,6 +3,7 @@ import 'package:namaz/bloc/location/location_event.dart';
 import 'package:namaz/bloc/prayer/prayer_bloc.dart';
 import 'package:namaz/repositories/prayer_repository.dart';
 import 'package:namaz/screens/home_screen.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 // import 'screens/home_screen.dart';
 // import 'screens/life_weeks_screen.dart';
