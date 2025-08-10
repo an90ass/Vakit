@@ -19,7 +19,7 @@ class PrayerBloc extends Bloc<PrayerEvent, PrayerState> {
 
       final prayerTimes = await repository.fetchPrayerTimes(event.location);
       final hijriDate = await repository.fetchHijriDate();
-
+      print('Response data: ${prayerTimes.timings}');
       final result = _calculateNextPrayer(prayerTimes.toMap());
 
       emit(PrayerLoaded(

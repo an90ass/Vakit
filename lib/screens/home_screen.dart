@@ -1,6 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:namaz/screens/homeContent.dart';
+import 'package:namaz/screens/prayerTracking/views/prayer_tracking_screen.dart';
 import 'package:namaz/screens/qiblahScreen.dart';
 import 'package:namaz/utlis/thems/colors.dart';
 
@@ -14,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
    final List<Widget> _pages = [
     HomeContent(),
-    Center(child: Text("Namaz Vakitleri", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+    PrayerTrackingScreen(),
     QuranMainScreen(),
     Center(child: Text("Profil", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
   ];

@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:namaz/models/hijri_date_model.dart';
 import 'package:namaz/models/prayer_times_model.dart';
+import 'package:namaz/hive/prayer_day.dart';
+import 'package:namaz/storage/prayer_storage.dart';
 
 
 class PrayerRepository {
@@ -12,12 +15,14 @@ class PrayerRepository {
   };
 
   Future<PrayerTimes> fetchPrayerTimes(Position location) async {
+    
     final response = await http.get(Uri.parse(
       'https://api.aladhan.com/v1/timings?latitude=${location.latitude}&longitude=${location.longitude}'
     ));
-print('Response status: ${response.statusCode}');
-print('Response body: ${response.body}');    if (response.statusCode == 200) {
+    if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      // save data to hive
+     await PrayerStorage.savePrayerTimes(data['data']['timings']);;
       return PrayerTimes.fromJson(data['data']['timings']);
     } else {
       throw Exception('Namaz vakitleri alınamadı');
@@ -75,4 +80,5 @@ print('Response body: ${response.body}');    if (response.statusCode == 200) {
     });
     return result;
   }
+
 }
