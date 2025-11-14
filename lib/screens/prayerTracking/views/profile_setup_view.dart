@@ -108,31 +108,29 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       builder: (context, state) {
         final isSaving = state.status == ProfileStatus.saving;
         final localization = AppLocalizations.of(context)!;
-        
+          final theme = Theme.of(context);
+
         return SafeArea(
           minimum: const EdgeInsets.all(16),
           child: SingleChildScrollView(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: widget.isDialog ? 12 : 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-            ),
+         
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                 style: theme.textTheme.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w700,
+        color:Colors.black54,
+        fontSize: 20,
+      ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   localization.profileSetupSubtitle,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                  ).textTheme.bodySmall?.copyWith(color: Colors.black54),
                 ),
                   const SizedBox(height: 24),
                 Center(
@@ -301,19 +299,22 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                       }).toList(),
                 ),
                 const SizedBox(height: 32),
-                SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  icon:
-                      isSaving
-                          ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.check_circle_outline),
-                    label: Text(isEditing ? localization.save : localization.profileStart),
-                    onPressed: isSaving ? null : _submit,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    icon:
+                        isSaving
+                            ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Icon(Icons.check_circle_outline),
+                      label: Text(isEditing ? localization.save : localization.profileStart),
+                      onPressed: isSaving ? null : _submit,
+                    ),
                   ),
                 ),
               ],

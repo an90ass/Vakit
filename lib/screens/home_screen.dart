@@ -45,110 +45,169 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
-    final languageCubit = context.watch<AppLanguageCubit>();
     final profileState = context.watch<ProfileCubit>().state;
     final profile = profileState.profile;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100), // AppBar yüksekliğini artır
-        child: AppBar(
-          backgroundColor: AppColors.primary,
-          elevation: 0,
-          flexibleSpace: Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-
-            child: SafeArea(
-              child: Row(
-                children: [
-                  // Kullanıcı profil fotoğrafı
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.accent,
-                          AppColors.accent.withOpacity(0.7),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 26,
-                      backgroundColor: Colors.transparent,
-                      child: CircleAvatar(
-                        radius: 24,
-                        backgroundColor: AppColors.accent,
-                        backgroundImage:
-                            profile?.profileImagePath != null
-                                ? FileImage(File(profile!.profileImagePath!))
-                                : null,
-                        child:
-                            profile?.profileImagePath == null
-                                ? Icon(
-                                  Icons.person,
-                                  size: 30,
-                                  color: Colors.white,
-                                )
-                                : null,
-                      ),
-                    ),
+     appBar: PreferredSize(
+  preferredSize: const Size.fromHeight(100),
+  child: Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          theme.colorScheme.primary,
+          theme.colorScheme.primary.withOpacity(0.85),
+        ],
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: theme.colorScheme.primary.withOpacity(0.3),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      flexibleSpace: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: SafeArea(
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withOpacity(0.3),
+                      Colors.white.withOpacity(0.1),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-
-                  SizedBox(width: 16),
-
-                  // Kullanıcı bilgileri
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Selam
-                        Text(
-                          profile != null && profile.name.isNotEmpty
-                              ? '${localization.homeGreeting}, ${profile.name}'
-                              : localization.homeGreeting,
-                          style: TextStyle(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(3),
+                child: CircleAvatar(
+                  radius: 26,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: theme.colorScheme.secondary,
+                    backgroundImage: profile?.profileImagePath != null
+                        ? FileImage(File(profile!.profileImagePath!))
+                        : null,
+                    child: profile?.profileImagePath == null
+                        ? Icon(
+                            Icons.person_rounded,
+                            size: 28,
                             color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.3,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
 
-                        SizedBox(height: 4),
+              const SizedBox(width: 16),
 
-                        // Alt yazı
-                        Text(
-                          localization.homeGreetingSubtitle,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      profile != null && profile.name.isNotEmpty
+                          ? '${localization.homeGreeting}, ${profile.name}'
+                          : localization.homeGreeting,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
                           ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                        ],
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.circle,
+                                size: 8,
+                                color: theme.colorScheme.secondary,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                localization.homeGreetingSubtitle,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.notifications_outlined,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
-      body: _pages[_selectedIndex],
+    ),
+  ),
+),  body: _pages[_selectedIndex],
 
       bottomNavigationBar: ConvexAppBar(
         height: 60,

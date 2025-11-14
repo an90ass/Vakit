@@ -81,6 +81,8 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen> with Tick
   
   @override
   Widget build(BuildContext context) {
+      final theme = Theme.of(context);
+
     final localization = AppLocalizations.of(context)!;
     return BlocConsumer<TrackedLocationsCubit, TrackedLocationsState>(
       listener: (context, state) {
@@ -96,40 +98,49 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen> with Tick
             TrackedLocationsCubit.maxManualLocations;
         return Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            title: Text(localization.citiesScreenTitle),
-            actions: [
-              IconButton(
-                tooltip: localization.gpsRefresh,
-                onPressed:
-                    state.isGpsRefreshing
-                        ? null
-                        : () =>
-                            context
-                                .read<TrackedLocationsCubit>()
-                                .refreshGpsLocation(),
-                icon:
-                    state.isGpsRefreshing
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.my_location),
-              ),
-              IconButton(
-                tooltip: localization.citiesRefreshAction,
-                onPressed:
-                    () =>
-                        context
-                            .read<TrackedLocationsCubit>()
-                            .refreshSummaries(),
-                icon: const Icon(Icons.refresh),
-              ),
-            ],
-          ),
-          floatingActionButton:
+      appBar: AppBar(
+  backgroundColor: Colors.white,
+  elevation: 0,
+  automaticallyImplyLeading: true, 
+  titleSpacing: 0, 
+
+  title: Padding(
+    padding: const EdgeInsets.only(left: 16),
+    child: Text(
+      localization.citiesScreenTitle,
+     style: theme.textTheme.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w700,
+        color:Colors.black54,
+        fontSize: 20,
+      ),
+    
+    ),
+  ),
+
+  actions: [
+    IconButton(
+      tooltip: localization.gpsRefresh,
+      onPressed: state.isGpsRefreshing
+          ? null
+          : () => context.read<TrackedLocationsCubit>().refreshGpsLocation(),
+      icon: state.isGpsRefreshing
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.my_location, color: Colors.black87),
+    ),
+    IconButton(
+      tooltip: localization.citiesRefreshAction,
+      onPressed: () =>
+          context.read<TrackedLocationsCubit>().refreshSummaries(),
+      icon: const Icon(Icons.refresh, color: Colors.black87),
+    ),
+    const SizedBox(width: 4),
+  ],
+),
+    floatingActionButton:
               hasCapacity
                   ? FloatingActionButton.extended(
                     onPressed: () => _handleAddLocationTap(state),

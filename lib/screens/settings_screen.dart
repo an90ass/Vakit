@@ -433,17 +433,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('showGregorianDate', value);
   }
 
-  Future<void> _changeLanguage(String language) async {
-    setState(() {
-      _appLanguage = language;
-    });
-    context.read<AppLanguageCubit>().updateLocale(Locale(language));
+ Future<void> _changeLanguage(String language) async {
+  context.read<AppLanguageCubit>().updateLocale(Locale(language));
+
+  setState(() {
+    _appLanguage = language;
+  });
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final localization = AppLocalizations.of(context)!;
 
     _showSuccessDialog(
-      AppLocalizations.of(context)!.languageChangeTitle,
-      AppLocalizations.of(context)!.languageChangeDescription,
+      localization.languageChangeTitle,
+      localization.languageChangeDescription,
     );
-  }
+  });
+}
+
 
   void _resetSettings() {
     showDialog(
@@ -517,17 +523,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         final localization = AppLocalizations.of(dialogContext)!;
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(localization.dialogOk),
+        final theme = Theme.of(dialogContext);
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 8,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.surface,
+                  theme.colorScheme.surface.withOpacity(0.95),
+                ],
+              ),
             ),
-          ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.error.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_outline_rounded,
+                    size: 64,
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                Text(
+                  title,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  message,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 32),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.error,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      localization.dialogOk,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -536,17 +619,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showSuccessDialog(String title, String message) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         final localization = AppLocalizations.of(dialogContext)!;
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(localization.dialogOk),
+        final theme = Theme.of(dialogContext);
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 8,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.surface,
+                  theme.colorScheme.surface.withOpacity(0.95),
+                ],
+              ),
             ),
-          ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 64,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                Text(
+                  title,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  message,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 32),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      localization.dialogOk,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -722,13 +882,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
     if (_isLoading) {
       return Scaffold(
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: Color(0xFF1e63b4)),
+              CircularProgressIndicator(color: theme.colorScheme.primary),
               const SizedBox(height: 16),
               Text(
                 localization.settingsLoadingMessage,
@@ -741,16 +903,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localization.tabSettings),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-      ),
+     
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+                 _buildHeader(localization.tabSettings),
+
             // Konum Ayarları
             _buildSection(
               localization.settingsLocationSection,
@@ -771,7 +930,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 _requestLocationPermission();
                               }
                             },
-                            activeColor: const Color(0xFF1e63b4),
+                            activeColor: Theme.of(context).colorScheme.primary,
                           ),
                           Text(localization.settingsLocationMethodAuto),
                         ],
@@ -791,7 +950,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 await prefs.setString('locationMethod', value);
                               }
                             },
-                            activeColor: const Color(0xFF1e63b4),
+                            activeColor: Theme.of(context).colorScheme.primary,
                           ),
                           Text(localization.settingsLocationMethodManual),
                         ],
@@ -808,7 +967,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: ElevatedButton(
                         onPressed: _requestLocationPermission,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1e63b4),
+                          backgroundColor: Colors.green[800],
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child: Text(
@@ -945,7 +1104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _notificationsEnabled,
                     onChanged: _toggleNotifications,
-                    activeColor: const Color(0xFF1e63b4),
+                    activeColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -984,7 +1143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Switch(
                       value: _notificationSound,
                       onChanged: _toggleNotificationSound,
-                      activeColor: const Color(0xFF1e63b4),
+                      activeColor: Theme.of(context).colorScheme.primary,
                     ),
                   ),
 
@@ -993,7 +1152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Switch(
                       value: _notificationVibration,
                       onChanged: _toggleNotificationVibration,
-                      activeColor: const Color(0xFF1e63b4),
+                      activeColor: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],
@@ -1010,7 +1169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _showArabicText,
                     onChanged: _toggleArabicText,
-                    activeColor: const Color(0xFF1e63b4),
+                    activeColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -1019,7 +1178,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _showHijriDate,
                     onChanged: _toggleHijriDate,
-                    activeColor: const Color(0xFF1e63b4),
+                    activeColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -1028,7 +1187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _showGregorianDate,
                     onChanged: _toggleGregorianDate,
-                    activeColor: const Color(0xFF1e63b4),
+                    activeColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -1149,61 +1308,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _changeLanguage('tr'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              _appLanguage == 'tr'
-                                  ? const Color(0xFF1e63b4)
-                                  : Colors.grey.shade200,
-                          foregroundColor:
-                              _appLanguage == 'tr'
-                                  ? Colors.white
-                                  : Colors.black87,
-                        ),
-                        child: Text(localization.languageTurkish),
-                      ),
+                    _buildLanguageButton(
+                      code: 'tr',
+                      label: localization.languageTurkish,
+                      flag: '🇹🇷',
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _changeLanguage('en'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              _appLanguage == 'en'
-                                  ? const Color(0xFF1e63b4)
-                                  : Colors.grey.shade200,
-                          foregroundColor:
-                              _appLanguage == 'en'
-                                  ? Colors.white
-                                  : Colors.black87,
-                        ),
-                        child: Text(localization.languageEnglish),
-                      ),
+                    _buildLanguageButton(
+                      code: 'en',
+                      label: localization.languageEnglish,
+                      flag: '🇺🇸',
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _changeLanguage('ar'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              _appLanguage == 'ar'
-                                  ? const Color(0xFF1e63b4)
-                                  : Colors.grey.shade200,
-                          foregroundColor:
-                              _appLanguage == 'ar'
-                                  ? Colors.white
-                                  : Colors.black87,
-                        ),
-                        child: const Text('العربية'),
-                      ),
+                    _buildLanguageButton(
+                      code: 'ar',
+                      label: 'العربية',
+                      flag: '🇸🇦',
                     ),
                   ],
                 ),
               ),
             ]),
-
             // Sıfırlama Butonu
             Container(
               width: double.infinity,
@@ -1313,4 +1438,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
               : null,
     );
   }
+
+  Widget _buildLanguageButton({
+    required String code,
+    required String label,
+    required String flag,
+  }) {
+    final theme = Theme.of(context);
+    final isSelected = _appLanguage == code;
+
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () => _changeLanguage(code),
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.surfaceVariant,
+          foregroundColor:
+              isSelected
+                  ? theme.colorScheme.onPrimary
+                  : theme.colorScheme.onSurface,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: isSelected ? 2 : 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 18)),
+            const SizedBox(width: 6),
+            Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+    );
+  }
+  
+Widget _buildHeader(String title) {
+  final theme = Theme.of(context);
+
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 1),
+    child: Text(
+      title,
+      style: theme.textTheme.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w700,
+        color:Colors.black45,
+        fontSize: 20,
+      ),
+    ),
+  );
+}
+
 }
