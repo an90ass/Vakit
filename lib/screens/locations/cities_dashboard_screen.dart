@@ -10,6 +10,41 @@ import 'package:namaz/models/prayer_summary.dart';
 import 'package:namaz/models/tracked_location.dart';
 import 'package:namaz/utlis/thems/colors.dart';
 
+String _getLocalizedPrayerName(BuildContext context, String prayerName) {
+  final locale = Localizations.localeOf(context);
+  final languageCode = locale.languageCode;
+  
+  switch (prayerName) {
+    case 'Imsak':
+    case 'Fajr':
+      if (languageCode == 'tr') return 'İmsak';
+      if (languageCode == 'ar') return 'الفجر';
+      return 'Fajr';
+    case 'Sunrise':
+      if (languageCode == 'tr') return 'Güneş';
+      if (languageCode == 'ar') return 'الشروق';
+      return 'Sunrise';
+    case 'Dhuhr':
+      if (languageCode == 'tr') return 'Öğle';
+      if (languageCode == 'ar') return 'الظهر';
+      return 'Dhuhr';
+    case 'Asr':
+      if (languageCode == 'tr') return 'İkindi';
+      if (languageCode == 'ar') return 'العصر';
+      return 'Asr';
+    case 'Maghrib':
+      if (languageCode == 'tr') return 'Akşam';
+      if (languageCode == 'ar') return 'المغرب';
+      return 'Maghrib';
+    case 'Isha':
+      if (languageCode == 'tr') return 'Yatsı';
+      if (languageCode == 'ar') return 'العشاء';
+      return 'Isha';
+    default:
+      return prayerName;
+  }
+}
+
 class CitiesDashboardScreen extends StatefulWidget {
   const CitiesDashboardScreen({super.key});
 
@@ -503,7 +538,7 @@ class _SummaryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${localization.nextPrayerLabel}: ${summary.nextPrayer}',
+                  '${localization.nextPrayerLabel}: ${_getLocalizedPrayerName(context, summary.nextPrayer)}',
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.black87,

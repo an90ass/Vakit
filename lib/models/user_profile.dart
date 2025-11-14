@@ -4,7 +4,8 @@ import 'package:hijri/hijri_calendar.dart';
 class UserProfile {
   const UserProfile({
     required this.name,
-    required this.birthYear,
+    this.birthYear,
+    this.birthDate,
     required this.gender,
     required this.qadaModeEnabled,
     required this.extraPrayers,
@@ -14,7 +15,8 @@ class UserProfile {
   });
 
   final String name;
-  final int birthYear;
+  final int? birthYear; // Eski versiyon için
+  final DateTime? birthDate; // Yeni versiyon - tam tarih
   final String gender;
   final bool qadaModeEnabled;
   final List<String> extraPrayers;
@@ -24,15 +26,28 @@ class UserProfile {
 
   int get age {
     final now = DateTime.now();
-    return now.year - birthYear;
+    if (birthDate != null) {
+      int age = now.year - birthDate!.year;
+      if (now.month < birthDate!.month ||
+          (now.month == birthDate!.month && now.day < birthDate!.day)) {
+        age--;
+      }
+      return age;
+    }
+    return birthYear != null ? now.year - birthYear! : 0;
   }
 
   int get hijriAge {
     try {
-      final birthDate = DateTime(birthYear, 1, 1);
-      final hijriBirth = HijriCalendar.fromDate(birthDate);
+      final birth = birthDate ?? (birthYear != null ? DateTime(birthYear!, 1, 1) : DateTime.now());
+      final hijriBirth = HijriCalendar.fromDate(birth);
       final hijriNow = HijriCalendar.now();
-      return hijriNow.hYear - hijriBirth.hYear;
+      int age = hijriNow.hYear - hijriBirth.hYear;
+      if (hijriNow.hMonth < hijriBirth.hMonth ||
+          (hijriNow.hMonth == hijriBirth.hMonth && hijriNow.hDay < hijriBirth.hDay)) {
+        age--;
+      }
+      return age;
     } catch (e) {
       return age;
     }
@@ -41,6 +56,7 @@ class UserProfile {
   UserProfile copyWith({
     String? name,
     int? birthYear,
+    DateTime? birthDate,
     String? gender,
     bool? qadaModeEnabled,
     List<String>? extraPrayers,
@@ -51,6 +67,7 @@ class UserProfile {
     return UserProfile(
       name: name ?? this.name,
       birthYear: birthYear ?? this.birthYear,
+      birthDate: birthDate ?? this.birthDate,
       gender: gender ?? this.gender,
       qadaModeEnabled: qadaModeEnabled ?? this.qadaModeEnabled,
       extraPrayers: extraPrayers ?? List<String>.from(this.extraPrayers),
@@ -65,6 +82,7 @@ class UserProfile {
     return {
       'name': name,
       'birthYear': birthYear,
+      'birthDate': birthDate?.toIso8601String(),
       'gender': gender,
       'qadaModeEnabled': qadaModeEnabled,
       'extraPrayers': extraPrayers,
@@ -77,7 +95,10 @@ class UserProfile {
   static UserProfile fromJson(Map<String, dynamic> json) {
     return UserProfile(
       name: json['name'] as String? ?? '',
-      birthYear: json['birthYear'] as int? ?? DateTime.now().year,
+      birthYear: json['birthYear'] as int?,
+      birthDate: json['birthDate'] != null 
+          ? DateTime.tryParse(json['birthDate'] as String)
+          : null,
       gender: json['gender'] as String? ?? 'unspecified',
       qadaModeEnabled: json['qadaModeEnabled'] as bool? ?? false,
       extraPrayers:

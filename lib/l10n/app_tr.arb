@@ -159,5 +159,42 @@
   "prayerAsr": "İkindi",
   "prayerMaghrib": "Akşam",
   "prayerIsha": "Yatsı",
-  "prayerFajr": "Sabah"
+  "prayerFajr": "Sabah",
+  "dailyPrayers": "Günlük Namazlar",
+  "todaysDate": "Bugünün Tarihi",
+  "todaysProgress": "Bugünün İlerlemesi",
+  "keepUpGoodWork": "Böyle devam et!",
+  "complete": "Tamamlandı",
+  "completed": "TAMAMLANDI",
+  "missed": "KAÇIRILDI",
+  "pending": "BEKLİYOR",
+  "done": "Kılındı",
+  "missedPrayer": "Kaçırıldı",
+  "remaining": "kaldı",
+  "nextPrayer": "Bir sonraki namaz",
+  "qadaTracking": "Kaza Takibi",
+  "qadaTrackingOn": "Kaza takibi açık",
+  "qadaTrackingOff": "Kaza takibi kapalı",
+  "noPendingQada": "Harika! Bekleyen kaza namazın yok.",
+  "pendingQadaMessage": "{count} vakit bekliyor. Tamamladıkça işaretle.",
+  "@pendingQadaMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "table": "Tablo",
+  "widget": "Widget",
+  "pendingQadaPrayers": "Bekleyen Kaza Namazları",
+  "noRecordsYet": "Şu an bekleyen kayıt yok.",
+  "date": "Tarih",
+  "prayerTime": "Vakit",
+  "recorded": "Kaydedildi",
+  "completedDate": "Tamamlandı",
+  "shareCSV": "CSV paylaş",
+  "copyToClipboard": "Panoya kopyala",
+  "tableCopied": "Tablo panoya kopyalandı",
+  "qadaTable": "Kaza namazı tablosu",
+  "currentQadaSummary": "Güncel kaza namazı özetim"
 }

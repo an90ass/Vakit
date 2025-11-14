@@ -578,24 +578,35 @@ class _PrayerCircleState extends State<PrayerCircle>
   ];
 
   String _getLocalizedPrayerName(String prayerName) {
-    final localization = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
-    final isTurkish = locale.languageCode == 'tr';
+    final languageCode = locale.languageCode;
     
     switch (prayerName) {
       case 'Imsak':
       case 'Fajr':
-        return isTurkish ? 'İmsak' : 'Fajr';
+        if (languageCode == 'tr') return 'İmsak';
+        if (languageCode == 'ar') return 'الفجر';
+        return 'Fajr';
       case 'Sunrise':
-        return isTurkish ? 'Güneş' : 'Sunrise';
+        if (languageCode == 'tr') return 'Güneş';
+        if (languageCode == 'ar') return 'الشروق';
+        return 'Sunrise';
       case 'Dhuhr':
-        return isTurkish ? 'Öğle' : 'Dhuhr';
+        if (languageCode == 'tr') return 'Öğle';
+        if (languageCode == 'ar') return 'الظهر';
+        return 'Dhuhr';
       case 'Asr':
-        return isTurkish ? 'İkindi' : 'Asr';
+        if (languageCode == 'tr') return 'İkindi';
+        if (languageCode == 'ar') return 'العصر';
+        return 'Asr';
       case 'Maghrib':
-        return isTurkish ? 'Akşam' : 'Maghrib';
+        if (languageCode == 'tr') return 'Akşam';
+        if (languageCode == 'ar') return 'المغرب';
+        return 'Maghrib';
       case 'Isha':
-        return isTurkish ? 'Yatsı' : 'Isha';
+        if (languageCode == 'tr') return 'Yatsı';
+        if (languageCode == 'ar') return 'العشاء';
+        return 'Isha';
       default:
         return prayerName;
     }
@@ -929,9 +940,9 @@ class _PrayerCircleState extends State<PrayerCircle>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Bir sonraki namaz',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.nextPrayer,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black54,
                         fontWeight: FontWeight.w600,
@@ -939,7 +950,7 @@ class _PrayerCircleState extends State<PrayerCircle>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      next.$1,
+                      _getLocalizedPrayerName(next.$1),
                       style: const TextStyle(
                         fontSize: 22,
                         color: Colors.black87,
@@ -971,9 +982,9 @@ class _PrayerCircleState extends State<PrayerCircle>
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              'kaldı',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.remaining,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black54,

@@ -1,51 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp"
     android:background="@drawable/widget_background">
 
+    <!-- Çember görseli için placeholder -->
+    <ImageView
+        android:id="@+id/prayer_circle"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:src="@android:drawable/ic_menu_compass"
+        android:tint="#FFFFFF"/>
+
+    <!-- Bir sonraki namaz -->
     <TextView
-        android:id="@+id/widget_title"
-        android:layout_width="match_parent"
+        android:id="@+id/next_prayer_label"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Namaz Vakti"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:layout_below="@id/prayer_circle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Bir sonraki namaz"
+        android:textSize="12sp"
         android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:paddingBottom="8dp"/>
+        android:alpha="0.8"/>
 
     <TextView
         android:id="@+id/next_prayer"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bir sonraki: Öğle"
-        android:textSize="18sp"
+        android:layout_below="@id/next_prayer_label"
+        android:layout_centerHorizontal="true"
+        android:text="Öğle"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:paddingBottom="4dp"/>
+        android:textColor="#FFFFFF"/>
 
+    <!-- Kalan süre -->
     <TextView
         android:id="@+id/time_remaining"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/next_prayer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
         android:text="02:30:45"
-        android:textSize="32sp"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#FFD700"
-        android:gravity="center"
-        android:paddingBottom="8dp"/>
+        android:textColor="#FFD700"/>
 
     <TextView
         android:id="@+id/remaining_label"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/time_remaining"
+        android:layout_centerHorizontal="true"
         android:text="kaldı"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:textColor="#FFFFFF"
-        android:gravity="center"/>
+        android:alpha="0.8"/>
 
-</LinearLayout>
+</RelativeLayout>

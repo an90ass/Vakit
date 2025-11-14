@@ -159,5 +159,42 @@
   "prayerAsr": "Asr",
   "prayerMaghrib": "Maghrib",
   "prayerIsha": "Isha",
-  "prayerFajr": "Fajr"
+  "prayerFajr": "Fajr",
+  "dailyPrayers": "Daily Prayers",
+  "todaysDate": "Today's Date",
+  "todaysProgress": "Today's Progress",
+  "keepUpGoodWork": "Keep up the good work!",
+  "complete": "Complete",
+  "completed": "COMPLETED",
+  "missed": "MISSED",
+  "pending": "PENDING",
+  "done": "Done",
+  "missedPrayer": "Missed",
+  "remaining": "remaining",
+  "nextPrayer": "Next prayer",
+  "qadaTracking": "Qada Tracking",
+  "qadaTrackingOn": "Qada tracking enabled",
+  "qadaTrackingOff": "Qada tracking disabled",
+  "noPendingQada": "Great! No pending qada prayers.",
+  "pendingQadaMessage": "{count} prayers pending. Mark as you complete.",
+  "@pendingQadaMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "table": "Table",
+  "widget": "Widget",
+  "pendingQadaPrayers": "Pending Qada Prayers",
+  "noRecordsYet": "No pending records yet.",
+  "date": "Date",
+  "prayerTime": "Prayer",
+  "recorded": "Recorded",
+  "completedDate": "Completed",
+  "shareCSV": "Share CSV",
+  "copyToClipboard": "Copy to clipboard",
+  "tableCopied": "Table copied to clipboard",
+  "qadaTable": "Qada prayer table",
+  "currentQadaSummary": "My current qada summary"
 }

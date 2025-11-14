@@ -19,6 +19,7 @@ import 'package:namaz/models/user_profile.dart';
 import 'package:namaz/repositories/extra_prayer_repository.dart';
 import 'package:namaz/repositories/qada_repository.dart';
 import 'package:namaz/screens/prayerTracking/views/profile_setup_view.dart';
+import 'package:namaz/l10n/generated/app_localizations.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -154,6 +155,36 @@ class _TrackedPrayersView extends StatelessWidget {
   }
 }
 
+String _getLocalizedPrayerName(BuildContext context, String prayerName) {
+  final locale = Localizations.localeOf(context);
+  final languageCode = locale.languageCode;
+  
+  switch (prayerName) {
+    case 'Fajr':
+      if (languageCode == 'tr') return 'Sabah';
+      if (languageCode == 'ar') return 'الفجر';
+      return 'Fajr';
+    case 'Dhuhr':
+      if (languageCode == 'tr') return 'Öğle';
+      if (languageCode == 'ar') return 'الظهر';
+      return 'Dhuhr';
+    case 'Asr':
+      if (languageCode == 'tr') return 'İkindi';
+      if (languageCode == 'ar') return 'العصر';
+      return 'Asr';
+    case 'Maghrib':
+      if (languageCode == 'tr') return 'Akşam';
+      if (languageCode == 'ar') return 'المغرب';
+      return 'Maghrib';
+    case 'Isha':
+      if (languageCode == 'tr') return 'Yatsı';
+      if (languageCode == 'ar') return 'العشاء';
+      return 'Isha';
+    default:
+      return prayerName;
+  }
+}
+
 int _getCurrentPrayerIndex(List<Prayer> prayers) {
   final now = DateTime.now();
   final currentTime = now.hour * 60 + now.minute;
@@ -188,12 +219,12 @@ Widget _buildMainContent(
       children: [
         _ProfileHeaderCard(profile: profile),
         const SizedBox(height: 16),
-        _buildProgressCard(completedPrayers, prayers.length, progress),
+        _buildProgressCard(context, completedPrayers, prayers.length, progress),
         const SizedBox(height: 16),
-        _buildDateHeader(todayKey),
+        _buildDateHeader(context, todayKey),
         const SizedBox(height: 12),
         Text(
-          'Daily Prayers',
+          AppLocalizations.of(context)!.dailyPrayers,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -255,7 +286,7 @@ Widget _buildMainContent(
   );
 }
 
-Widget _buildProgressCard(int completed, int total, double progress) {
+Widget _buildProgressCard(BuildContext context, int completed, int total, double progress) {
   return Container(
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
@@ -282,16 +313,16 @@ Widget _buildProgressCard(int completed, int total, double progress) {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Today\'s Progress',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.todaysProgress,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
                 Text(
-                  'Keep up the good work!',
+                  AppLocalizations.of(context)!.keepUpGoodWork,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withOpacity(0.8),
@@ -336,7 +367,7 @@ Widget _buildProgressCard(int completed, int total, double progress) {
         ),
         const SizedBox(height: 4),
         Text(
-          '${(progress * 100).toInt()}% Complete',
+          '${(progress * 100).toInt()}% ${AppLocalizations.of(context)!.complete}',
           style: const TextStyle(
             fontSize: 14,
             color: Colors.white,
@@ -348,23 +379,31 @@ Widget _buildProgressCard(int completed, int total, double progress) {
   );
 }
 
-Widget _buildDateHeader(String todayKey) {
+Widget _buildDateHeader(BuildContext context, String todayKey) {
   final date = DateTime.parse(todayKey);
-  final months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-  final formattedDate = '${months[date.month - 1]} ${date.day}, ${date.year}';
+  final locale = Localizations.localeOf(context);
+  final languageCode = locale.languageCode;
+  
+  String formattedDate;
+  if (languageCode == 'tr') {
+    final monthsTr = [
+      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+    ];
+    formattedDate = '${date.day} ${monthsTr[date.month - 1]} ${date.year}';
+  } else if (languageCode == 'ar') {
+    final monthsAr = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    formattedDate = '${date.day} ${monthsAr[date.month - 1]} ${date.year}';
+  } else {
+    final monthsEn = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    formattedDate = '${monthsEn[date.month - 1]} ${date.day}, ${date.year}';
+  }
 
   return Container(
     padding: const EdgeInsets.all(20),
@@ -397,9 +436,9 @@ Widget _buildDateHeader(String todayKey) {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Today\'s Date',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.todaysDate,
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
                 fontWeight: FontWeight.w500,
@@ -666,7 +705,7 @@ class _PrayerItemState extends State<PrayerItem>
                         Row(
                           children: [
                             Text(
-                              widget.prayer.name,
+                              _getLocalizedPrayerName(context, widget.prayer.name),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -807,13 +846,14 @@ class _PrayerItemState extends State<PrayerItem>
   }
 
   String _getStatusText() {
+    final localization = AppLocalizations.of(context)!;
     switch (widget.prayer.done) {
       case true:
-        return 'COMPLETED';
+        return localization.completed;
       case false:
-        return 'MISSED';
+        return localization.missed;
       default:
-        return 'PENDING';
+        return localization.pending;
     }
   }
 
@@ -829,8 +869,11 @@ class _ProfileHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
     final qadaStatus =
-        profile.qadaModeEnabled ? 'Kaza takibi açık' : 'Kaza takibi kapalı';
+        profile.qadaModeEnabled 
+            ? localization.qadaTrackingOn 
+            : localization.qadaTrackingOff;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1096,9 +1139,9 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Kaza Takibi',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.qadaTracking,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -1107,8 +1150,8 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                 const SizedBox(height: 8),
                 Text(
                   count == 0
-                      ? 'Harika! Bekleyen kaza namazın yok.'
-                      : '$count vakit bekliyor. Tamamladıkça işaretle.',
+                      ? AppLocalizations.of(context)!.noPendingQada
+                      : AppLocalizations.of(context)!.pendingQadaMessage(count),
                   style: TextStyle(color: Colors.white.withOpacity(0.9)),
                 ),
                 const SizedBox(height: 16),
@@ -1133,7 +1176,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                           ),
                           onPressed: () => _openDetails(context, pending),
                           icon: const Icon(Icons.table_chart_outlined),
-                          label: const Text('Tablo'),
+                          label: Text(AppLocalizations.of(context)!.table),
                         ),
                         FilledButton.icon(
                           style: FilledButton.styleFrom(
@@ -1143,7 +1186,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                           onPressed:
                               count == 0 ? null : () => _exportWidget(context),
                           icon: const Icon(Icons.ios_share),
-                          label: const Text('Widget'),
+                          label: Text(AppLocalizations.of(context)!.widget),
                         ),
                       ],
                     ),
@@ -1175,7 +1218,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
       await file.writeAsBytes(bytes);
       await Share.shareXFiles([
         XFile(file.path),
-      ], text: 'Güncel kaza namazı özetim');
+      ], text: AppLocalizations.of(context)!.currentQadaSummary);
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1211,15 +1254,15 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Bekleyen Kaza Namazları',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Text(
+                    AppLocalizations.of(context)!.pendingQadaPrayers,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   if (records.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('Şu an bekleyen kayıt yok.'),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(AppLocalizations.of(context)!.noRecordsYet),
                     )
                   else
                     SizedBox(
@@ -1227,11 +1270,11 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-                          columns: const [
-                            DataColumn(label: Text('Tarih')),
-                            DataColumn(label: Text('Vakit')),
-                            DataColumn(label: Text('Kaydedildi')),
-                            DataColumn(label: Text('Tamamlandı')),
+                          columns: [
+                            DataColumn(label: Text(AppLocalizations.of(context)!.date)),
+                            DataColumn(label: Text(AppLocalizations.of(context)!.prayerTime)),
+                            DataColumn(label: Text(AppLocalizations.of(context)!.recorded)),
+                            DataColumn(label: Text(AppLocalizations.of(context)!.completedDate)),
                           ],
                           rows:
                               records
@@ -1274,7 +1317,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                                 ? null
                                 : () => _shareCsv(csv, context),
                         icon: const Icon(Icons.share),
-                        label: const Text('CSV paylaş'),
+                        label: Text(AppLocalizations.of(context)!.shareCSV),
                       ),
                       OutlinedButton.icon(
                         onPressed:
@@ -1282,7 +1325,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                                 ? null
                                 : () => _copyCsv(csv, context),
                         icon: const Icon(Icons.copy),
-                        label: const Text('Panoya kopyala'),
+                        label: Text(AppLocalizations.of(context)!.copyToClipboard),
                       ),
                     ],
                   ),
@@ -1295,7 +1338,8 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
 
   Future<void> _shareCsv(String csv, BuildContext context) async {
     try {
-      await Share.share(csv, subject: 'Kaza namazı tablosu');
+      final localization = AppLocalizations.of(context)!;
+      await Share.share(csv, subject: localization.qadaTable);
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1307,9 +1351,10 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
   Future<void> _copyCsv(String csv, BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: csv));
     if (!mounted) return;
+    final localization = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Tablo panoya kopyalandı')));
+    ).showSnackBar(SnackBar(content: Text(localization.tableCopied)));
   }
 
   String _buildCsv(List<QadaRecord> records) {

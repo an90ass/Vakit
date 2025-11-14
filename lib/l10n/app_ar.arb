@@ -152,5 +152,49 @@
   "themePaletteDesertName": "غروب الصحراء",
   "themePaletteDesertDescription": "درجات الرمال الدافئة مع أضواء كهرمانية.",
   "themePaletteMidnightName": "أزرق منتصف الليل",
-  "themePaletteMidnightDescription": "زرقة الليل الباردة مع لمسات ضوء القمر."
+  "themePaletteMidnightDescription": "زرقة الليل الباردة مع لمسات ضوء القمر.",
+  "prayerImsak": "الفجر",
+  "prayerSunrise": "الشروق",
+  "prayerDhuhr": "الظهر",
+  "prayerAsr": "العصر",
+  "prayerMaghrib": "المغرب",
+  "prayerIsha": "العشاء",
+  "prayerFajr": "الفجر",
+  "dailyPrayers": "الصلوات اليومية",
+  "todaysDate": "تاريخ اليوم",
+  "todaysProgress": "تقدم اليوم",
+  "keepUpGoodWork": "استمر في العمل الجيد!",
+  "complete": "مكتمل",
+  "completed": "مكتمل",
+  "missed": "فائت",
+  "pending": "قيد الانتظار",
+  "done": "تم",
+  "missedPrayer": "فائت",
+  "remaining": "متبقي",
+  "nextPrayer": "الصلاة القادمة",
+  "qadaTracking": "تتبع القضاء",
+  "qadaTrackingOn": "تتبع القضاء مفعل",
+  "qadaTrackingOff": "تتبع القضاء معطل",
+  "noPendingQada": "رائع! لا توجد صلوات قضاء معلقة.",
+  "pendingQadaMessage": "{count} صلاة معلقة. ضع علامة عند الإكمال.",
+  "@pendingQadaMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "table": "جدول",
+  "widget": "ودجت",
+  "pendingQadaPrayers": "صلوات القضاء المعلقة",
+  "noRecordsYet": "لا توجد سجلات معلقة حتى الآن.",
+  "date": "التاريخ",
+  "prayerTime": "الصلاة",
+  "recorded": "مسجل",
+  "completedDate": "مكتمل",
+  "shareCSV": "مشاركة CSV",
+  "copyToClipboard": "نسخ إلى الحافظة",
+  "tableCopied": "تم نسخ الجدول إلى الحافظة",
+  "qadaTable": "جدول صلاة القضاء",
+  "currentQadaSummary": "ملخص القضاء الحالي"
 }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,8 @@ import 'package:namaz/screens/quran/views/quran_sura_page.dart';
 import 'package:namaz/screens/settings_screen.dart';
 import 'package:namaz/utlis/thems/colors.dart';
 import 'package:namaz/bloc/app_language/app_language_cubit.dart';
+import 'package:namaz/bloc/profile/profile_cubit.dart';
+import 'package:namaz/bloc/profile/profile_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,12 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _pages = [
-      HomeContent(),
       const CitiesDashboardScreen(),
       const PrayerTrackingScreen(),
+      HomeContent(), // Ana sayfa ortada
       const QuranPage(),
       const SettingsScreen(),
     ];
+    _selectedIndex = 2; // Ana sayfa başlangıçta seçili
   }
 
   void _onItemTapped(int index) {
@@ -43,6 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
     final languageCubit = context.watch<AppLanguageCubit>();
+    final profileState = context.watch<ProfileCubit>().state;
+    final profile = profileState.profile;
+    
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100), // AppBar yüksekliğini artır
@@ -55,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SafeArea(
               child: Row(
                 children: [
-                  // Kullanıcı profil ikonu ile modern etkiler
+                  // Kullanıcı profil fotoğrafı
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -81,11 +88,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: CircleAvatar(
                         radius: 24,
                         backgroundColor: AppColors.accent,
-                        child: Icon(
-                          Icons.person,
-                          size: 30,
-                          color: Colors.white,
-                        ),
+                        backgroundImage: profile?.profileImagePath != null
+                            ? FileImage(File(profile!.profileImagePath!))
+                            : null,
+                        child: profile?.profileImagePath == null
+                            ? Icon(
+                                Icons.person,
+                                size: 30,
+                                color: Colors.white,
+                              )
+                            : null,
                       ),
                     ),
                   ),
@@ -100,18 +112,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         // Selam
                         Text(
-                          localization.homeGreeting,
+                          profile != null && profile.name.isNotEmpty
+                              ? '${localization.homeGreeting}, ${profile.name}'
+                              : localization.homeGreeting,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.5,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
 
                         SizedBox(height: 4),
 
-                        // Kullanıcı adı
+                        // Alt yazı
                         Text(
                           localization.homeGreetingSubtitle,
                           style: TextStyle(
@@ -124,33 +139,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Dini ikon ile modern etki
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.mosque,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      IconButton(
-                        icon: Icon(Icons.language, color: Colors.white),
-                        tooltip: localization.languageTitle,
-                        onPressed:
-                            () => _openLanguageSheet(languageCubit.state),
-                      ),
-                    ],
+                  // Dil değiştirme butonu
+                  IconButton(
+                    icon: Icon(Icons.language, color: Colors.white, size: 28),
+                    tooltip: localization.languageTitle,
+                    onPressed: () => _openLanguageSheet(languageCubit.state),
                   ),
                 ],
               ),
@@ -164,10 +157,11 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 60,
         style: TabStyle.react,
         backgroundColor: AppColors.primary,
+        initialActiveIndex: 2, // Ana sayfa ortada başlasın
         items: [
-          TabItem(icon: Icons.home, title: localization.tabHome),
           TabItem(icon: Icons.location_city, title: localization.tabCities),
           TabItem(icon: Icons.map, title: localization.tabMyPrayers),
+          TabItem(icon: Icons.home, title: localization.tabHome), // Ortada
           TabItem(icon: Icons.book, title: localization.tabQuran),
           TabItem(icon: Icons.settings, title: localization.tabSettings),
         ],

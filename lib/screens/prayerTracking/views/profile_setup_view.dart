@@ -28,6 +28,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _birthYearController;
+  DateTime? _selectedBirthDate;
   late String _gender;
   late bool _qadaEnabled;
   late bool _notificationsEnabled;
@@ -40,9 +41,9 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
     super.initState();
     final profile = widget.initialProfile;
     _nameController = TextEditingController(text: profile?.name ?? '');
-    _birthYearController = TextEditingController(
-      text: profile?.birthYear.toString() ?? '',
-    );
+    _birthYearController = TextEditingController();
+    _selectedBirthDate = profile?.birthDate;
+    
     _gender = profile?.gender ?? 'unspecified';
     _qadaEnabled = profile?.qadaModeEnabled ?? true;
     _notificationsEnabled = profile?.extraPrayerNotifications ?? false;
@@ -193,24 +194,38 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _birthYearController,
-                      decoration: const InputDecoration(
-                        labelText: 'Doğum Yılı',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Doğum yılını gir';
+                    InkWell(
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedBirthDate ?? DateTime(2000, 1, 1),
+                          firstDate: DateTime(1930),
+                          lastDate: DateTime.now(),
+                          helpText: 'Doğum Tarihinizi Seçin',
+                        );
+                        if (date != null) {
+                          setState(() {
+                            _selectedBirthDate = date;
+                          });
                         }
-                        final year = int.tryParse(value);
-                        final now = DateTime.now().year;
-                        if (year == null || year < 1930 || year > now) {
-                          return 'Geçerli bir yıl yaz';
-                        }
-                        return null;
                       },
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Doğum Tarihi',
+                          border: OutlineInputBorder(),
+                          suffixIcon: Icon(Icons.calendar_today),
+                        ),
+                        child: Text(
+                          _selectedBirthDate != null
+                              ? '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}'
+                              : 'Tarih seçin',
+                          style: TextStyle(
+                            color: _selectedBirthDate != null
+                                ? Colors.black87
+                                : Colors.black54,
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
@@ -333,7 +348,14 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final birthYear = int.parse(_birthYearController.text.trim());
+    
+    if (_selectedBirthDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lütfen doğum tarihinizi seçin')),
+      );
+      return;
+    }
+    
     final profileCubit = context.read<ProfileCubit>();
     final base = widget.initialProfile;
     final extraIds = _selectedExtraPrayers.map((type) => type.id).toList();
@@ -342,7 +364,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         base == null
             ? UserProfile(
               name: _nameController.text.trim(),
-              birthYear: birthYear,
+              birthDate: _selectedBirthDate,
               gender: _gender,
               qadaModeEnabled: _qadaEnabled,
               extraPrayers: extraIds,
@@ -352,7 +374,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
             )
             : base.copyWith(
               name: _nameController.text.trim(),
-              birthYear: birthYear,
+              birthDate: _selectedBirthDate,
               gender: _gender,
               qadaModeEnabled: _qadaEnabled,
               extraPrayers: extraIds,
