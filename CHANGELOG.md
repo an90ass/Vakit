@@ -127,9 +127,24 @@ Bu dosya, Vakit uygulamasında yapılan tüm önemli değişiklikleri içerir.
 - [x] Şehirler sayfası localize
 - [x] Cami sembolü kaldırıldı
 
+#### 7. Gelişmiş Widget (Android)
+- **Dinamik Çember Gösterimi**: Ana sayfadaki çember widget'ta da görünüyor
+- **Renkli Segmentler**: Her namaz vakti için farklı renk
+- **Şu Anki Zaman**: Kırmızı çizgi ve nokta ile gösterim
+- **Localization**: Widget metinleri dile göre (TR/EN/AR)
+- **Otomatik Güncelleme**: Her dakika güncelleniyor
+- **Canvas Çizimi**: Özel çizim ile dinamik görsel
+
+**Widget Özellikleri:**
+- 6 namaz vakti segmenti (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha)
+- Her segment farklı renk (mavi, yeşil, sarı, turuncu, kahverengi, lacivert)
+- Şu anki zaman kırmızı çizgi ile gösteriliyor
+- Bir sonraki namaz ve kalan süre
+- Dile göre etiketler
+
 ### 🔄 Gelecek Özellikler
 - [ ] iOS widget desteği
-- [ ] Widget'ta dinamik çember gösterimi
+- [ ] Widget'ta namaz isimlerini çember üzerinde gösterme
 - [ ] Daha fazla dil desteği
 - [ ] Bildirim localization
 

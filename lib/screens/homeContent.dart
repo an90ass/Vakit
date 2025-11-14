@@ -160,6 +160,7 @@ class _HomeContentState extends State<HomeContent>
                   }
                   // Widget'ı güncelle
                   WidgetService.updateWidget(
+                    context,
                     state.prayerTimes,
                     state.nextPrayer,
                     state.timeRemaining,
