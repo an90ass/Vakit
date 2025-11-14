@@ -1,15 +1,21 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:namaz/l10n/generated/app_localizations.dart';
 import 'package:namaz/bloc/prayer/prayer_bloc.dart';
 import 'package:namaz/bloc/prayer/prayer_event.dart';
 import 'package:namaz/bloc/prayer/prayer_state.dart';
+import 'package:namaz/bloc/profile/profile_cubit.dart';
 import 'package:namaz/bloc/location/location_bloc.dart';
 import 'package:namaz/bloc/location/location_state.dart';
+import 'package:namaz/bloc/tracked_locations/tracked_locations_cubit.dart';
+import 'package:namaz/bloc/tracked_locations/tracked_locations_state.dart';
 import 'package:namaz/models/prayer_times_model.dart';
+import 'package:namaz/models/tracked_location.dart';
+import 'package:namaz/screens/locations/cities_dashboard_screen.dart';
+import 'package:namaz/services/widget_service.dart';
 import 'package:namaz/utlis/thems/colors.dart';
 
 class HomeContent extends StatefulWidget {
@@ -17,17 +23,21 @@ class HomeContent extends StatefulWidget {
   _HomeContentState createState() => _HomeContentState();
 }
 
-class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin {
+class _HomeContentState extends State<HomeContent>
+    with TickerProviderStateMixin {
   Timer? _timer;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _showAnimation = false;
+  String? _lastRequestedLocationId;
 
   @override
   void initState() {
     super.initState();
     _setupTimer();
     _setupAnimation();
+    WidgetService.initializeWidget();
+    WidgetService.setupInteractivity();
   }
 
   void _setupTimer() {
@@ -48,13 +58,25 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
       duration: Duration(milliseconds: 1000),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60).abs();
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+    }
+    final seconds = duration.inSeconds.remainder(60).abs();
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _openCitiesDashboard() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const CitiesDashboardScreen()),
+    );
   }
 
   @override
@@ -64,56 +86,253 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
     super.dispose();
   }
 
-
- 
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: BlocBuilder<LocationBloc, LocationState>(
-        builder: (context, locationState) {
-          return BlocConsumer<PrayerBloc, PrayerState>(
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<LocationBloc, LocationState>(
+            listenWhen:
+                (previous, current) =>
+                    current is LocationLoaded || current is LocationError,
             listener: (context, state) {
-              if (state is PrayerLoaded) {
-                // Check if it's prayer time and show animation
-                final remaining = state.timeRemaining;
-                if (remaining.inMinutes == 0 && remaining.inSeconds <= 5) {
-                  _startPrayerTimeAnimation();
-                }
-              }
-            },
-            builder: (context, prayerState) {
-              // Load data if location is available but prayer data is not loaded
-              if (locationState is LocationLoaded && 
-                  prayerState is! PrayerLoaded && 
-                  prayerState is! PrayerLoading) {
-                context.read<PrayerBloc>().add(
-               LoadPrayerData(
-  Position(
-    latitude: locationState.latitude,
-    longitude: locationState.longitude,
-    accuracy: 0.0,
-    altitude: 0.0,
-    heading: 0.0,
-    speed: 0.0,
-    speedAccuracy: 0.0,
-    timestamp: DateTime.now(), altitudeAccuracy: 0, headingAccuracy: 0,
-  ),
-),
-            
-  
+              if (state is LocationLoaded) {
+                final position = Position(
+                  latitude: state.latitude,
+                  longitude: state.longitude,
+                  accuracy: 0,
+                  altitude: 0,
+                  heading: 0,
+                  speed: 0,
+                  speedAccuracy: 0,
+                  timestamp: DateTime.now(),
+                  altitudeAccuracy: 0,
+                  headingAccuracy: 0,
+                );
+                context.read<TrackedLocationsCubit>().syncCurrentLocation(
+                  position,
                 );
               }
-
-              return SafeArea(
-                child: Center(
-                  child: _buildPrayerCircle(prayerState, locationState),
-                ),
-              );
             },
-          );
-        },
+          ),
+          BlocListener<TrackedLocationsCubit, TrackedLocationsState>(
+            listenWhen: (previous, current) {
+              final prevActive = previous.activeLocation;
+              final currActive = current.activeLocation;
+              if (prevActive == null && currActive != null) {
+                return true;
+              }
+              if (prevActive == null || currActive == null) {
+                return false;
+              }
+              final idChanged =
+                  previous.activeLocationId != current.activeLocationId;
+              final coordsChanged =
+                  prevActive.latitude != currActive.latitude ||
+                  prevActive.longitude != currActive.longitude;
+              return idChanged || coordsChanged;
+            },
+            listener: (context, state) {
+              final active = state.activeLocation;
+              if (active != null &&
+                  (_lastRequestedLocationId != active.id ||
+                      state.prayerSummaries[active.id] == null)) {
+                _lastRequestedLocationId = active.id;
+                _loadPrayerDataForLocation(active);
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<TrackedLocationsCubit, TrackedLocationsState>(
+          builder: (context, trackedState) {
+            return BlocConsumer<PrayerBloc, PrayerState>(
+              listener: (context, state) {
+                if (state is PrayerLoaded) {
+                  context.read<ProfileCubit>().scheduleRemindersIfNeeded(
+                    state.prayerTimes,
+                  );
+                  final remaining = state.timeRemaining;
+                  if (remaining.inMinutes == 0 && remaining.inSeconds <= 5) {
+                    _startPrayerTimeAnimation();
+                  }
+                  // Widget'ı güncelle
+                  WidgetService.updateWidget(
+                    state.prayerTimes,
+                    state.nextPrayer,
+                    state.timeRemaining,
+                  );
+                }
+              },
+              builder: (context, prayerState) {
+                return SafeArea(
+                  child: Center(
+                    child: _buildPrayerCircle(
+                      prayerState,
+                      trackedState,
+                      localization,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _loadPrayerDataForLocation(TrackedLocation location) {
+    final position = Position(
+      latitude: location.latitude,
+      longitude: location.longitude,
+      accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
+      timestamp: DateTime.now(),
+      altitudeAccuracy: 0,
+      headingAccuracy: 0,
+    );
+    context.read<PrayerBloc>().add(LoadPrayerData(position));
+  }
+
+  Widget _buildActiveLocationBanner(
+    TrackedLocationsState state,
+    AppLocalizations localization,
+  ) {
+    final active = state.activeLocation;
+    if (state.isLoading && active == null) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: SizedBox(
+          height: 120,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    if (active == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            color: Colors.white.withOpacity(0.04),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                localization.locationsHeader,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                localization.locationsSubhead,
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _openCitiesDashboard,
+                icon: const Icon(Icons.location_city),
+                label: Text(localization.citiesManageButton),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final summary = state.prayerSummaries[active.id];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.border),
+          color: Colors.white.withOpacity(0.04),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        localization.active,
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        active.isAuto
+                            ? localization.currentLocation
+                            : active.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: _openCitiesDashboard,
+                  icon: const Icon(Icons.location_city),
+                  label: Text(localization.tabCities),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: BorderSide(color: AppColors.accent),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (summary != null)
+              Row(
+                children: [
+                  Icon(Icons.timelapse, color: AppColors.accent),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${localization.nextPrayerLabel}: ${summary.nextPrayer}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '${localization.remainingLabel} • ${_formatDuration(summary.timeRemaining)}',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            else
+              const LinearProgressIndicator(minHeight: 6),
+          ],
+        ),
       ),
     );
   }
@@ -143,10 +362,7 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
               ),
               Text(
                 state.hijriDate.turkish,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -157,77 +373,52 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
     return SizedBox(height: 80);
   }
 
-  Widget _buildPrayerCircle(PrayerState prayerState, LocationState locationState) {
-    if (locationState is LocationLoading) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Konum alınıyor...',
-            style: TextStyle(color: AppColors.textPrimary),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      );
-    } else if (locationState is LocationError) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.location_off,
-            size: 64,
-            color: Colors.red,
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Konum Hatası: ${locationState.message}',
-            style: TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      );
-    } else if (prayerState is PrayerLoading) {
+  Widget _buildPrayerCircle(
+    PrayerState prayerState,
+    TrackedLocationsState trackedState,
+    AppLocalizations localization,
+  ) {
+    if (prayerState is PrayerLoading) {
       return CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
       );
-    } else if (prayerState is PrayerLoaded) {
+    }
+
+    if (prayerState is PrayerLoaded) {
       return PrayerCircle(prayerTimes: prayerState.prayerTimes);
-    } else if (prayerState is PrayerError) {
+    }
+
+    if (prayerState is PrayerError) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red,
-          ),
-          SizedBox(height: 16),
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          const SizedBox(height: 16),
           Text(
-            'Hata: ${prayerState.message}',
-            style: TextStyle(color: Colors.red),
+            '${localization.genericError}: ${prayerState.message}',
+            style: const TextStyle(color: Colors.red),
             textAlign: TextAlign.center,
           ),
         ],
       );
     }
-    return SizedBox.shrink();
+
+    return CircularProgressIndicator(
+      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+    );
   }
 
   Widget _buildNextPrayerWidget(PrayerState state) {
-    
     if (state is PrayerLoaded && state.nextPrayer.isNotEmpty) {
+      final localization = AppLocalizations.of(context)!;
       final timeRemaining = state.timeRemaining;
       final hours = timeRemaining.inHours.toString().padLeft(2, '0');
       final minutes = (timeRemaining.inMinutes % 60).toString().padLeft(2, '0');
       final seconds = (timeRemaining.inSeconds % 60).toString().padLeft(2, '0');
-      
+
       final formattedTime = '$hours:$minutes:$seconds';
       final arabicTime = _toArabicNumerals(formattedTime);
-      
+
       return Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -248,7 +439,7 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
         child: Column(
           children: [
             Text(
-              'Bir sonraki namaz: ${state.nextPrayer}',
+              '${localization.nextPrayerLabel}: ${state.nextPrayer}',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -278,11 +469,8 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
             ),
             SizedBox(height: 5),
             Text(
-              'kaldı',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
+              localization.remainingLabel,
+              style: TextStyle(fontSize: 16, color: Colors.white),
               textAlign: TextAlign.center,
             ),
           ],
@@ -331,7 +519,7 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
       setState(() {
         _showAnimation = true;
       });
-      
+
       _animationController.forward().then((_) {
         Future.delayed(Duration(seconds: 4), () {
           if (mounted) {
@@ -347,8 +535,16 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
 
   String _toArabicNumerals(String input) {
     final arabicNumerals = {
-      '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤',
-      '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩'
+      '0': '٠',
+      '1': '١',
+      '2': '٢',
+      '3': '٣',
+      '4': '٤',
+      '5': '٥',
+      '6': '٦',
+      '7': '٧',
+      '8': '٨',
+      '9': '٩',
     };
 
     String result = input;
@@ -358,6 +554,7 @@ class _HomeContentState extends State<HomeContent> with TickerProviderStateMixin
     return result;
   }
 }
+
 // PrayerCircle widget remains the same
 class PrayerCircle extends StatefulWidget {
   final PrayerTimes? prayerTimes;
@@ -367,8 +564,8 @@ class PrayerCircle extends StatefulWidget {
   _PrayerCircleState createState() => _PrayerCircleState();
 }
 
-class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMixin {
-  
+class _PrayerCircleState extends State<PrayerCircle>
+    with TickerProviderStateMixin {
   final double circleRadius = 175;
   Map<String, bool> boxStates = {};
   final List<String> prayerNames = [
@@ -379,6 +576,30 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
     'Maghrib',
     'Isha',
   ];
+
+  String _getLocalizedPrayerName(String prayerName) {
+    final localization = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+    final isTurkish = locale.languageCode == 'tr';
+    
+    switch (prayerName) {
+      case 'Imsak':
+      case 'Fajr':
+        return isTurkish ? 'İmsak' : 'Fajr';
+      case 'Sunrise':
+        return isTurkish ? 'Güneş' : 'Sunrise';
+      case 'Dhuhr':
+        return isTurkish ? 'Öğle' : 'Dhuhr';
+      case 'Asr':
+        return isTurkish ? 'İkindi' : 'Asr';
+      case 'Maghrib':
+        return isTurkish ? 'Akşam' : 'Maghrib';
+      case 'Isha':
+        return isTurkish ? 'Yatsı' : 'Isha';
+      default:
+        return prayerName;
+    }
+  }
   late final AnimationController _overlayCtr;
   // Gece yarısı Hicrî tarihi yenilemek için timer
   Timer? _midnightTimer;
@@ -389,9 +610,12 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-      print("prayerTimesprayerTimes ${widget.prayerTimes}");
+    print("prayerTimesprayerTimes ${widget.prayerTimes}");
 
-    _overlayCtr = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
+    _overlayCtr = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
   }
 
   @override
@@ -401,7 +625,7 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
     super.dispose();
   }
 
-  List<double> _angles(PrayerTimes prayerTimes) {
+  List<double> _angles(PrayerTimes? prayerTimes) {
     if (prayerTimes == null) {
       return [];
     }
@@ -409,21 +633,32 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
     DateTime _parseToday(String hhmm) {
       final parts = hhmm.split(':');
       final d = DateTime.now();
-      return DateTime(d.year, d.month, d.day, int.parse(parts[0]), int.parse(parts[1]));
+      return DateTime(
+        d.year,
+        d.month,
+        d.day,
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+      );
     }
 
     final dayStart = DateTime(now.year, now.month, now.day);
-    final aksamMins = _parseToday(prayerTimes.timings['Maghrib']!).difference(dayStart).inMinutes;
+    final aksamMins =
+        _parseToday(
+          prayerTimes.timings['Maghrib']!,
+        ).difference(dayStart).inMinutes;
     const total = 24 * 60;
 
     return prayerNames.map((n) {
-      final mins = _parseToday(prayerTimes.timings[n]!).difference(dayStart).inMinutes;
-      final diff = mins >= aksamMins ? mins - aksamMins : total + mins - aksamMins;
+      final mins =
+          _parseToday(prayerTimes.timings[n]!).difference(dayStart).inMinutes;
+      final diff =
+          mins >= aksamMins ? mins - aksamMins : total + mins - aksamMins;
       return (diff / total) * 2 * math.pi; // radians
     }).toList();
   }
 
-  (String, DateTime)? _nextPrayer(PrayerTimes prayerTimes) {
+  (String, DateTime)? _nextPrayer(PrayerTimes? prayerTimes) {
     DateTime now = DateTime.now();
 
     if (prayerTimes == null) return null;
@@ -451,7 +686,13 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
   DateTime _parseToday(String hhmm) {
     final parts = hhmm.split(':');
     final d = DateTime.now();
-    return DateTime(d.year, d.month, d.day, int.parse(parts[0]), int.parse(parts[1]));
+    return DateTime(
+      d.year,
+      d.month,
+      d.day,
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+    );
   }
 
   DateTime _midAcrossDays(DateTime start, DateTime end) {
@@ -461,21 +702,30 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
     return start.add(half);
   }
 
-  Duration _frac(Duration d, double f) => Duration(milliseconds: (d.inMilliseconds * f).round());
+  Duration _frac(Duration d, double f) =>
+      Duration(milliseconds: (d.inMilliseconds * f).round());
 
-  Map<String, double> _computeNafileAngles(PrayerTimes prayerTimes) {
+  Map<String, double> _computeNafileAngles(PrayerTimes? prayerTimes) {
     final res = <String, double>{};
     if (prayerTimes == null) return res;
 
-    final imsakToday = _parseToday(prayerTimes.timings['Fajr']!);   // İmsak [Fajr]
-    final sunrise = _parseToday(prayerTimes.timings['Sunrise']!);   // Güneş [Sunrise]
-    final dhuhr = _parseToday(prayerTimes.timings['Dhuhr']!);    // Öğle [Dhuhr]
-    final asr = _parseToday(prayerTimes.timings['Asr']!);  // İkindi [Asr]
-    final maghrib = _parseToday(prayerTimes.timings['Maghrib']!);   // Akşam [Maghrib]
-    final isha = _parseToday(prayerTimes.timings['Isha']!);   // Yatsı [Isha]
+    final imsakToday = _parseToday(
+      prayerTimes.timings['Fajr']!,
+    ); // İmsak [Fajr]
+    final sunrise = _parseToday(
+      prayerTimes.timings['Sunrise']!,
+    ); // Güneş [Sunrise]
+    final dhuhr = _parseToday(prayerTimes.timings['Dhuhr']!); // Öğle [Dhuhr]
+    final asr = _parseToday(prayerTimes.timings['Asr']!); // İkindi [Asr]
+    final maghrib = _parseToday(
+      prayerTimes.timings['Maghrib']!,
+    ); // Akşam [Maghrib]
+    final isha = _parseToday(prayerTimes.timings['Isha']!); // Yatsı [Isha]
 
     final imsakNext = imsakToday.add(const Duration(days: 1));
-    final nightLen = imsakNext.difference(isha.isAfter(maghrib) ? isha : isha); // isha bugün
+    final nightLen = imsakNext.difference(
+      isha.isAfter(maghrib) ? isha : isha,
+    ); // isha bugün
 
     DateTime midDuha() {
       final start = sunrise.add(const Duration(minutes: 45));
@@ -516,12 +766,18 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
 
     DateTime pickMid(String name) {
       switch (name) {
-        case 'Duha (Kuşluk)': return midDuha();
-        case 'Teheccüd': return midTeheccud();
-        case 'Evvabin': return midEvvabin();
-        case 'İstihare': return midIstihare();
-        case 'Hacet': return midHacet();
-        case 'Tesbih': return midTesbih();
+        case 'Duha (Kuşluk)':
+          return midDuha();
+        case 'Teheccüd':
+          return midTeheccud();
+        case 'Evvabin':
+          return midEvvabin();
+        case 'İstihare':
+          return midIstihare();
+        case 'Hacet':
+          return midHacet();
+        case 'Tesbih':
+          return midTesbih();
       }
       // bilmezse öğle ortası
       return _midAcrossDays(dhuhr, asr);
@@ -530,7 +786,7 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
     return res;
   }
 
-  double _angleFromAksam(PrayerTimes prayerTimes, DateTime t) {
+  double _angleFromAksam(PrayerTimes? prayerTimes, DateTime t) {
     if (prayerTimes == null) return 0;
     final aksam = _parseToday(prayerTimes.timings['Maghrib']!);
     const dayMin = 24 * 60;
@@ -539,19 +795,22 @@ class _PrayerCircleState extends State<PrayerCircle> with TickerProviderStateMix
     return (diff / dayMin) * 2 * math.pi; // radians
   }
 
-double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMin) {
-  if (prayerTimes == null) return 0;
+  double _timeAngleWithOffset(
+    PrayerTimes? prayerTimes,
+    String prayer,
+    int offsetMin,
+  ) {
+    if (prayerTimes == null) return 0;
 
-  final timingStr = prayerTimes.timings[prayer];
-  if (timingStr == null) {
-    return 0;
+    final timingStr = prayerTimes.timings[prayer];
+    if (timingStr == null) {
+      return 0;
+    }
+
+    final base = _parseToday(timingStr);
+    final withOffset = base.add(Duration(minutes: offsetMin));
+    return _angleFromAksam(prayerTimes, withOffset);
   }
-
-  final base = _parseToday(timingStr);
-  final withOffset = base.add(Duration(minutes: offsetMin));
-  return _angleFromAksam(prayerTimes, withOffset);
-}
-
 
   String _fmt(Duration d) {
     final hours = d.inHours.remainder(24).toString().padLeft(2, '0');
@@ -560,20 +819,21 @@ double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMi
     return '$hours:$minutes:$seconds';
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
-     DateTime now = DateTime.now();
-    if(widget.prayerTimes ==null){
-      return Text("widget.prayerTimes!,");
+    DateTime now = DateTime.now();
+    if (widget.prayerTimes == null) {
+      return const SizedBox.shrink();
     }
 
-    final farzAngles = _angles(widget.prayerTimes!);
-    final next = _nextPrayer(widget.prayerTimes!);
-    final nafileAngles = _computeNafileAngles(widget.prayerTimes!);
+    final farzAngles = _angles(widget.prayerTimes);
+    final next = _nextPrayer(widget.prayerTimes);
+    final nafileAngles = _computeNafileAngles(widget.prayerTimes);
 
     // Ekran boyutuna göre dinamik çember
     final size = MediaQuery.of(context).size;
-    final diameter = math.min(size.width, size.height) * 0.86; // biraz daha büyük yap
+    final diameter =
+        math.min(size.width, size.height) * 0.86; // biraz daha büyük yap
     final circleRadius = diameter / 2;
     final innerRadius = circleRadius * 0.95;
 
@@ -640,12 +900,24 @@ double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMi
                   painter: PrayerCirclePainter(
                     angles: farzAngles,
                     prayerNames: prayerNames,
-                    nowAngle: _angleFromAksam(widget.prayerTimes!,now),
+                    nowAngle: _angleFromAksam(widget.prayerTimes, now),
                     kerahatMarkers: [
-   (_timeAngleWithOffset(widget.prayerTimes!, 'Sunrise', 45), 'Kerahat'),
-(_timeAngleWithOffset(widget.prayerTimes!, 'Dhuhr', -45), 'Kerahat'),
-(_timeAngleWithOffset(widget.prayerTimes!, 'Maghrib', -45), 'Kerahat'),
-
+                      (
+                        _timeAngleWithOffset(widget.prayerTimes, 'Sunrise', 45),
+                        'Kerahat',
+                      ),
+                      (
+                        _timeAngleWithOffset(widget.prayerTimes, 'Dhuhr', -45),
+                        'Kerahat',
+                      ),
+                      (
+                        _timeAngleWithOffset(
+                          widget.prayerTimes,
+                          'Maghrib',
+                          -45,
+                        ),
+                        'Kerahat',
+                      ),
                     ],
                     circleRadius: circleRadius,
                   ),
@@ -659,36 +931,58 @@ double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMi
                   children: [
                     const Text(
                       'Bir sonraki namaz',
-                      style: TextStyle(fontSize: 16, color: Colors.black54, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       next.$1,
-                      style: const TextStyle(fontSize: 22, color: Colors.black87, fontWeight: FontWeight.w800),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    Builder(builder: (_) {
-                      final d = next.$2.difference(now);
-                      final dur = d.isNegative ? const Duration() : d;
-                      final hhmmss = _fmt(dur);
-                      return Column(
-                        children: [
-                          Text(
-                            hhmmss,
-                            style: const TextStyle(fontSize: 34, color: Colors.black87, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "",
-                            style: const TextStyle(fontSize: 42, color: Colors.black87, fontFamily: 'Arial'),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'kaldı',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black54),
-                          ),
-                        ],
-                      );
-                    })
+                    Builder(
+                      builder: (_) {
+                        final d = next.$2.difference(now);
+                        final dur = d.isNegative ? const Duration() : d;
+                        final hhmmss = _fmt(dur);
+                        return Column(
+                          children: [
+                            Text(
+                              hhmmss,
+                              style: const TextStyle(
+                                fontSize: 34,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "",
+                              style: const TextStyle(
+                                fontSize: 42,
+                                color: Colors.black87,
+                                fontFamily: 'Arial',
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'kaldı',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ),
 
@@ -699,7 +993,10 @@ double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMi
                   final y = innerRadius * math.sin(farzAngles[i] - math.pi / 2);
                   return Transform.translate(
                     offset: Offset(x, y),
-                    child: _PrayerBox(label: prayerNames[i]),
+                    child: _PrayerBox(
+                      label: prayerNames[i],
+                      displayLabel: _getLocalizedPrayerName(prayerNames[i]),
+                    ),
                   );
                 }),
 
@@ -721,7 +1018,7 @@ double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMi
                 animation: _overlayCtr,
                 builder: (context, _) {
                   if (_overlayCtr.value == 0) return const SizedBox.shrink();
-                  final scale = 1 + 0.2*_overlayCtr.value;
+                  final scale = 1 + 0.2 * _overlayCtr.value;
                   return Opacity(
                     opacity: _overlayCtr.value,
                     child: Transform.scale(
@@ -731,8 +1028,14 @@ double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMi
                         height: double.infinity,
                         color: Colors.black54,
                         alignment: Alignment.center,
-                        child: Text('${_nextPrayer(widget.prayerTimes!)?.$1} vakti!',
-                          style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          '${_nextPrayer(widget.prayerTimes)?.$1} vakti!',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -744,13 +1047,6 @@ double _timeAngleWithOffset(PrayerTimes prayerTimes, String prayer, int offsetMi
       ),
     );
   }
-
- 
-
-
-
-
-
 }
 
 class PrayerCirclePainter extends CustomPainter {
@@ -771,12 +1067,54 @@ class PrayerCirclePainter extends CustomPainter {
   // RN'deki gradient paletleri birebir
   List<Color> _gradientFor(String name) {
     switch (name) {
-      case 'Isha': return const [Color(0xFF3E2723), Color(0xFF5C4033), Color(0xFF654321), Color(0xFF8B4513), Color(0xFFA0522D)];
-      case 'Imsak': return const [Color(0xFF85929E), Color(0xFF5D6D7E), Color(0xFF2C3E50), Color(0xFF34495E), Color(0xFF1F2A37)];
-      case 'Sunrise': return const [Color(0xFFF6DDCC), Color(0xFFFDEBD0), Color(0xFFF9E79F), Color(0xFFF4D03F), Color(0xFFF0E68C)];
-      case 'Dhuhr': return const [Color(0xFF98d038), Color(0xFFb4f544), Color(0xFFb4f544), Color(0xFFBDB76B), Color(0xFFFFD700)];
-      case 'Asr': return const [Color(0xFFFFC0CB), Color(0xFFFF7C41), Color(0xFFFC7E4B), Color(0xFFF76328), Color(0xFFF6510F)];
-      case 'Maghrib': return const [Color(0xFFFFDAB9), Color(0xFFF4A460), Color(0xFFD2691E), Color(0xFFA0522D), Color(0xFF654321)];
+      case 'Isha':
+        return const [
+          Color(0xFF3E2723),
+          Color(0xFF5C4033),
+          Color(0xFF654321),
+          Color(0xFF8B4513),
+          Color(0xFFA0522D),
+        ];
+      case 'Imsak':
+        return const [
+          Color(0xFF85929E),
+          Color(0xFF5D6D7E),
+          Color(0xFF2C3E50),
+          Color(0xFF34495E),
+          Color(0xFF1F2A37),
+        ];
+      case 'Sunrise':
+        return const [
+          Color(0xFFF6DDCC),
+          Color(0xFFFDEBD0),
+          Color(0xFFF9E79F),
+          Color(0xFFF4D03F),
+          Color(0xFFF0E68C),
+        ];
+      case 'Dhuhr':
+        return const [
+          Color(0xFF98d038),
+          Color(0xFFb4f544),
+          Color(0xFFb4f544),
+          Color(0xFFBDB76B),
+          Color(0xFFFFD700),
+        ];
+      case 'Asr':
+        return const [
+          Color(0xFFFFC0CB),
+          Color(0xFFFF7C41),
+          Color(0xFFFC7E4B),
+          Color(0xFFF76328),
+          Color(0xFFF6510F),
+        ];
+      case 'Maghrib':
+        return const [
+          Color(0xFFFFDAB9),
+          Color(0xFFF4A460),
+          Color(0xFFD2691E),
+          Color(0xFFA0522D),
+          Color(0xFF654321),
+        ];
     }
     return const [Colors.black, Colors.white];
   }
@@ -798,13 +1136,17 @@ class PrayerCirclePainter extends CustomPainter {
       final sweep = _sweep(start, end);
       final rect = Rect.fromCircle(center: center, radius: innerRadius);
       final colors = _gradientFor(prayerNames[i]);
-      final p = Paint()
-        ..shader = RadialGradient(
-          colors: colors,
-          stops: List.generate(colors.length, (j) => j / (colors.length - 1)),
-          center: Alignment.center,
-          radius: 1.0,
-        ).createShader(rect);
+      final p =
+          Paint()
+            ..shader = RadialGradient(
+              colors: colors,
+              stops: List.generate(
+                colors.length,
+                (j) => j / (colors.length - 1),
+              ),
+              center: Alignment.center,
+              radius: 1.0,
+            ).createShader(rect);
 
       final path = Path()..moveTo(center.dx, center.dy);
       path.arcTo(rect, start - math.pi / 2, sweep, false);
@@ -815,9 +1157,10 @@ class PrayerCirclePainter extends CustomPainter {
     // Şu anki zaman: kırmızı çizgi + bilye
     final x = center.dx + innerRadius * math.cos(nowAngle - math.pi / 2);
     final y = center.dy + innerRadius * math.sin(nowAngle - math.pi / 2);
-    final p2 = Paint()
-      ..color = Colors.red
-      ..strokeWidth = 2;
+    final p2 =
+        Paint()
+          ..color = Colors.red
+          ..strokeWidth = 2;
     canvas.drawLine(center, Offset(x, y), p2);
     canvas.drawCircle(Offset(x, y), 9, Paint()..color = Colors.red);
 
@@ -827,13 +1170,20 @@ class PrayerCirclePainter extends CustomPainter {
       final my = center.dy + innerRadius * math.sin(ang - math.pi / 2);
       canvas.drawCircle(Offset(mx, my), 10, Paint()..color = Colors.black);
       final tp = TextPainter(
-        text: TextSpan(text: label, style: const TextStyle(color: Colors.white, fontSize: 10)),
+        text: TextSpan(
+          text: label,
+          style: const TextStyle(color: Colors.white, fontSize: 10),
+        ),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(canvas, Offset(mx - tp.width / 2, my - tp.height / 2));
-      canvas.drawLine(center, Offset(mx, my), Paint()
-        ..color = Colors.black
-        ..strokeWidth = 2);
+      canvas.drawLine(
+        center,
+        Offset(mx, my),
+        Paint()
+          ..color = Colors.black
+          ..strokeWidth = 2,
+      );
     }
   }
 
@@ -845,12 +1195,16 @@ class PrayerCirclePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant PrayerCirclePainter old) =>
-      old.angles != angles || old.nowAngle != nowAngle || old.prayerNames != prayerNames || old.circleRadius != circleRadius;
+      old.angles != angles ||
+      old.nowAngle != nowAngle ||
+      old.prayerNames != prayerNames ||
+      old.circleRadius != circleRadius;
 }
 
 class _PrayerBox extends StatefulWidget {
   final String label;
-  const _PrayerBox({required this.label});
+  final String? displayLabel;
+  const _PrayerBox({required this.label, this.displayLabel});
 
   @override
   State<_PrayerBox> createState() => _PrayerBoxState();
@@ -871,7 +1225,18 @@ class _PrayerBoxState extends State<_PrayerBox> {
           borderRadius: BorderRadius.circular(expanded ? 10 : 15),
         ),
         alignment: Alignment.center,
-        child: expanded ? Text(widget.label, style: const TextStyle(fontWeight: FontWeight.bold)) : null,
+        child:
+            expanded
+                ? Text(
+                  widget.displayLabel ?? widget.label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                    color: Colors.white,
+                  ),
+                )
+                : null,
       ),
     );
   }
@@ -879,12 +1244,18 @@ class _PrayerBoxState extends State<_PrayerBox> {
   // RN kutucuk renkleri birebir
   Color _boxColorFor(String name) {
     switch (name) {
-      case 'Maghrib': return const Color(0xFF6F4C3E);
-      case 'Isha': return const Color(0xFF295e9c);
-      case 'Imsak': return const Color(0xFFA3C1DA);
-      case 'Sunrise': return const Color(0xFF9CB86B);
-      case 'Dhuhr': return const Color(0xFFFFD700);
-      case 'Asr': return const Color(0xFFFFA07A);
+      case 'Maghrib':
+        return const Color(0xFF6F4C3E);
+      case 'Isha':
+        return const Color(0xFF295e9c);
+      case 'Imsak':
+        return const Color(0xFFA3C1DA);
+      case 'Sunrise':
+        return const Color(0xFF9CB86B);
+      case 'Dhuhr':
+        return const Color(0xFFFFD700);
+      case 'Asr':
+        return const Color(0xFFFFA07A);
     }
     return Colors.grey;
   }

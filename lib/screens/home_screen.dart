@@ -1,13 +1,14 @@
-import 'dart:convert';
-
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:namaz/screens/homeContent.dart';
+import 'package:namaz/l10n/generated/app_localizations.dart';
+import 'package:namaz/screens/locations/cities_dashboard_screen.dart';
 import 'package:namaz/screens/prayerTracking/views/prayer_tracking_screen.dart';
-import 'package:namaz/screens/quran/views/quranScreen.dart';
 import 'package:namaz/screens/quran/views/quran_sura_page.dart';
+import 'package:namaz/screens/settings_screen.dart';
 import 'package:namaz/utlis/thems/colors.dart';
+import 'package:namaz/bloc/app_language/app_language_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,23 +18,31 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-   final List<Widget> _pages = [
-    HomeContent(),
-    PrayerTrackingScreen(),
-    QuranPage(),
-    Center(child: Text("Profil", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-  ];
-    int _selectedIndex = 0;
+  late final List<Widget> _pages;
+  int _selectedIndex = 0;
 
-   void _onItemTapped(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomeContent(),
+      const CitiesDashboardScreen(),
+      const PrayerTrackingScreen(),
+      const QuranPage(),
+      const SettingsScreen(),
+    ];
+  }
+
+  void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
+    final languageCubit = context.watch<AppLanguageCubit>();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100), // AppBar yüksekliğini artır
@@ -42,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           flexibleSpace: Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        
+
             child: SafeArea(
               child: Row(
                 children: [
@@ -51,7 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [AppColors.accent, AppColors.accent.withOpacity(0.7)],
+                        colors: [
+                          AppColors.accent,
+                          AppColors.accent.withOpacity(0.7),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -77,9 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  
+
                   SizedBox(width: 16),
-                  
+
                   // Kullanıcı bilgileri
                   Expanded(
                     child: Column(
@@ -88,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         // Selam
                         Text(
-                          'Hoş Geldin..',
+                          localization.homeGreeting,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -96,39 +108,49 @@ class _HomeScreenState extends State<HomeScreen> {
                             letterSpacing: 0.5,
                           ),
                         ),
-                        
+
                         SizedBox(height: 4),
-                        
+
                         // Kullanıcı adı
                         Text(
-                          'Anas almaqtarı',
-                           style: TextStyle(
+                          localization.homeGreetingSubtitle,
+                          style: TextStyle(
                             color: Colors.white.withOpacity(0.8),
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
-                         
                         ),
                       ],
                     ),
                   ),
-                  
+
                   // Dini ikon ile modern etki
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1,
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.mosque,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
-                    ),
-                    child: Icon(
-                      Icons.mosque,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                      SizedBox(width: 12),
+                      IconButton(
+                        icon: Icon(Icons.language, color: Colors.white),
+                        tooltip: localization.languageTitle,
+                        onPressed:
+                            () => _openLanguageSheet(languageCubit.state),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -136,21 +158,80 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-     body: _pages[_selectedIndex],
+      body: _pages[_selectedIndex],
 
- bottomNavigationBar:ConvexAppBar(
-  height: 60, 
-  style: TabStyle.react,
-  backgroundColor: AppColors.primary,
-  items: [
-    TabItem(icon: Icons.home, title: 'Ana Sayfa'),
-    TabItem(icon: Icons.map, title: 'Namazlarım'),
-    TabItem(icon: Icons.add, title: 'Kuran'),
-    TabItem(icon: Icons.people, title: 'Ayarlar'),
-  ],
-  onTap: _onItemTapped,
-)
-
+      bottomNavigationBar: ConvexAppBar(
+        height: 60,
+        style: TabStyle.react,
+        backgroundColor: AppColors.primary,
+        items: [
+          TabItem(icon: Icons.home, title: localization.tabHome),
+          TabItem(icon: Icons.location_city, title: localization.tabCities),
+          TabItem(icon: Icons.map, title: localization.tabMyPrayers),
+          TabItem(icon: Icons.book, title: localization.tabQuran),
+          TabItem(icon: Icons.settings, title: localization.tabSettings),
+        ],
+        onTap: _onItemTapped,
+      ),
     );
   }
+
+  void _openLanguageSheet(Locale currentLocale) {
+    final localization = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        final options = [
+          _LanguageOption(localization.languageTurkish, const Locale('tr')),
+          _LanguageOption(localization.languageEnglish, const Locale('en')),
+          _LanguageOption(localization.languageArabic, const Locale('ar')),
+        ];
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localization.languageTitle,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  localization.languageSubtitle,
+                  style: TextStyle(color: Colors.black54),
+                ),
+                SizedBox(height: 16),
+                ...options.map(
+                  (option) => RadioListTile<Locale>(
+                    title: Text(option.label),
+                    value: option.locale,
+                    groupValue: currentLocale,
+                    onChanged: (value) {
+                      if (value == null) return;
+                      context.read<AppLanguageCubit>().updateLocale(value);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        SnackBar(content: Text(localization.languageChanged)),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _LanguageOption {
+  const _LanguageOption(this.label, this.locale);
+  final String label;
+  final Locale locale;
 }

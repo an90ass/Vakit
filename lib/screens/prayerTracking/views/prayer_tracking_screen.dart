@@ -1,9 +1,27 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:namaz/bloc/myPrayers/my_prayers_bloc.dart';
 import 'package:namaz/bloc/myPrayers/my_prayers_event.dart';
 import 'package:namaz/bloc/myPrayers/my_prayers_state.dart';
+import 'package:namaz/bloc/profile/profile_cubit.dart';
+import 'package:namaz/bloc/profile/profile_state.dart';
 import 'package:namaz/models/Prayer.dart';
+import 'package:namaz/models/extra_prayer_type.dart';
+import 'package:namaz/models/qada_record.dart';
+import 'package:namaz/models/user_profile.dart';
+import 'package:namaz/repositories/extra_prayer_repository.dart';
+import 'package:namaz/repositories/qada_repository.dart';
+import 'package:namaz/screens/prayerTracking/views/profile_setup_view.dart';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../utlis/thems/colors.dart';
 
@@ -14,65 +32,463 @@ class PrayerTrackingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final todayKey = DateTime.now().toIso8601String().substring(0, 10);
 
-    return BlocProvider(
-      create: (_) => MyPrayersBloc()..add(LoadMyPrayers(todayKey)),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-         body: BlocListener<MyPrayersBloc, MyPrayersState>(
-          listener: (context, state) {
-            if (state is MyPrayersError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.white),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Failed to load prayers: ${state.message}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: const Color(0xFFDC2626),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  margin: const EdgeInsets.all(16),
-                ),
-              );
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        child: BlocBuilder<ProfileCubit, ProfileState>(
+          builder: (context, state) {
+            if (state.status == ProfileStatus.needsSetup) {
+              return const ProfileSetupView();
             }
+
+            if (state.status == ProfileStatus.error && state.profile == null) {
+              return _ProfileErrorView(message: state.errorMessage);
+            }
+
+            final profile = state.profile;
+            if (profile == null) {
+              return const _CenteredLoading();
+            }
+
+            final showSavingBanner = state.status == ProfileStatus.saving;
+            return _TrackedPrayersView(
+              profile: profile,
+              todayKey: todayKey,
+              showSavingBanner: showSavingBanner,
+            );
           },
-          child: BlocBuilder<MyPrayersBloc, MyPrayersState>(
-            builder: (context, state) {
-                print('Current state: $state');
-
-              if (state is MyPrayersLoading ||state is MyPrayersInitial ) {
-                return _buildLoadingWidget();
-              } else if (state is MyPrayersLoaded) {
-                final prayerDay = state.prayerDay;
-                final prayers = [
-                  Prayer(name: 'Fajr', time: prayerDay.fajr, done: prayerDay.fajrStatus),
-                  Prayer(name: 'Dhuhr', time: prayerDay.dhuhr, done: prayerDay.dhuhrStatus),
-                  Prayer(name: 'Asr', time: prayerDay.asr, done: prayerDay.asrStatus),
-                  Prayer(name: 'Maghrib', time: prayerDay.maghrib, done: prayerDay.maghribStatus),
-                  Prayer(name: 'Isha', time: prayerDay.isha, done: prayerDay.ishaStatus),
-                ];
-
-                return _buildMainContent(context, prayers, todayKey);
-              } else {
-                return _buildEmptyState();
-              }
-            },
-          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildLoadingWidget() {
+class _TrackedPrayersView extends StatelessWidget {
+  const _TrackedPrayersView({
+    required this.profile,
+    required this.todayKey,
+    this.showSavingBanner = false,
+  });
+
+  final UserProfile profile;
+  final String todayKey;
+  final bool showSavingBanner;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => MyPrayersBloc()..add(LoadMyPrayers(todayKey)),
+      child: Stack(
+        children: [
+          BlocListener<MyPrayersBloc, MyPrayersState>(
+            listener: (context, state) {
+              if (state is MyPrayersError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Failed to load prayers: ${state.message}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: const Color(0xFFDC2626),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    margin: const EdgeInsets.all(16),
+                  ),
+                );
+              }
+            },
+            child: BlocBuilder<MyPrayersBloc, MyPrayersState>(
+              builder: (context, state) {
+                if (state is MyPrayersLoading || state is MyPrayersInitial) {
+                  return const _CenteredLoading();
+                }
+                if (state is MyPrayersLoaded) {
+                  final prayerDay = state.prayerDay;
+                  final prayers = [
+                    Prayer(
+                      name: 'Fajr',
+                      time: prayerDay.fajr,
+                      done: prayerDay.fajrStatus,
+                    ),
+                    Prayer(
+                      name: 'Dhuhr',
+                      time: prayerDay.dhuhr,
+                      done: prayerDay.dhuhrStatus,
+                    ),
+                    Prayer(
+                      name: 'Asr',
+                      time: prayerDay.asr,
+                      done: prayerDay.asrStatus,
+                    ),
+                    Prayer(
+                      name: 'Maghrib',
+                      time: prayerDay.maghrib,
+                      done: prayerDay.maghribStatus,
+                    ),
+                    Prayer(
+                      name: 'Isha',
+                      time: prayerDay.isha,
+                      done: prayerDay.ishaStatus,
+                    ),
+                  ];
+                  return _buildMainContent(context, prayers, todayKey, profile);
+                }
+                return _buildEmptyState();
+              },
+            ),
+          ),
+          if (showSavingBanner) const _SavingOverlay(),
+        ],
+      ),
+    );
+  }
+}
+
+int _getCurrentPrayerIndex(List<Prayer> prayers) {
+  final now = DateTime.now();
+  final currentTime = now.hour * 60 + now.minute;
+
+  for (int i = 0; i < prayers.length; i++) {
+    final timeParts = prayers[i].time.split(':');
+    final prayerTime = int.parse(timeParts[0]) * 60 + int.parse(timeParts[1]);
+    
+    if (currentTime < prayerTime) {
+      // Eğer henüz ilk namaz vaktine gelmediyse, hiçbir namaz işaretlenemez
+      return i > 0 ? i - 1 : -1;
+    }
+  }
+  // Gün sonunda tüm namazlar işaretlenebilir
+  return prayers.length - 1;
+}
+
+Widget _buildMainContent(
+  BuildContext context,
+  List<Prayer> prayers,
+  String todayKey,
+  UserProfile profile,
+) {
+  final completedPrayers = prayers.where((p) => p.done == true).length;
+  final progress = completedPrayers / prayers.length;
+  final currentPrayerIndex = _getCurrentPrayerIndex(prayers);
+
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ProfileHeaderCard(profile: profile),
+        const SizedBox(height: 16),
+        _buildProgressCard(completedPrayers, prayers.length, progress),
+        const SizedBox(height: 16),
+        _buildDateHeader(todayKey),
+        const SizedBox(height: 12),
+        Text(
+          'Daily Prayers',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black.withOpacity(0.6),
+          ),
+        ),
+        const SizedBox(height: 12),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: prayers.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final prayer = prayers[index];
+            // Sadece mevcut vakit ve önceki vakitler işaretlenebilir
+            final canMark = currentPrayerIndex >= 0 && index <= currentPrayerIndex;
+            return PrayerItem(
+              key: ValueKey(prayer.name),
+              prayer: prayer,
+              canMark: canMark,
+              onStatusChanged: (bool status) {
+                _showUpdateFeedback(context, prayer.name, status);
+                context.read<MyPrayersBloc>().add(
+                  UpdatePrayerStatus(
+                    dateKey: todayKey,
+                    prayerName: prayer.name,
+                    status: status,
+                  ),
+                );
+                if (profile.qadaModeEnabled) {
+                  final qadaRepository = context.read<QadaRepository>();
+                  if (status) {
+                    qadaRepository.resolvePrayer(
+                      dateKey: todayKey,
+                      prayerName: prayer.name,
+                    );
+                  } else {
+                    qadaRepository.recordMissedPrayer(
+                      dateKey: todayKey,
+                      prayerName: prayer.name,
+                    );
+                  }
+                }
+              },
+            );
+          },
+        ),
+        if (profile.extraPrayers.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          _ExtraPrayerChecklist(profile: profile, dateKey: todayKey),
+        ],
+        if (profile.qadaModeEnabled) ...[
+          const SizedBox(height: 24),
+          const _QadaSummaryCard(),
+        ],
+        const SizedBox(height: 24),
+      ],
+    ),
+  );
+}
+
+Widget _buildProgressCard(int completed, int total, double progress) {
+  return Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [AppColors.primaryLight, AppColors.primary],
+        begin: Alignment.bottomRight,
+        end: Alignment.topLeft,
+      ),
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.primary.withOpacity(0.15),
+          blurRadius: 20,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Today\'s Progress',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Keep up the good work!',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '$completed/$total',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Container(
+          height: 8,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: progress,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${(progress * 100).toInt()}% Complete',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildDateHeader(String todayKey) {
+  final date = DateTime.parse(todayKey);
+  final months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  final formattedDate = '${months[date.month - 1]} ${date.day}, ${date.year}';
+
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.1),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            Icons.calendar_today_rounded,
+            color: AppColors.primary,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Today\'s Date',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              formattedDate,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1F2937),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildEmptyState() {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: const Icon(
+            Icons.mosque_outlined,
+            size: 48,
+            color: Colors.grey,
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'No Prayer Data Available',
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.grey,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Please try refreshing the app',
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showUpdateFeedback(BuildContext context, String prayerName, bool status) {
+  final message =
+      status
+          ? '$prayerName prayer marked as completed'
+          : '$prayerName prayer marked as missed';
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(
+            status ? Icons.check_circle_outline : Icons.info_outline,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(message, style: const TextStyle(fontSize: 16))),
+        ],
+      ),
+      backgroundColor:
+          status ? const Color(0xFF059669) : const Color(0xFFF59E0B),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      duration: const Duration(seconds: 2),
+      margin: const EdgeInsets.all(16),
+    ),
+  );
+}
+
+class _CenteredLoading extends StatelessWidget {
+  const _CenteredLoading();
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -108,297 +524,75 @@ class PrayerTrackingScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildMainContent(BuildContext context, List<Prayer> prayers, String todayKey) {
-    final completedPrayers = prayers.where((p) => p.done == true).length;
-    final progress = completedPrayers / prayers.length;
+class _SavingOverlay extends StatelessWidget {
+  const _SavingOverlay();
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildProgressCard(completedPrayers, prayers.length, progress),
-          const SizedBox(height: 16),
-          _buildDateHeader(todayKey),
-          const SizedBox(height: 12),
-           Text(
-            'Daily Prayers',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black.withOpacity(0.6),
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.black26,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
           ),
-          const SizedBox(height: 12),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: prayers.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final prayer = prayers[index];
-              return PrayerItem(
-                key: ValueKey(prayer.name),
-                prayer: prayer,
-                onStatusChanged: (bool status) {
-                  _showUpdateFeedback(context, prayer.name, status);
-                  context.read<MyPrayersBloc>().add(UpdatePrayerStatus(
-                    dateKey: todayKey,
-                    prayerName: prayer.name,
-                    status: status,
-                  ));
-                },
-              );
-            },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              SizedBox(width: 12),
+              Text('Profil güncelleniyor...'),
+            ],
           ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressCard(int completed, int total, double progress) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryLight,
-                        AppColors. primary
-
-          ],
-          begin:Alignment.bottomRight,
-          end: Alignment.topLeft ,
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-       
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Today\'s Progress',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    'Keep up the good work!',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '$completed/$total',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            height: 8,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: progress,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${(progress * 100).toInt()}% Complete',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
+}
 
-  Widget _buildDateHeader(String todayKey) {
-    final date = DateTime.parse(todayKey);
-    final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    final formattedDate = '${months[date.month - 1]} ${date.day}, ${date.year}';
-    
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child:  Icon(
-              Icons.calendar_today_rounded,
-              color: AppColors.primary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Today\'s Date',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                formattedDate,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1F2937),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+class _ProfileErrorView extends StatelessWidget {
+  const _ProfileErrorView({this.message});
 
-  Widget _buildEmptyState() {
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: const Icon(
-              Icons.mosque_outlined,
-              size: 48,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'No Prayer Data Available',
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.grey,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Please try refreshing the app',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+          const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+          const SizedBox(height: 12),
+          Text(message ?? 'Profil yüklenemedi'),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: () => context.read<ProfileCubit>().loadProfile(),
+            child: const Text('Tekrar dene'),
           ),
         ],
       ),
     );
   }
-
-  void _showUpdateFeedback(BuildContext context, String prayerName, bool status) {
-    final message = status 
-        ? '$prayerName prayer marked as completed'
-        : '$prayerName prayer marked as missed';
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              status ? Icons.check_circle_outline : Icons.info_outline,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: status 
-            ? const Color(0xFF059669) 
-            : const Color(0xFFF59E0B),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        duration: const Duration(seconds: 2),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
-  }
-
-
-
 }
 
 class PrayerItem extends StatefulWidget {
   final Prayer prayer;
-  final void Function(bool) onStatusChanged;
+  final ValueChanged<bool> onStatusChanged;
+  final bool canMark;
 
   const PrayerItem({
     super.key,
     required this.prayer,
     required this.onStatusChanged,
+    required this.canMark,
   });
 
   @override
@@ -417,13 +611,9 @@ class _PrayerItemState extends State<PrayerItem>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.98,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -437,7 +627,7 @@ class _PrayerItemState extends State<PrayerItem>
     final statusColor = _getStatusColor();
     final statusIcon = _getStatusIcon();
     final statusText = _getStatusText();
-    
+
     return AnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {
@@ -447,10 +637,7 @@ class _PrayerItemState extends State<PrayerItem>
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: statusColor.withOpacity(0.2),
-                width: 1,
-              ),
+              border: Border.all(color: statusColor.withOpacity(0.2), width: 1),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.08),
@@ -469,11 +656,7 @@ class _PrayerItemState extends State<PrayerItem>
                       color: statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      statusIcon,
-                      color: statusColor,
-                      size: 24,
-                    ),
+                    child: Icon(statusIcon, color: statusColor, size: 24),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -569,30 +752,31 @@ class _PrayerItemState extends State<PrayerItem>
     required bool isSelected,
     required String label,
   }) {
+    final isDisabled = !widget.canMark;
     return Tooltip(
-      message: label,
-      child: GestureDetector(
-        onTapDown: (_) => _animationController.forward(),
-        onTapUp: (_) => _animationController.reverse(),
-        onTapCancel: () => _animationController.reverse(),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: isSelected ? color : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: color,
-              width: 1.5,
+      message: isDisabled ? 'Henüz bu vakit gelmedi' : label,
+      child: Opacity(
+        opacity: isDisabled ? 0.3 : 1.0,
+        child: GestureDetector(
+          onTapDown: isDisabled ? null : (_) => _animationController.forward(),
+          onTapUp: isDisabled ? null : (_) => _animationController.reverse(),
+          onTapCancel: isDisabled ? null : () => _animationController.reverse(),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isSelected ? color : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: color, width: 1.5),
             ),
-          ),
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(10),
-            child: Icon(
-              icon,
-              color: isSelected ? Colors.white : color,
-              size: 20,
+            child: InkWell(
+              onTap: isDisabled ? null : onPressed,
+              borderRadius: BorderRadius.circular(10),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : color,
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -635,5 +819,508 @@ class _PrayerItemState extends State<PrayerItem>
 
   void _handleStatusChange(bool status) {
     widget.onStatusChanged(status);
+  }
+}
+
+class _ProfileHeaderCard extends StatelessWidget {
+  const _ProfileHeaderCard({required this.profile});
+
+  final UserProfile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final qadaStatus =
+        profile.qadaModeEnabled ? 'Kaza takibi açık' : 'Kaza takibi kapalı';
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => _openEdit(context),
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 32,
+                      backgroundColor: AppColors.primary,
+                      backgroundImage:
+                          profile.profileImagePath != null
+                              ? FileImage(File(profile.profileImagePath!))
+                              : null,
+                      child:
+                          profile.profileImagePath == null
+                              ? Text(
+                                profile.name.isEmpty
+                                    ? '?'
+                                    : profile.name
+                                        .substring(0, 1)
+                                        .toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                              : null,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${profile.age} yaş • Hicri: ${profile.hijriAge} yaş',
+                      style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      qadaStatus,
+                      style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              FilledButton.tonalIcon(
+                onPressed: () => _openEdit(context),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Düzenle'),
+              ),
+            ],
+          ),
+          if (profile.extraPrayers.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              children:
+                  profile.extraPrayers
+                      .map(
+                        (id) => Chip(
+                          label: Text(
+                            ExtraPrayerType.values
+                                .firstWhere(
+                                  (type) => type.id == id,
+                                  orElse: () => ExtraPrayerType.duha,
+                                )
+                                .title,
+                          ),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _openEdit(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder:
+          (_) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: ProfileSetupView(initialProfile: profile, isDialog: true),
+          ),
+    );
+  }
+}
+
+class _ExtraPrayerChecklist extends StatefulWidget {
+  const _ExtraPrayerChecklist({required this.profile, required this.dateKey});
+
+  final UserProfile profile;
+  final String dateKey;
+
+  @override
+  State<_ExtraPrayerChecklist> createState() => _ExtraPrayerChecklistState();
+}
+
+class _ExtraPrayerChecklistState extends State<_ExtraPrayerChecklist> {
+  late ExtraPrayerRepository _repository;
+  late Map<String, bool?> _statuses;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = context.read<ExtraPrayerRepository>();
+    _statuses = _repository.loadStatuses(widget.dateKey);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final types =
+        ExtraPrayerType.values
+            .where((type) => widget.profile.extraPrayers.contains(type.id))
+            .toList();
+    if (types.isEmpty) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Nafile Kontrol Listesi',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              Icon(
+                Icons.notifications_active_outlined,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...types.map((type) {
+            final status = _statuses[type.id] ?? false;
+            return CheckboxListTile(
+              value: status,
+              title: Text(type.title),
+              subtitle: Text(type.description),
+              onChanged: (value) async {
+                final resolvedStatus = value ?? false;
+                await _repository.updateStatus(
+                  widget.dateKey,
+                  type.id,
+                  resolvedStatus,
+                );
+                setState(() {
+                  _statuses[type.id] = resolvedStatus;
+                });
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _QadaSummaryCard extends StatefulWidget {
+  const _QadaSummaryCard();
+
+  @override
+  State<_QadaSummaryCard> createState() => _QadaSummaryCardState();
+}
+
+class _QadaSummaryCardState extends State<_QadaSummaryCard> {
+  final GlobalKey _exportKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    final repository = context.read<QadaRepository>();
+    final box = Hive.box(QadaRepository.boxName);
+    return ValueListenableBuilder(
+      valueListenable: box.listenable(),
+      builder: (_, __, ___) {
+        final pending = repository.pendingRecords();
+        final count = pending.length;
+        return RepaintBoundary(
+          key: _exportKey,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.primary, AppColors.primaryLight],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Kaza Takibi',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  count == 0
+                      ? 'Harika! Bekleyen kaza namazın yok.'
+                      : '$count vakit bekliyor. Tamamladıkça işaretle.',
+                  style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '$count',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.white54),
+                          ),
+                          onPressed: () => _openDetails(context, pending),
+                          icon: const Icon(Icons.table_chart_outlined),
+                          label: const Text('Tablo'),
+                        ),
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.primary,
+                          ),
+                          onPressed:
+                              count == 0 ? null : () => _exportWidget(context),
+                          icon: const Icon(Icons.ios_share),
+                          label: const Text('Widget'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _exportWidget(BuildContext context) async {
+    try {
+      final boundary =
+          _exportKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final image = await boundary.toImage(pixelRatio: 3);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+      final bytes = byteData.buffer.asUint8List();
+      final directory = await getTemporaryDirectory();
+      final file =
+          await File(
+            '${directory.path}/qada_summary_${DateTime.now().millisecondsSinceEpoch}.png',
+          ).create();
+      await file.writeAsBytes(bytes);
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], text: 'Güncel kaza namazı özetim');
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Widget dışa aktarılırken hata oluştu: $error')),
+      );
+    }
+  }
+
+  void _openDetails(BuildContext context, List<QadaRecord> records) {
+    final csv = _buildCsv(records);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder:
+          (_) => SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 60,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Bekleyen Kaza Namazları',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  if (records.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Şu an bekleyen kayıt yok.'),
+                    )
+                  else
+                    SizedBox(
+                      height: 320,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columns: const [
+                            DataColumn(label: Text('Tarih')),
+                            DataColumn(label: Text('Vakit')),
+                            DataColumn(label: Text('Kaydedildi')),
+                            DataColumn(label: Text('Tamamlandı')),
+                          ],
+                          rows:
+                              records
+                                  .map(
+                                    (record) => DataRow(
+                                      cells: [
+                                        DataCell(Text(record.dateKey)),
+                                        DataCell(Text(record.prayerName)),
+                                        DataCell(
+                                          Text(
+                                            record.missedAt
+                                                .toLocal()
+                                                .toString(),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Text(
+                                            record.resolvedAt == null
+                                                ? '-'
+                                                : record.resolvedAt!
+                                                    .toLocal()
+                                                    .toString(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  .toList(),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      FilledButton.icon(
+                        onPressed:
+                            records.isEmpty
+                                ? null
+                                : () => _shareCsv(csv, context),
+                        icon: const Icon(Icons.share),
+                        label: const Text('CSV paylaş'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed:
+                            records.isEmpty
+                                ? null
+                                : () => _copyCsv(csv, context),
+                        icon: const Icon(Icons.copy),
+                        label: const Text('Panoya kopyala'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
+
+  Future<void> _shareCsv(String csv, BuildContext context) async {
+    try {
+      await Share.share(csv, subject: 'Kaza namazı tablosu');
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('CSV paylaşılırken hata oluştu: $error')),
+      );
+    }
+  }
+
+  Future<void> _copyCsv(String csv, BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: csv));
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Tablo panoya kopyalandı')));
+  }
+
+  String _buildCsv(List<QadaRecord> records) {
+    final buffer = StringBuffer('dateKey,prayerName,missedAt,resolvedAt\n');
+    for (final record in records) {
+      buffer.writeln(
+        '${record.dateKey},${record.prayerName},'
+        '${record.missedAt.toIso8601String()},'
+        '${record.resolvedAt?.toIso8601String() ?? ''}',
+      );
+    }
+    return buffer.toString();
   }
 }

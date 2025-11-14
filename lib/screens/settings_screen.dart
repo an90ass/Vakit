@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:namaz/bloc/app_language/app_language_cubit.dart';
+import 'package:namaz/bloc/theme/theme_cubit.dart';
+import 'package:namaz/bloc/theme/theme_state.dart';
+import 'package:namaz/l10n/generated/app_localizations.dart';
+import 'package:namaz/theme/vakit_palette.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -18,7 +24,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _selectedDistrict = '';
   bool _cityModalVisible = false;
   List<String> _filteredCities = [];
-  String _searchCity = '';
   bool _notificationsEnabled = true;
   String _notificationBeforeMinutes = '30';
   bool _notificationSound = true;
@@ -27,20 +32,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _showHijriDate = true;
   bool _showGregorianDate = true;
   String _appLanguage = 'tr';
+  static const String _appVersion = '1.0.0';
 
   final List<String> _turkishCities = [
-    'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Amasya', 'Ankara', 'Antalya',
-    'Artvin', 'Aydın', 'Balıkesir', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu',
-    'Burdur', 'Bursa', 'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır',
-    'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun',
-    'Gümüşhane', 'Hakkari', 'Hatay', 'Isparta', 'Mersin', 'İstanbul', 'İzmir',
-    'Kars', 'Kastamonu', 'Kayseri', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya',
-    'Kütahya', 'Malatya', 'Manisa', 'Kahramanmaraş', 'Mardin', 'Muğla', 'Muş',
-    'Nevşehir', 'Niğde', 'Ordu', 'Rize', 'Sakarya', 'Samsun', 'Siirt', 'Sinop',
-    'Sivas', 'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Şanlıurfa', 'Uşak',
-    'Van', 'Yozgat', 'Zonguldak', 'Aksaray', 'Bayburt', 'Karaman', 'Kırıkkale',
-    'Batman', 'Şırnak', 'Bartın', 'Ardahan', 'Iğdır', 'Yalova', 'Karabük',
-    'Kilis', 'Osmaniye', 'Düzce'
+    'Adana',
+    'Adıyaman',
+    'Afyonkarahisar',
+    'Ağrı',
+    'Amasya',
+    'Ankara',
+    'Antalya',
+    'Artvin',
+    'Aydın',
+    'Balıkesir',
+    'Bilecik',
+    'Bingöl',
+    'Bitlis',
+    'Bolu',
+    'Burdur',
+    'Bursa',
+    'Çanakkale',
+    'Çankırı',
+    'Çorum',
+    'Denizli',
+    'Diyarbakır',
+    'Edirne',
+    'Elazığ',
+    'Erzincan',
+    'Erzurum',
+    'Eskişehir',
+    'Gaziantep',
+    'Giresun',
+    'Gümüşhane',
+    'Hakkari',
+    'Hatay',
+    'Isparta',
+    'Mersin',
+    'İstanbul',
+    'İzmir',
+    'Kars',
+    'Kastamonu',
+    'Kayseri',
+    'Kırklareli',
+    'Kırşehir',
+    'Kocaeli',
+    'Konya',
+    'Kütahya',
+    'Malatya',
+    'Manisa',
+    'Kahramanmaraş',
+    'Mardin',
+    'Muğla',
+    'Muş',
+    'Nevşehir',
+    'Niğde',
+    'Ordu',
+    'Rize',
+    'Sakarya',
+    'Samsun',
+    'Siirt',
+    'Sinop',
+    'Sivas',
+    'Tekirdağ',
+    'Tokat',
+    'Trabzon',
+    'Tunceli',
+    'Şanlıurfa',
+    'Uşak',
+    'Van',
+    'Yozgat',
+    'Zonguldak',
+    'Aksaray',
+    'Bayburt',
+    'Karaman',
+    'Kırıkkale',
+    'Batman',
+    'Şırnak',
+    'Bartın',
+    'Ardahan',
+    'Iğdır',
+    'Yalova',
+    'Karabük',
+    'Kilis',
+    'Osmaniye',
+    'Düzce',
   ];
 
   @override
@@ -63,7 +138,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _selectedCity = prefs.getString('selectedCity') ?? '';
         _selectedDistrict = prefs.getString('selectedDistrict') ?? '';
         _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
-        _notificationBeforeMinutes = prefs.getString('notificationBeforeMinutes') ?? '30';
+        _notificationBeforeMinutes =
+            prefs.getString('notificationBeforeMinutes') ?? '30';
         _notificationSound = prefs.getBool('notificationSound') ?? true;
         _notificationVibration = prefs.getBool('notificationVibration') ?? true;
         _showArabicText = prefs.getBool('showArabicText') ?? true;
@@ -103,6 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _requestLocationPermission() async {
     try {
+      final localization = AppLocalizations.of(context)!;
       setState(() {
         _isLoading = true;
       });
@@ -112,8 +189,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           _showErrorDialog(
-            'Konum izni gerekli',
-            'Konum izni verilmediği için namaz vakitleri için manuel il ve ilçe seçimi yapmalısınız.',
+            localization.locationPermissionTitle,
+            localization.locationPermissionDeniedBody,
           );
           setState(() {
             _locationMethod = 'manual';
@@ -125,8 +202,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       if (permission == LocationPermission.deniedForever) {
         _showErrorDialog(
-          'Konum izni gerekli',
-          'Konum izni kalıcı olarak reddedildi. Lütfen ayarlardan izin verin veya manuel konum seçin.',
+          localization.locationPermissionTitle,
+          localization.locationPermissionPermanentBody,
         );
         setState(() {
           _locationMethod = 'manual';
@@ -154,14 +231,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
 
       _showSuccessDialog(
-        'Konum Güncellendi',
-        'Konumunuz başarıyla güncellendi. Namaz vakitleri yeni konuma göre güncellenecek.',
+        localization.locationUpdatedTitle,
+        localization.locationUpdatedBodyAuto,
       );
     } catch (error) {
       print('Konum alınamadı: $error');
       _showErrorDialog(
-        'Hata',
-        'Konum alınırken bir hata oluştu. Lütfen manuel konum seçimine geçin.',
+        AppLocalizations.of(context)!.errorGenericTitle,
+        AppLocalizations.of(context)!.locationFetchError,
       );
       setState(() {
         _locationMethod = 'manual';
@@ -172,13 +249,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _searchCities(String text) {
     setState(() {
-      _searchCity = text;
       if (text.trim().isEmpty) {
         _filteredCities = List.from(_turkishCities);
       } else {
-        _filteredCities = _turkishCities
-            .where((city) => city.toLowerCase().contains(text.toLowerCase()))
-            .toList();
+        _filteredCities =
+            _turkishCities
+                .where(
+                  (city) => city.toLowerCase().contains(text.toLowerCase()),
+                )
+                .toList();
       }
     });
   }
@@ -205,11 +284,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _updateManualLocation() async {
     if (_selectedCity.isEmpty) {
-      _showErrorDialog('Hata', 'Lütfen bir şehir seçin.');
+      final localization = AppLocalizations.of(context)!;
+      _showErrorDialog(
+        localization.errorGenericTitle,
+        localization.locationSelectCityError,
+      );
       return;
     }
 
     try {
+      final localization = AppLocalizations.of(context)!;
       setState(() {
         _isLoading = true;
       });
@@ -228,7 +312,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Eskişehir': [39.7767, 30.5206],
       };
 
-      List<double> coordinates = cityCoordinates[_selectedCity] ?? [39.9334, 32.8597];
+      List<double> coordinates =
+          cityCoordinates[_selectedCity] ?? [39.9334, 32.8597];
 
       final newLocation = Position(
         latitude: coordinates[0],
@@ -256,25 +341,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
 
       _showSuccessDialog(
-        'Konum Güncellendi',
-        '$_selectedCity ${_selectedDistrict.isNotEmpty ? '- $_selectedDistrict' : ''} için namaz vakitleri güncellenecek.',
+        localization.locationUpdatedTitle,
+        localization.locationUpdatedBodyManual(
+          _selectedDistrict.isNotEmpty
+              ? '$_selectedCity - $_selectedDistrict'
+              : _selectedCity,
+        ),
       );
     } catch (error) {
       print('Manuel konum güncellenirken hata: $error');
       setState(() {
         _isLoading = false;
       });
-      _showErrorDialog('Hata', 'Konum güncellenirken bir hata oluştu.');
+      _showErrorDialog(
+        AppLocalizations.of(context)!.errorGenericTitle,
+        AppLocalizations.of(context)!.locationUpdateError,
+      );
     }
   }
 
   Future<void> _toggleNotifications(bool value) async {
     if (value) {
+      final localization = AppLocalizations.of(context)!;
       final status = await Permission.notification.request();
       if (!status.isGranted) {
         _showErrorDialog(
-          'Bildirim İzni Gerekli',
-          'Namaz vakitleri için bildirim almak istiyorsanız bildirim izni vermeniz gerekiyor.',
+          localization.notificationPermissionTitle,
+          localization.notificationPermissionBody,
         );
         return;
       }
@@ -344,43 +437,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _appLanguage = language;
     });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('appLanguage', language);
+    context.read<AppLanguageCubit>().updateLocale(Locale(language));
 
     _showSuccessDialog(
-      'Dil Değişikliği',
-      'Dil değişikliğinin tam olarak uygulanması için uygulamayı yeniden başlatmanız gerekebilir.',
+      AppLocalizations.of(context)!.languageChangeTitle,
+      AppLocalizations.of(context)!.languageChangeDescription,
     );
   }
 
   void _resetSettings() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ayarları Sıfırla'),
-        content: const Text(
-          'Tüm ayarları varsayılan değerlerine sıfırlamak istediğinizden emin misiniz?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('İptal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await _performReset();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Sıfırla'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        final localization = AppLocalizations.of(dialogContext)!;
+        return AlertDialog(
+          title: Text(localization.settingsResetDialogTitle),
+          content: Text(localization.settingsResetDialogBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(localization.cancel),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await _performReset();
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text(localization.settingsResetDialogConfirm),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Future<void> _performReset() async {
     try {
+      final localization = AppLocalizations.of(context)!;
       setState(() {
         _isLoading = true;
       });
@@ -405,47 +499,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
 
       _showSuccessDialog(
-        'Başarılı',
-        'Tüm ayarlar varsayılan değerlerine sıfırlandı.',
+        localization.settingsResetSuccessTitle,
+        localization.settingsResetSuccessBody,
       );
     } catch (error) {
       print('Ayarlar sıfırlanırken hata: $error');
       setState(() {
         _isLoading = false;
       });
-      _showErrorDialog('Hata', 'Ayarlar sıfırlanırken bir hata oluştu.');
+      _showErrorDialog(
+        AppLocalizations.of(context)!.errorGenericTitle,
+        AppLocalizations.of(context)!.settingsResetError,
+      );
     }
   }
 
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tamam'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        final localization = AppLocalizations.of(dialogContext)!;
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(localization.dialogOk),
+            ),
+          ],
+        );
+      },
     );
   }
 
   void _showSuccessDialog(String title, String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tamam'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        final localization = AppLocalizations.of(dialogContext)!;
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(localization.dialogOk),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -470,7 +573,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+              border: Border(
+                bottom: BorderSide(color: Colors.grey, width: 0.2),
+              ),
             ),
             child: Row(
               children: [
@@ -511,17 +616,124 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildPaletteCard({
+    required VakitPalette palette,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required String title,
+    required String description,
+  }) {
+    final cardWidth = (MediaQuery.of(context).size.width - 64) / 2;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        width: cardWidth,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? palette.primary.withOpacity(0.08) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? palette.primary : Colors.grey.shade300,
+            width: isSelected ? 1.6 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _buildColorSegment(palette.primary),
+                _buildColorSegment(palette.primaryLight),
+                _buildColorSegment(palette.accent),
+                _buildColorSegment(palette.background),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? palette.primary : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(description, style: TextStyle(color: Colors.grey.shade600)),
+            if (isSelected)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.check_circle,
+                  color: palette.accent,
+                  size: 20,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorSegment(Color color) {
+    return Expanded(
+      child: Container(
+        height: 6,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(3),
+        ),
+      ),
+    );
+  }
+
+  String _paletteTitle(AppLocalizations localization, String paletteId) {
+    switch (paletteId) {
+      case 'desert':
+        return localization.themePaletteDesertName;
+      case 'midnight':
+        return localization.themePaletteMidnightName;
+      case 'olive':
+      default:
+        return localization.themePaletteOliveName;
+    }
+  }
+
+  String _paletteDescription(AppLocalizations localization, String paletteId) {
+    switch (paletteId) {
+      case 'desert':
+        return localization.themePaletteDesertDescription;
+      case 'midnight':
+        return localization.themePaletteMidnightDescription;
+      case 'olive':
+      default:
+        return localization.themePaletteOliveDescription;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final localization = AppLocalizations.of(context)!;
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(color: Color(0xFF1e63b4)),
-              SizedBox(height: 16),
-              Text('Ayarlar yükleniyor...', style: TextStyle(fontSize: 16)),
+              const CircularProgressIndicator(color: Color(0xFF1e63b4)),
+              const SizedBox(height: 16),
+              Text(
+                localization.settingsLoadingMessage,
+                style: const TextStyle(fontSize: 16),
+              ),
             ],
           ),
         ),
@@ -530,7 +742,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ayarlar'),
+        title: Text(localization.tabSettings),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
@@ -541,11 +753,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             // Konum Ayarları
             _buildSection(
-              'Konum Ayarları',
+              localization.settingsLocationSection,
               Icons.location_on,
               [
                 _buildOptionRow(
-                  'Konum belirleme yöntemi',
+                  localization.settingsLocationMethodLabel,
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -561,7 +773,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                             activeColor: const Color(0xFF1e63b4),
                           ),
-                          const Text('Otomatik'),
+                          Text(localization.settingsLocationMethodAuto),
                         ],
                       ),
                       Row(
@@ -574,19 +786,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 setState(() {
                                   _locationMethod = value;
                                 });
-                                final prefs = await SharedPreferences.getInstance();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
                                 await prefs.setString('locationMethod', value);
                               }
                             },
                             activeColor: const Color(0xFF1e63b4),
                           ),
-                          const Text('Manuel'),
+                          Text(localization.settingsLocationMethodManual),
                         ],
                       ),
                     ],
                   ),
                 ),
-                
+
                 if (_locationMethod == 'auto')
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -598,11 +811,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           backgroundColor: const Color(0xFF1e63b4),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        child: const Text('Konumu Güncelle', style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          localization.settingsUpdateLocation,
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
-                
+
                 if (_locationMethod == 'manual') ...[
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -620,24 +836,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  _selectedCity.isEmpty ? 'İl Seçin' : _selectedCity,
+                                  _selectedCity.isEmpty
+                                      ? localization
+                                          .settingsSelectCityPlaceholder
+                                      : _selectedCity,
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: _selectedCity.isEmpty ? Colors.grey : Colors.black87,
+                                    color:
+                                        _selectedCity.isEmpty
+                                            ? Colors.grey
+                                            : Colors.black87,
                                   ),
                                 ),
-                                const Icon(Icons.arrow_drop_down, color: Colors.black54),
+                                const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black54,
+                                ),
                               ],
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 12),
-                        
+
                         TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'İlçe (opsiyonel)',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            hintText: localization.settingsDistrictHint,
+                            border: const OutlineInputBorder(),
                           ),
                           onChanged: (text) async {
                             setState(() {
@@ -647,9 +872,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             await prefs.setString('selectedDistrict', text);
                           },
                         ),
-                        
+
                         const SizedBox(height: 12),
-                        
+
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -658,14 +883,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               backgroundColor: const Color(0xFF1e63b4),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            child: const Text('Konumu Güncelle', style: TextStyle(color: Colors.white)),
+                            child: Text(
+                              localization.settingsUpdateLocation,
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
-                
+
                 if (_location != null)
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -678,70 +906,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Mevcut Konum: ${_locationMethod == 'auto' ? 'GPS Koordinatları' : '$_selectedCity ${_selectedDistrict.isNotEmpty ? '- $_selectedDistrict' : ''}'}',
-                          style: const TextStyle(fontSize: 14, color: Colors.black54),
+                          localization.settingsCurrentLocationLabel(
+                            _locationMethod == 'auto'
+                                ? localization.settingsCurrentLocationGps
+                                : _selectedDistrict.isNotEmpty
+                                ? '$_selectedCity - $_selectedDistrict'
+                                : _selectedCity,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
                         ),
                         if (_locationMethod == 'auto')
                           Text(
-                            'Enlem: ${_location!.latitude.toString()}, Boylam: ${_location!.longitude.toString()}',
-                            style: const TextStyle(fontSize: 14, color: Colors.black54),
+                            localization.settingsLatitudeLongitude(
+                              _location!.latitude.toString(),
+                              _location!.longitude.toString(),
+                            ),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
                           ),
                       ],
                     ),
                   ),
               ],
             ),
-            
+
             // Bildirim Ayarları
             _buildSection(
-              'Bildirim Ayarları',
+              localization.settingsNotificationsSection,
               Icons.notifications,
               [
                 _buildOptionRow(
-                  'Namaz vakti bildirimleri',
+                  localization.settingsNotificationsToggle,
                   Switch(
                     value: _notificationsEnabled,
                     onChanged: _toggleNotifications,
                     activeColor: const Color(0xFF1e63b4),
                   ),
                 ),
-                
+
                 if (_notificationsEnabled) ...[
                   _buildOptionRow(
-                    'Bildirimler ne kadar önce gelsin?',
+                    localization.settingsNotificationLeadTime,
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
                           width: 60,
                           child: TextField(
-                            controller: TextEditingController(text: _notificationBeforeMinutes),
+                            controller: TextEditingController(
+                              text: _notificationBeforeMinutes,
+                            ),
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 8,
+                              ),
                             ),
                             onChanged: _handleNotificationMinutesChange,
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text('dakika'),
+                        Text(localization.settingsNotificationMinutesSuffix),
                       ],
                     ),
                   ),
-                  
+
                   _buildOptionRow(
-                    'Bildirim sesi',
+                    localization.settingsNotificationSound,
                     Switch(
                       value: _notificationSound,
                       onChanged: _toggleNotificationSound,
                       activeColor: const Color(0xFF1e63b4),
                     ),
                   ),
-                  
+
                   _buildOptionRow(
-                    'Bildirim titreşimi',
+                    localization.settingsNotificationVibration,
                     Switch(
                       value: _notificationVibration,
                       onChanged: _toggleNotificationVibration,
@@ -751,86 +999,194 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ],
             ),
-            
+
             // Arayüz Ayarları
             _buildSection(
-              'Arayüz Ayarları',
+              localization.settingsInterfaceSection,
               Icons.settings,
               [
                 _buildOptionRow(
-                  'Arapça metinleri göster',
+                  localization.settingsShowArabicText,
                   Switch(
                     value: _showArabicText,
                     onChanged: _toggleArabicText,
                     activeColor: const Color(0xFF1e63b4),
                   ),
                 ),
-                
+
                 _buildOptionRow(
-                  'Hicri tarihi göster',
+                  localization.settingsShowHijriDate,
                   Switch(
                     value: _showHijriDate,
                     onChanged: _toggleHijriDate,
                     activeColor: const Color(0xFF1e63b4),
                   ),
                 ),
-                
+
                 _buildOptionRow(
-                  'Miladi tarihi göster',
+                  localization.settingsShowGregorianDate,
                   Switch(
                     value: _showGregorianDate,
                     onChanged: _toggleGregorianDate,
                     activeColor: const Color(0xFF1e63b4),
                   ),
                 ),
-              ],
-            ),
-            
-            // Dil Ayarları
-            _buildSection(
-              'Dil Ayarları',
-              Icons.language,
-              [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _changeLanguage('tr'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _appLanguage == 'tr' 
-                                ? const Color(0xFF1e63b4) 
-                                : Colors.grey.shade200,
-                            foregroundColor: _appLanguage == 'tr' 
-                                ? Colors.white 
-                                : Colors.black87,
-                          ),
-                          child: const Text('Türkçe'),
-                        ),
+
+                const SizedBox(height: 8),
+                BlocBuilder<ThemeCubit, VakitThemeState>(
+                  builder: (context, themeState) {
+                    final localization = AppLocalizations.of(context)!;
+                    final themeCubit = context.read<ThemeCubit>();
+                    final softnessPercent =
+                        ((themeState.softness / 0.5) * 100).round();
+                    return Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _changeLanguage('en'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _appLanguage == 'en' 
-                                ? const Color(0xFF1e63b4) 
-                                : Colors.grey.shade200,
-                            foregroundColor: _appLanguage == 'en' 
-                                ? Colors.white 
-                                : Colors.black87,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
-                          child: const Text('English'),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            localization.themePaletteTitle,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            localization.themePaletteSubtitle,
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children:
+                                VakitPalettes.all.map((palette) {
+                                  final title = _paletteTitle(
+                                    localization,
+                                    palette.id,
+                                  );
+                                  final description = _paletteDescription(
+                                    localization,
+                                    palette.id,
+                                  );
+                                  return _buildPaletteCard(
+                                    palette: palette,
+                                    isSelected:
+                                        palette.id == themeState.palette.id,
+                                    onTap:
+                                        () => themeCubit.selectPalette(
+                                          palette.id,
+                                        ),
+                                    title: title,
+                                    description: description,
+                                  );
+                                }).toList(),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                localization.themeSofteningLabel,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                localization.themeSofteningValue(
+                                  softnessPercent,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Slider(
+                            value: themeState.softness,
+                            min: 0,
+                            max: 0.5,
+                            divisions: 5,
+                            activeColor: themeState.palette.primary,
+                            label: localization.themeSofteningValue(
+                              softnessPercent,
+                            ),
+                            onChanged: themeCubit.updateSoftness,
+                          ),
+                          Text(
+                            localization.themeSofteningDescription,
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
-            
+
+            // Dil Ayarları
+            _buildSection(localization.languageTitle, Icons.language, [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _changeLanguage('tr'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              _appLanguage == 'tr'
+                                  ? const Color(0xFF1e63b4)
+                                  : Colors.grey.shade200,
+                          foregroundColor:
+                              _appLanguage == 'tr'
+                                  ? Colors.white
+                                  : Colors.black87,
+                        ),
+                        child: Text(localization.languageTurkish),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _changeLanguage('en'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              _appLanguage == 'en'
+                                  ? const Color(0xFF1e63b4)
+                                  : Colors.grey.shade200,
+                          foregroundColor:
+                              _appLanguage == 'en'
+                                  ? Colors.white
+                                  : Colors.black87,
+                        ),
+                        child: Text(localization.languageEnglish),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ]),
+
             // Sıfırlama Butonu
             Container(
               width: double.infinity,
@@ -838,27 +1194,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: ElevatedButton.icon(
                 onPressed: _resetSettings,
                 icon: const Icon(Icons.refresh, color: Colors.white),
-                label: const Text('Tüm Ayarları Sıfırla', style: TextStyle(color: Colors.white)),
+                label: Text(
+                  localization.settingsResetButton,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
-            
+
             // Uygulama Bilgileri
             Container(
               padding: const EdgeInsets.all(16),
-              child: const Column(
+              child: Column(
                 children: [
                   Text(
-                    'Namaz Vakti Uygulaması v1.0.0',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    localization.settingsAppVersionLabel(_appVersion),
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    '© 2025 Tüm Hakları Saklıdır',
-                    style: TextStyle(fontSize: 12, color: Colors.black38),
+                    localization.settingsAppCopyright,
+                    style: const TextStyle(fontSize: 12, color: Colors.black38),
                   ),
                 ],
               ),
@@ -866,66 +1225,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
-      
+
       // Şehir seçim modalı
-      bottomSheet: _cityModalVisible ? Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-          ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Şehir Seçin',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      bottomSheet:
+          _cityModalVisible
+              ? Container(
+                height: MediaQuery.of(context).size.height * 0.8,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
                   ),
-                  IconButton(
-                    onPressed: () => setState(() => _cityModalVisible = false),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                decoration: const InputDecoration(
-                  hintText: 'Şehir Ara...',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
                 ),
-                onChanged: _searchCities,
-              ),
-            ),
-            
-            Expanded(
-              child: ListView.builder(
-                itemCount: _filteredCities.length,
-                itemBuilder: (context, index) {
-                  final city = _filteredCities[index];
-                  return ListTile(
-                    title: Text(city),
-                    onTap: () => _selectCity(city),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ) : null,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Colors.grey, width: 0.2),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            localization.settingsCityPickerTitle,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed:
+                                () => setState(() => _cityModalVisible = false),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: localization.settingsCitySearchHint,
+                          prefixIcon: const Icon(Icons.search),
+                          border: const OutlineInputBorder(),
+                        ),
+                        onChanged: _searchCities,
+                      ),
+                    ),
+
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _filteredCities.length,
+                        itemBuilder: (context, index) {
+                          final city = _filteredCities[index];
+                          return ListTile(
+                            title: Text(city),
+                            onTap: () => _selectCity(city),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              : null,
     );
   }
 }

@@ -1,11 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:namaz/theme/vakit_palette.dart';
 
 class AppColors {
-  static const Color primary = Color(0xFF3B5E3B);
-  static const Color primaryLight = Color(0xFFA3C9A8);
-  static const Color accent = Color(0xFFD4AF37);
-  static const Color background = Color(0xFFF8F5F0);
-  static const Color textPrimary = Color(0xFF4A4A4A);
-  static const Color textSecondary = Color(0xFF9E9E9E);
-  static const Color border = Color(0xFFC7D4C0);
+  static VakitPalette _palette = VakitPalettes.olive;
+  static double _softness = 0;
+
+  static void update(VakitPalette palette, double softness) {
+    _palette = palette;
+    _softness = softness.clamp(0, 0.5);
+  }
+
+  static Color get primary => _palette.primary;
+  static Color get primaryLight =>
+      Color.lerp(_palette.primaryLight, Colors.white, _softness * 0.4) ??
+      _palette.primaryLight;
+  static Color get accent => _palette.accent;
+
+  static Color get background =>
+      Color.lerp(_palette.background, Colors.white, _softness) ??
+      _palette.background;
+
+  static Color get surface =>
+      Color.lerp(_palette.surface, Colors.white, _softness * 0.6) ??
+      _palette.surface;
+
+  static Color get textPrimary =>
+      Color.lerp(_palette.textPrimary, Colors.black, _softness * 0.2) ??
+      _palette.textPrimary;
+
+  static Color get textSecondary =>
+      Color.lerp(_palette.textSecondary, Colors.black54, _softness * 0.3) ??
+      _palette.textSecondary;
+
+  static Color get border =>
+      Color.lerp(_palette.border, Colors.black12, _softness) ?? _palette.border;
 }

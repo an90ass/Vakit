@@ -553,7 +553,7 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
             fontSize: 14,
           ),
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.arrow_forward_ios,
           color: AppColors.primary,
           size: 16,
@@ -788,7 +788,7 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                       ),
                       child: Text(
                         getSurahNameArabic(suraNumberInQuran),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: "arsura",
                           fontSize: 16,
                           color: AppColors.primary,

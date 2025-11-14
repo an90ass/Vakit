@@ -1,0 +1,163 @@
+{
+  "appTitle": "Vakit",
+  "homeGreeting": "Welcome",
+  "homeGreetingSubtitle": "Wishing you a peaceful day",
+  "tabHome": "Home",
+  "tabCities": "Cities",
+  "tabMyPrayers": "My Prayers",
+  "tabQuran": "Quran",
+  "tabSettings": "Settings",
+  "locationLoading": "Fetching your location...",
+  "locationError": "Location error",
+  "genericError": "Something went wrong",
+  "nextPrayerLabel": "Next prayer",
+  "remainingLabel": "remaining",
+  "locationsHeader": "Tracked locations",
+  "locationsSubhead": "Track up to 3 places and view them side by side.",
+  "addLocation": "Add location",
+  "currentLocation": "Current Location",
+  "manualLocation": "Manual Location",
+  "maxLocationsReached": "You can store up to {count} locations.",
+  "@maxLocationsReached": {
+    "description": "Warns user when max tracked locations reached",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addLocationTitle": "Add a new location",
+  "addLocationDescription": "Type a city, district, or full address to add it to your list.",
+  "addressFieldLabel": "Address or city",
+  "addressFieldHint": "e.g. Adana Seyhan",
+  "labelFieldLabel": "Card label (optional)",
+  "cancel": "Cancel",
+  "save": "Save",
+  "setActive": "Set active",
+  "active": "Active",
+  "delete": "Delete",
+  "locationSaved": "Location saved.",
+  "locationDeleted": "Location removed.",
+  "locationSearchFailed": "We couldn't find that address. Please try something else.",
+  "languageTitle": "App Language",
+  "languageSubtitle": "Switch between Turkish, English, and Arabic.",
+  "languageTurkish": "Turkish",
+  "languageEnglish": "English",
+  "languageArabic": "Arabic",
+  "languageChanged": "Language updated.",
+  "citiesScreenTitle": "City dashboard",
+  "citiesRefreshAction": "Refresh prayer summaries",
+  "citiesDeleteConfirm": "Remove this city from your list?",
+  "citiesCardSubtitle": "Stay updated with this city's next prayer.",
+  "citiesEmptyTitle": "No cities yet",
+  "citiesEmptyDescription": "Add a manual city or refresh GPS to start tracking.",
+  "citiesManageButton": "Open city dashboard",
+  "locationPermissionDenied": "Location permission is denied. Please enable it from Settings.",
+  "gpsRefresh": "Refresh GPS",
+  "gpsRefreshing": "Updating location...",
+  "emptyTrackedLocations": "No tracked locations yet.",
+  "addressRequired": "Address field cannot be empty.",
+  "settingsLoadingMessage": "Loading settings...",
+  "locationPermissionTitle": "Location permission needed",
+  "locationPermissionDeniedBody": "We need access to your location or you can switch to manual city selection.",
+  "locationPermissionPermanentBody": "Location access is permanently denied. Please enable it in Settings or choose a city manually.",
+  "locationUpdatedTitle": "Location updated",
+  "locationUpdatedBodyAuto": "Your namaz times will refresh for the new GPS position.",
+  "locationUpdatedBodyManual": "Prayer times will refresh for {location}.",
+  "@locationUpdatedBodyManual": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGenericTitle": "Something went wrong",
+  "locationFetchError": "We could not refresh your position. Please try selecting a city manually.",
+  "locationSelectCityError": "Please pick a city before updating the location.",
+  "locationUpdateError": "There was a problem while updating the manual location.",
+  "notificationPermissionTitle": "Notification permission",
+  "notificationPermissionBody": "Enable notifications to receive namaz reminders.",
+  "languageChangeTitle": "Language updated",
+  "languageChangeDescription": "Restart may be required for the full translation to apply.",
+  "settingsResetDialogTitle": "Reset settings",
+  "settingsResetDialogBody": "Are you sure you want to reset everything back to defaults?",
+  "settingsResetDialogConfirm": "Reset",
+  "settingsResetSuccessTitle": "All set",
+  "settingsResetSuccessBody": "Settings have been restored to their defaults.",
+  "settingsResetError": "An error occurred while resetting your settings.",
+  "dialogOk": "OK",
+  "settingsLocationSection": "Location",
+  "settingsNotificationsSection": "Notifications",
+  "settingsInterfaceSection": "Interface",
+  "settingsLocationMethodLabel": "How should we detect your location?",
+  "settingsLocationMethodAuto": "Automatic",
+  "settingsLocationMethodManual": "Manual",
+  "settingsUpdateLocation": "Update location",
+  "settingsSelectCityPlaceholder": "Select city",
+  "settingsDistrictHint": "District (optional)",
+  "settingsCurrentLocationLabel": "Current location: {label}",
+  "@settingsCurrentLocationLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCurrentLocationGps": "GPS coordinates",
+  "settingsLatitudeLongitude": "Lat: {lat}, Lon: {lon}",
+  "@settingsLatitudeLongitude": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsNotificationsToggle": "Prayer notifications",
+  "settingsNotificationLeadTime": "How early should reminders arrive?",
+  "settingsNotificationMinutesSuffix": "minutes",
+  "settingsNotificationSound": "Sound",
+  "settingsNotificationVibration": "Vibration",
+  "settingsShowArabicText": "Show Arabic text",
+  "settingsShowHijriDate": "Show Hijri date",
+  "settingsShowGregorianDate": "Show Gregorian date",
+  "settingsResetButton": "Reset all settings",
+  "settingsAppVersionLabel": "Vakit app v{version}",
+  "@settingsAppVersionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppCopyright": "© 2025 All rights reserved",
+  "settingsCityPickerTitle": "Select city",
+  "settingsCitySearchHint": "Search city...",
+  "themePaletteTitle": "Theme palette",
+  "themePaletteSubtitle": "Choose the color family and softness that fits your eye.",
+  "themeSofteningLabel": "Color softening",
+  "themeSofteningValue": "{percent}%",
+  "@themeSofteningValue": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "themeSofteningDescription": "Soften the backgrounds for a brighter feel or keep it low for higher contrast.",
+  "themePaletteOliveName": "Olive Grove",
+  "themePaletteOliveDescription": "Balanced greens with gentle gold accents.",
+  "themePaletteDesertName": "Desert Sunset",
+  "themePaletteDesertDescription": "Warm sand tones with amber highlights.",
+  "themePaletteMidnightName": "Midnight Blue",
+  "themePaletteMidnightDescription": "Cool night blues with moonlit accents.",
+  "prayerImsak": "Fajr",
+  "prayerSunrise": "Sunrise",
+  "prayerDhuhr": "Dhuhr",
+  "prayerAsr": "Asr",
+  "prayerMaghrib": "Maghrib",
+  "prayerIsha": "Isha",
+  "prayerFajr": "Fajr"
+}

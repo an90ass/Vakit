@@ -1,0 +1,163 @@
+{
+  "appTitle": "Vakit",
+  "homeGreeting": "Hoş geldin",
+  "homeGreetingSubtitle": "Huzurlu bir gün dileriz",
+  "tabHome": "Ana Sayfa",
+  "tabCities": "Şehirler",
+  "tabMyPrayers": "Namazlarım",
+  "tabQuran": "Kuran",
+  "tabSettings": "Ayarlar",
+  "locationLoading": "Konum alınıyor...",
+  "locationError": "Konum hatası",
+  "genericError": "Bir şeyler ters gitti",
+  "nextPrayerLabel": "Bir sonraki namaz",
+  "remainingLabel": "kaldı",
+  "locationsHeader": "Takip edilen konumlar",
+  "locationsSubhead": "3 konuma kadar ekleyebilir ve hepsini aynı anda görebilirsin.",
+  "addLocation": "Konum ekle",
+  "currentLocation": "Mevcut Konum",
+  "manualLocation": "Manuel Konum",
+  "maxLocationsReached": "En fazla {count} konum kaydedebilirsin.",
+  "@maxLocationsReached": {
+    "description": "Warns user when max tracked locations reached",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addLocationTitle": "Yeni konum ekle",
+  "addLocationDescription": "Şehir, ilçe veya tam adres girerek konum ekleyebilirsin.",
+  "addressFieldLabel": "Adres veya şehir",
+  "addressFieldHint": "Örn. Adana Seyhan",
+  "labelFieldLabel": "Kart adı (isteğe bağlı)",
+  "cancel": "İptal",
+  "save": "Kaydet",
+  "setActive": "Aktif yap",
+  "active": "Aktif",
+  "delete": "Sil",
+  "locationSaved": "Konum kaydedildi.",
+  "locationDeleted": "Konum silindi.",
+  "locationSearchFailed": "Adres bulunamadı. Lütfen farklı bir ifade deneyin.",
+  "languageTitle": "Uygulama Dili",
+  "languageSubtitle": "Türkçe, İngilizce ve Arapça arasında geçiş yap.",
+  "languageTurkish": "Türkçe",
+  "languageEnglish": "İngilizce",
+  "languageArabic": "Arapça",
+  "languageChanged": "Dil güncellendi.",
+  "citiesScreenTitle": "Şehir paneli",
+  "citiesRefreshAction": "Namaz özetlerini yenile",
+  "citiesDeleteConfirm": "Bu şehri listeden kaldırmak istiyor musun?",
+  "citiesCardSubtitle": "Bu konuma ait sonraki namazı takip et.",
+  "citiesEmptyTitle": "Henüz şehir yok",
+  "citiesEmptyDescription": "Manuel şehir ekleyerek veya GPS'i yenileyerek başlayabilirsin.",
+  "citiesManageButton": "Şehir panelini aç",
+  "locationPermissionDenied": "Konum izni reddedildi. Lütfen ayarlardan aktif edin.",
+  "gpsRefresh": "Konumu yenile",
+  "gpsRefreshing": "Konum güncelleniyor...",
+  "emptyTrackedLocations": "Henüz kayıtlı konum yok.",
+  "addressRequired": "Adres alanı boş bırakılamaz.",
+  "settingsLoadingMessage": "Ayarlar yükleniyor...",
+  "locationPermissionTitle": "Konum izni gerekli",
+  "locationPermissionDeniedBody": "Namaz vakitleri için konum erişimi vermeli ya da manuel şehir seçmelisiniz.",
+  "locationPermissionPermanentBody": "Konum izni kalıcı olarak reddedildi. Lütfen ayarlardan izin verin veya manuel seçim yapın.",
+  "locationUpdatedTitle": "Konum güncellendi",
+  "locationUpdatedBodyAuto": "Namaz vakitleri yeni GPS konumunuza göre güncellenecek.",
+  "locationUpdatedBodyManual": "{location} için namaz vakitleri güncellenecek.",
+  "@locationUpdatedBodyManual": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGenericTitle": "Bir hata oluştu",
+  "locationFetchError": "Konum yenilenemedi. Lütfen manuel şehir seçmeyi deneyin.",
+  "locationSelectCityError": "Konumu güncellemeden önce bir şehir seçin.",
+  "locationUpdateError": "Manuel konum güncellenirken bir hata oluştu.",
+  "notificationPermissionTitle": "Bildirim izni",
+  "notificationPermissionBody": "Namaz hatırlatmaları almak için bildirim iznini açın.",
+  "languageChangeTitle": "Dil güncellendi",
+  "languageChangeDescription": "Tam çeviri için uygulamayı yeniden başlatmanız gerekebilir.",
+  "settingsResetDialogTitle": "Ayarları sıfırla",
+  "settingsResetDialogBody": "Tüm ayarları varsayılan değerlerine sıfırlamak istediğinize emin misiniz?",
+  "settingsResetDialogConfirm": "Sıfırla",
+  "settingsResetSuccessTitle": "Tamamlandı",
+  "settingsResetSuccessBody": "Ayarlar varsayılan değerlere döndürüldü.",
+  "settingsResetError": "Ayarlar sıfırlanırken bir hata oluştu.",
+  "dialogOk": "Tamam",
+  "settingsLocationSection": "Konum",
+  "settingsNotificationsSection": "Bildirimler",
+  "settingsInterfaceSection": "Arayüz",
+  "settingsLocationMethodLabel": "Konum nasıl belirlensin?",
+  "settingsLocationMethodAuto": "Otomatik",
+  "settingsLocationMethodManual": "Manuel",
+  "settingsUpdateLocation": "Konumu güncelle",
+  "settingsSelectCityPlaceholder": "İl seçin",
+  "settingsDistrictHint": "İlçe (opsiyonel)",
+  "settingsCurrentLocationLabel": "Mevcut konum: {label}",
+  "@settingsCurrentLocationLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCurrentLocationGps": "GPS Koordinatları",
+  "settingsLatitudeLongitude": "Enlem: {lat}, Boylam: {lon}",
+  "@settingsLatitudeLongitude": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsNotificationsToggle": "Namaz vakti bildirimleri",
+  "settingsNotificationLeadTime": "Bildirimler ne kadar önce gelsin?",
+  "settingsNotificationMinutesSuffix": "dakika",
+  "settingsNotificationSound": "Bildirim sesi",
+  "settingsNotificationVibration": "Bildirim titreşimi",
+  "settingsShowArabicText": "Arapça metinleri göster",
+  "settingsShowHijriDate": "Hicri tarihi göster",
+  "settingsShowGregorianDate": "Miladi tarihi göster",
+  "settingsResetButton": "Tüm ayarları sıfırla",
+  "settingsAppVersionLabel": "Namaz Vakti v{version}",
+  "@settingsAppVersionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppCopyright": "© 2025 Tüm hakları saklıdır",
+  "settingsCityPickerTitle": "Şehir seçin",
+  "settingsCitySearchHint": "Şehir ara...",
+  "themePaletteTitle": "Tema Paleti",
+  "themePaletteSubtitle": "Hoşunuza giden renk ailesini ve yumuşaklık seviyesini seçin.",
+  "themeSofteningLabel": "Renk Yumuşatma",
+  "themeSofteningValue": "%{percent}",
+  "@themeSofteningValue": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "themeSofteningDescription": "Arka plan tonlarını yumuşatarak daha parlak veya kontrastlı bir arayüz seçebilirsiniz.",
+  "themePaletteOliveName": "Zeytin Yeşili",
+  "themePaletteOliveDescription": "Klasik Vakit görünümü",
+  "themePaletteDesertName": "Çöl Günbatımı",
+  "themePaletteDesertDescription": "Sıcak kum ve amber tonları",
+  "themePaletteMidnightName": "Gece Mavisi",
+  "themePaletteMidnightDescription": "Serin gece ve ay ışığı",
+  "prayerImsak": "İmsak",
+  "prayerSunrise": "Güneş",
+  "prayerDhuhr": "Öğle",
+  "prayerAsr": "İkindi",
+  "prayerMaghrib": "Akşam",
+  "prayerIsha": "Yatsı",
+  "prayerFajr": "Sabah"
+}

@@ -1,0 +1,156 @@
+{
+  "appTitle": "وقت",
+  "homeGreeting": "مرحبًا",
+  "homeGreetingSubtitle": "نتمنى لك يومًا هادئًا",
+  "tabHome": "الرئيسية",
+  "tabCities": "المدن",
+  "tabMyPrayers": "صلواتي",
+  "tabQuran": "القرآن",
+  "tabSettings": "الإعدادات",
+  "locationLoading": "جارٍ جلب الموقع...",
+  "locationError": "خطأ في الموقع",
+  "genericError": "حدث خطأ ما",
+  "nextPrayerLabel": "الصلاة القادمة",
+  "remainingLabel": "متبقي",
+  "locationsHeader": "المواقع المتابعة",
+  "locationsSubhead": "تابع حتى ٣ أماكن وشاهدها معًا.",
+  "addLocation": "أضف موقعًا",
+  "currentLocation": "الموقع الحالي",
+  "manualLocation": "موقع يدوي",
+  "maxLocationsReached": "يمكنك حفظ ما يصل إلى {count} مواقع.",
+  "@maxLocationsReached": {
+    "description": "Warns user when max tracked locations reached",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addLocationTitle": "إضافة موقع جديد",
+  "addLocationDescription": "اكتب مدينة أو عنوانًا كاملاً لإضافته.",
+  "addressFieldLabel": "العنوان أو المدينة",
+  "addressFieldHint": "مثال: أضنة سيهان",
+  "labelFieldLabel": "اسم البطاقة (اختياري)",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "setActive": "اجعله نشطًا",
+  "active": "نشط",
+  "delete": "حذف",
+  "locationSaved": "تم حفظ الموقع.",
+  "locationDeleted": "تم حذف الموقع.",
+  "locationSearchFailed": "تعذر إيجاد العنوان. جرّب عبارة مختلفة.",
+  "languageTitle": "لغة التطبيق",
+  "languageSubtitle": "بدّل بين التركية والإنجليزية والعربية.",
+  "languageTurkish": "التركية",
+  "languageEnglish": "الإنجليزية",
+  "languageArabic": "العربية",
+  "languageChanged": "تم تحديث اللغة.",
+  "citiesScreenTitle": "لوحة المدن",
+  "citiesRefreshAction": "تحديث ملخصات الصلوات",
+  "citiesDeleteConfirm": "هل تريد إزالة هذه المدينة من قائمتك؟",
+  "citiesCardSubtitle": "تابع الصلاة القادمة لهذه المدينة.",
+  "citiesEmptyTitle": "لا توجد مدن بعد",
+  "citiesEmptyDescription": "أضف مدينة يدويًا أو حدّث GPS للبدء.",
+  "citiesManageButton": "افتح لوحة المدن",
+  "locationPermissionDenied": "تم رفض إذن الموقع. فعّله من الإعدادات.",
+  "gpsRefresh": "تحديث GPS",
+  "gpsRefreshing": "جارٍ تحديث الموقع...",
+  "emptyTrackedLocations": "لا توجد مواقع محفوظة بعد.",
+  "addressRequired": "حقل العنوان لا يمكن أن يكون فارغًا.",
+  "settingsLoadingMessage": "جارٍ تحميل الإعدادات...",
+  "locationPermissionTitle": "يلزم إذن الموقع",
+  "locationPermissionDeniedBody": "يجب منح إذن الموقع أو اختيار المدينة يدويًا للحصول على أوقات الصلاة.",
+  "locationPermissionPermanentBody": "تم رفض إذن الموقع بشكل دائم. فعّله من الإعدادات أو اختر مدينة يدويًا.",
+  "locationUpdatedTitle": "تم تحديث الموقع",
+  "locationUpdatedBodyAuto": "سيتم تحديث أوقات الصلاة حسب موقع GPS الجديد.",
+  "locationUpdatedBodyManual": "سيتم تحديث أوقات الصلاة لـ {location}.",
+  "@locationUpdatedBodyManual": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGenericTitle": "حدث خطأ",
+  "locationFetchError": "تعذّر تحديث الموقع. جرّب اختيار مدينة يدويًا.",
+  "locationSelectCityError": "يُرجى اختيار مدينة قبل تحديث الموقع.",
+  "locationUpdateError": "حدث خطأ أثناء تحديث الموقع اليدوي.",
+  "notificationPermissionTitle": "إذن الإشعارات",
+  "notificationPermissionBody": "فعّل الإشعارات لتلقي تذكيرات الصلاة.",
+  "languageChangeTitle": "تم تحديث اللغة",
+  "languageChangeDescription": "قد تحتاج إلى إعادة تشغيل التطبيق لتطبيق الترجمة بالكامل.",
+  "settingsResetDialogTitle": "إعادة تعيين الإعدادات",
+  "settingsResetDialogBody": "هل أنت متأكد من إعادة جميع الإعدادات إلى الوضع الافتراضي؟",
+  "settingsResetDialogConfirm": "إعادة",
+  "settingsResetSuccessTitle": "تم",
+  "settingsResetSuccessBody": "تمت إعادة الإعدادات إلى القيم الافتراضية.",
+  "settingsResetError": "حدث خطأ أثناء إعادة الإعدادات.",
+  "dialogOk": "حسنًا",
+  "settingsLocationSection": "الموقع",
+  "settingsNotificationsSection": "الإشعارات",
+  "settingsInterfaceSection": "الواجهة",
+  "settingsLocationMethodLabel": "كيف تريد تحديد الموقع؟",
+  "settingsLocationMethodAuto": "تلقائي",
+  "settingsLocationMethodManual": "يدوي",
+  "settingsUpdateLocation": "تحديث الموقع",
+  "settingsSelectCityPlaceholder": "اختر مدينة",
+  "settingsDistrictHint": "الحي (اختياري)",
+  "settingsCurrentLocationLabel": "الموقع الحالي: {label}",
+  "@settingsCurrentLocationLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCurrentLocationGps": "إحداثيات GPS",
+  "settingsLatitudeLongitude": "خط العرض: {lat}، خط الطول: {lon}",
+  "@settingsLatitudeLongitude": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsNotificationsToggle": "إشعارات أوقات الصلاة",
+  "settingsNotificationLeadTime": "كم قبل الوقت تريد وصول التذكير؟",
+  "settingsNotificationMinutesSuffix": "دقائق",
+  "settingsNotificationSound": "الصوت",
+  "settingsNotificationVibration": "الاهتزاز",
+  "settingsShowArabicText": "عرض النص العربي",
+  "settingsShowHijriDate": "عرض التاريخ الهجري",
+  "settingsShowGregorianDate": "عرض التاريخ الميلادي",
+  "settingsResetButton": "إعادة ضبط جميع الإعدادات",
+  "settingsAppVersionLabel": "تطبيق وقت الإصدار v{version}",
+  "@settingsAppVersionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppCopyright": "© 2025 جميع الحقوق محفوظة",
+  "settingsCityPickerTitle": "اختر مدينة",
+  "settingsCitySearchHint": "ابحث عن مدينة...",
+  "themePaletteTitle": "لوحة الألوان",
+  "themePaletteSubtitle": "اختر عائلة الألوان ودرجة النعومة التي تناسبك.",
+  "themeSofteningLabel": "تنعيم الألوان",
+  "themeSofteningValue": "٪{percent}",
+  "@themeSofteningValue": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "themeSofteningDescription": "يمكنك تنعيم الخلفيات للحصول على مظهر أكثر إشراقًا أو تركها منخفضة لتباين أعلى.",
+  "themePaletteOliveName": "أخضر الزيتون",
+  "themePaletteOliveDescription": "أخضر متوازن مع لمسات ذهبية هادئة.",
+  "themePaletteDesertName": "غروب الصحراء",
+  "themePaletteDesertDescription": "درجات الرمال الدافئة مع أضواء كهرمانية.",
+  "themePaletteMidnightName": "أزرق منتصف الليل",
+  "themePaletteMidnightDescription": "زرقة الليل الباردة مع لمسات ضوء القمر."
+}
