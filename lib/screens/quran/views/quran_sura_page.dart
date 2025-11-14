@@ -2,8 +2,8 @@
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
-// import 'package:namaz/screens/quran/views/quranScreen.dart';
-// import 'package:namaz/utlis/thems/colors.dart';
+// import 'package:vakit/screens/quran/views/quranScreen.dart';
+// import 'package:vakit/utlis/thems/colors.dart';
 // // import 'package:quran/dart';
 // import 'package:quran/quran.dart';
 // import 'package:easy_container/easy_container.dart';
@@ -276,11 +276,11 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:namaz/bloc/quran/quran_bloc.dart';
-import 'package:namaz/bloc/quran/quran_event.dart';
-import 'package:namaz/bloc/quran/quran_state.dart';
-import 'package:namaz/screens/quran/views/quranScreen.dart';
-import 'package:namaz/utlis/thems/colors.dart';
+import 'package:vakit/bloc/quran/quran_bloc.dart';
+import 'package:vakit/bloc/quran/quran_event.dart';
+import 'package:vakit/bloc/quran/quran_state.dart';
+import 'package:vakit/screens/quran/views/quranScreen.dart';
+import 'package:vakit/utlis/thems/colors.dart';
 import 'package:quran/quran.dart';
 
 class QuranPage extends StatefulWidget {

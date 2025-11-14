@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:namaz/repositories/prayer_repository.dart';
-import 'package:namaz/utlis/prayer_utils.dart';
+import 'package:vakit/repositories/prayer_repository.dart';
+import 'package:vakit/utlis/prayer_utils.dart';
 import 'prayer_event.dart';
 import 'prayer_state.dart';
 

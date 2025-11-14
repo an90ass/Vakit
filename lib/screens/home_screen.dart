@@ -2,16 +2,15 @@ import 'dart:io';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:namaz/screens/homeContent.dart';
-import 'package:namaz/l10n/generated/app_localizations.dart';
-import 'package:namaz/screens/locations/cities_dashboard_screen.dart';
-import 'package:namaz/screens/prayerTracking/views/prayer_tracking_screen.dart';
-import 'package:namaz/screens/quran/views/quran_sura_page.dart';
-import 'package:namaz/screens/settings_screen.dart';
-import 'package:namaz/utlis/thems/colors.dart';
-import 'package:namaz/bloc/app_language/app_language_cubit.dart';
-import 'package:namaz/bloc/profile/profile_cubit.dart';
-import 'package:namaz/bloc/profile/profile_state.dart';
+import 'package:vakit/screens/homeContent.dart';
+import 'package:vakit/l10n/generated/app_localizations.dart';
+import 'package:vakit/screens/locations/cities_dashboard_screen.dart';
+import 'package:vakit/screens/prayerTracking/views/prayer_tracking_screen.dart';
+import 'package:vakit/screens/quran/views/quran_sura_page.dart';
+import 'package:vakit/screens/settings_screen.dart';
+import 'package:vakit/utlis/thems/colors.dart';
+import 'package:vakit/bloc/app_language/app_language_cubit.dart';
+import 'package:vakit/bloc/profile/profile_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final languageCubit = context.watch<AppLanguageCubit>();
     final profileState = context.watch<ProfileCubit>().state;
     final profile = profileState.profile;
-    
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100), // AppBar yüksekliğini artır
@@ -88,16 +87,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: CircleAvatar(
                         radius: 24,
                         backgroundColor: AppColors.accent,
-                        backgroundImage: profile?.profileImagePath != null
-                            ? FileImage(File(profile!.profileImagePath!))
-                            : null,
-                        child: profile?.profileImagePath == null
-                            ? Icon(
-                                Icons.person,
-                                size: 30,
-                                color: Colors.white,
-                              )
-                            : null,
+                        backgroundImage:
+                            profile?.profileImagePath != null
+                                ? FileImage(File(profile!.profileImagePath!))
+                                : null,
+                        child:
+                            profile?.profileImagePath == null
+                                ? Icon(
+                                  Icons.person,
+                                  size: 30,
+                                  color: Colors.white,
+                                )
+                                : null,
                       ),
                     ),
                   ),
@@ -117,11 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               : localization.homeGreeting,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
+                            letterSpacing: 0.3,
                           ),
                           overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
 
                         SizedBox(height: 4),
@@ -131,19 +133,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           localization.homeGreetingSubtitle,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.8),
-                            fontSize: 14,
+                            fontSize: 13,
                             fontWeight: FontWeight.w400,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ],
                     ),
-                  ),
-
-                  // Dil değiştirme butonu
-                  IconButton(
-                    icon: Icon(Icons.language, color: Colors.white, size: 28),
-                    tooltip: localization.languageTitle,
-                    onPressed: () => _openLanguageSheet(languageCubit.state),
                   ),
                 ],
               ),

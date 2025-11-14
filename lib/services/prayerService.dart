@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:namaz/models/hijri_date_model.dart';
-import 'package:namaz/models/prayer_times_model.dart';
+import 'package:vakit/models/hijri_date_model.dart';
+import 'package:vakit/models/prayer_times_model.dart';
 
 
 class PrayerRepository {

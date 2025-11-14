@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:namaz/hive/prayer_day.dart';
+import 'package:vakit/hive/prayer_day.dart';
 
 class PrayerStorage {
   static final _boxName = 'prayers';

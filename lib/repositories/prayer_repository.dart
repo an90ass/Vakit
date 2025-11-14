@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
-import 'package:namaz/models/hijri_date_model.dart';
-import 'package:namaz/models/prayer_times_model.dart';
-import 'package:namaz/hive/prayer_day.dart';
-import 'package:namaz/storage/prayer_storage.dart';
+import 'package:vakit/models/hijri_date_model.dart';
+import 'package:vakit/models/prayer_times_model.dart';
+import 'package:vakit/hive/prayer_day.dart';
+import 'package:vakit/storage/prayer_storage.dart';
 
 
 class PrayerRepository {

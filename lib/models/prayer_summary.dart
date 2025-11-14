@@ -1,4 +1,4 @@
-import 'package:namaz/models/prayer_times_model.dart';
+import 'package:vakit/models/prayer_times_model.dart';
 
 class PrayerSummary {
   final PrayerTimes prayerTimes;

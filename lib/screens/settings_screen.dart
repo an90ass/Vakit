@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:namaz/bloc/app_language/app_language_cubit.dart';
-import 'package:namaz/bloc/theme/theme_cubit.dart';
-import 'package:namaz/bloc/theme/theme_state.dart';
-import 'package:namaz/l10n/generated/app_localizations.dart';
-import 'package:namaz/theme/vakit_palette.dart';
+import 'package:vakit/bloc/app_language/app_language_cubit.dart';
+import 'package:vakit/bloc/theme/theme_cubit.dart';
+import 'package:vakit/bloc/theme/theme_state.dart';
+import 'package:vakit/l10n/generated/app_localizations.dart';
+import 'package:vakit/theme/vakit_palette.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -1165,7 +1165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: Text(localization.languageTurkish),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () => _changeLanguage('en'),
@@ -1180,6 +1180,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   : Colors.black87,
                         ),
                         child: Text(localization.languageEnglish),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _changeLanguage('ar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              _appLanguage == 'ar'
+                                  ? const Color(0xFF1e63b4)
+                                  : Colors.grey.shade200,
+                          foregroundColor:
+                              _appLanguage == 'ar'
+                                  ? Colors.white
+                                  : Colors.black87,
+                        ),
+                        child: const Text('العربية'),
                       ),
                     ),
                   ],

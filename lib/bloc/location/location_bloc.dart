@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:namaz/bloc/location/location_event.dart';
-import 'package:namaz/bloc/location/location_state.dart';
-import 'package:namaz/services/LocationService.dart';
+import 'package:vakit/bloc/location/location_event.dart';
+import 'package:vakit/bloc/location/location_state.dart';
+import 'package:vakit/services/LocationService.dart';
 
 class LocationBloc extends Bloc<LocationEvent, LocationState> {
   final LocationService _locationService;

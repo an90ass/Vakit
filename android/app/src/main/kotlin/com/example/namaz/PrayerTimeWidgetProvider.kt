@@ -41,8 +41,18 @@ class PrayerTimeWidgetProvider : AppWidgetProvider() {
                 fajr, sunrise, dhuhr, asr, maghrib, isha
             )
             
+            // Widget'a tıklayınca uygulamayı aç
+            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+            val pendingIntent = android.app.PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            )
+            
             val views = RemoteViews(context.packageName, R.layout.prayer_time_widget).apply {
                 setImageViewBitmap(R.id.prayer_circle_image, circleBitmap)
+                setOnClickPendingIntent(R.id.prayer_circle_image, pendingIntent)
             }
 
             appWidgetManager.updateAppWidget(widgetId, views)

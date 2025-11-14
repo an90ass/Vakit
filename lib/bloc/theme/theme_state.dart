@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:namaz/theme/vakit_palette.dart';
+import 'package:vakit/theme/vakit_palette.dart';
 
 class VakitThemeState extends Equatable {
   const VakitThemeState({required this.palette, required this.softness});

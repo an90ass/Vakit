@@ -1,11 +1,7 @@
-import 'package:equatable/equatable.dart';
-import 'package:namaz/models/hijri_date_model.dart';
-import 'package:namaz/models/prayer_times_model.dart';
+import 'package:vakit/models/hijri_date_model.dart';
+import 'package:vakit/models/prayer_times_model.dart';
 
-
-abstract class PrayerState  {
-
-}
+abstract class PrayerState {}
 
 class PrayerInitial extends PrayerState {}
 
@@ -24,14 +20,17 @@ class PrayerLoaded extends PrayerState {
     required this.timeRemaining,
   });
 
-  @override
-  List<Object?> get props => [prayerTimes, hijriDate, nextPrayer, timeRemaining];
+  List<Object?> get props => [
+    prayerTimes,
+    hijriDate,
+    nextPrayer,
+    timeRemaining,
+  ];
 }
 
 class PrayerError extends PrayerState {
   final String message;
   PrayerError(this.message);
 
-  @override
   List<Object?> get props => [message];
 }

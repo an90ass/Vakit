@@ -1,10 +1,13 @@
-import 'package:namaz/models/prayer_times_model.dart';
+import 'package:flutter/material.dart';
+import 'package:vakit/l10n/generated/app_localizations.dart';
+import 'package:vakit/models/prayer_times_model.dart';
 
 enum ExtraPrayerType { duha, ishraq, tahajjud, awwabin }
 
 extension ExtraPrayerTypeX on ExtraPrayerType {
   String get id => name;
 
+  // Fallback title (for notifications and non-UI contexts)
   String get title {
     switch (this) {
       case ExtraPrayerType.duha:
@@ -18,6 +21,7 @@ extension ExtraPrayerTypeX on ExtraPrayerType {
     }
   }
 
+  // Fallback description (for notifications and non-UI contexts)
   String get description {
     switch (this) {
       case ExtraPrayerType.duha:
@@ -28,6 +32,36 @@ extension ExtraPrayerTypeX on ExtraPrayerType {
         return 'Gece yarısından seher vaktine kadar';
       case ExtraPrayerType.awwabin:
         return 'Akşam ile yatsı arası sessiz vakit';
+    }
+  }
+
+  // Localized title (for UI contexts)
+  String titleLocalized(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    switch (this) {
+      case ExtraPrayerType.duha:
+        return loc.prayerDuha;
+      case ExtraPrayerType.ishraq:
+        return loc.prayerIshraq;
+      case ExtraPrayerType.tahajjud:
+        return loc.prayerTahajjud;
+      case ExtraPrayerType.awwabin:
+        return loc.prayerAwwabin;
+    }
+  }
+
+  // Localized description (for UI contexts)
+  String descriptionLocalized(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    switch (this) {
+      case ExtraPrayerType.duha:
+        return loc.prayerDuhaDesc;
+      case ExtraPrayerType.ishraq:
+        return loc.prayerIshraqDesc;
+      case ExtraPrayerType.tahajjud:
+        return loc.prayerTahajjudDesc;
+      case ExtraPrayerType.awwabin:
+        return loc.prayerAwwabinDesc;
     }
   }
 

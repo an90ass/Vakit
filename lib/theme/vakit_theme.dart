@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:namaz/theme/vakit_palette.dart';
+import 'package:vakit/theme/vakit_palette.dart';
 
 ThemeData buildVakitTheme(VakitPalette palette, double softness) {
   final background =

@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:namaz/bloc/profile/profile_state.dart';
-import 'package:namaz/models/extra_prayer_type.dart';
-import 'package:namaz/models/prayer_times_model.dart';
-import 'package:namaz/models/user_profile.dart';
-import 'package:namaz/repositories/profile_repository.dart';
-import 'package:namaz/services/extra_prayer_notification_service.dart';
+import 'package:vakit/bloc/profile/profile_state.dart';
+import 'package:vakit/models/extra_prayer_type.dart';
+import 'package:vakit/models/prayer_times_model.dart';
+import 'package:vakit/models/user_profile.dart';
+import 'package:vakit/repositories/profile_repository.dart';
+import 'package:vakit/services/extra_prayer_notification_service.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit({

@@ -1,6 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:namaz/models/extra_prayer_type.dart';
-import 'package:namaz/models/prayer_times_model.dart';
+import 'package:vakit/models/extra_prayer_type.dart';
+import 'package:vakit/models/prayer_times_model.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 

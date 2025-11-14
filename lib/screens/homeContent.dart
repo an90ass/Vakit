@@ -3,20 +3,20 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:namaz/l10n/generated/app_localizations.dart';
-import 'package:namaz/bloc/prayer/prayer_bloc.dart';
-import 'package:namaz/bloc/prayer/prayer_event.dart';
-import 'package:namaz/bloc/prayer/prayer_state.dart';
-import 'package:namaz/bloc/profile/profile_cubit.dart';
-import 'package:namaz/bloc/location/location_bloc.dart';
-import 'package:namaz/bloc/location/location_state.dart';
-import 'package:namaz/bloc/tracked_locations/tracked_locations_cubit.dart';
-import 'package:namaz/bloc/tracked_locations/tracked_locations_state.dart';
-import 'package:namaz/models/prayer_times_model.dart';
-import 'package:namaz/models/tracked_location.dart';
-import 'package:namaz/screens/locations/cities_dashboard_screen.dart';
-import 'package:namaz/services/widget_service.dart';
-import 'package:namaz/utlis/thems/colors.dart';
+import 'package:vakit/l10n/generated/app_localizations.dart';
+import 'package:vakit/bloc/prayer/prayer_bloc.dart';
+import 'package:vakit/bloc/prayer/prayer_event.dart';
+import 'package:vakit/bloc/prayer/prayer_state.dart';
+import 'package:vakit/bloc/profile/profile_cubit.dart';
+import 'package:vakit/bloc/location/location_bloc.dart';
+import 'package:vakit/bloc/location/location_state.dart';
+import 'package:vakit/bloc/tracked_locations/tracked_locations_cubit.dart';
+import 'package:vakit/bloc/tracked_locations/tracked_locations_state.dart';
+import 'package:vakit/models/prayer_times_model.dart';
+import 'package:vakit/models/tracked_location.dart';
+import 'package:vakit/screens/locations/cities_dashboard_screen.dart';
+import 'package:vakit/services/widget_service.dart';
+import 'package:vakit/utlis/thems/colors.dart';
 
 class HomeContent extends StatefulWidget {
   @override

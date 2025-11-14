@@ -1,4 +1,4 @@
-import 'package:namaz/models/user_profile.dart';
+import 'package:vakit/models/user_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileRepository {

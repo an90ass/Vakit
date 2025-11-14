@@ -1,4 +1,4 @@
-import 'package:namaz/hive/prayer_day.dart';
+import 'package:vakit/hive/prayer_day.dart';
 
 abstract class MyPrayersState {}
 

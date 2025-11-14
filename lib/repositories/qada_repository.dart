@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:namaz/models/qada_record.dart';
+import 'package:vakit/models/qada_record.dart';
 
 class QadaRepository {
   QadaRepository(Box box) : _box = box;

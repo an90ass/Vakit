@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:namaz/models/prayer_summary.dart';
-import 'package:namaz/models/tracked_location.dart';
+import 'package:vakit/models/prayer_summary.dart';
+import 'package:vakit/models/tracked_location.dart';
 
 class TrackedLocationsState extends Equatable {
   final List<TrackedLocation> locations;

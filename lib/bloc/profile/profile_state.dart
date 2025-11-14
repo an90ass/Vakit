@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:namaz/models/user_profile.dart';
+import 'package:vakit/models/user_profile.dart';
 
 enum ProfileStatus { initial, loading, needsSetup, ready, saving, error }
 

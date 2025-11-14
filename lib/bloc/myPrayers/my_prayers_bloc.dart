@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:namaz/bloc/myPrayers/my_prayers_event.dart';
-import 'package:namaz/bloc/myPrayers/my_prayers_state.dart';
-import 'package:namaz/storage/prayer_storage.dart';
+import 'package:vakit/bloc/myPrayers/my_prayers_event.dart';
+import 'package:vakit/bloc/myPrayers/my_prayers_state.dart';
+import 'package:vakit/storage/prayer_storage.dart';
 
 class MyPrayersBloc extends Bloc<MyPrayersEvent, MyPrayersState> {
   MyPrayersBloc() : super(MyPrayersInitial()) {

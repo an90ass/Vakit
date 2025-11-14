@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:namaz/bloc/tracked_locations/tracked_locations_state.dart';
-import 'package:namaz/models/prayer_summary.dart';
-import 'package:namaz/models/tracked_location.dart';
-import 'package:namaz/repositories/prayer_repository.dart';
-import 'package:namaz/services/LocationService.dart';
-import 'package:namaz/services/tracked_location_service.dart';
-import 'package:namaz/utlis/prayer_utils.dart';
+import 'package:vakit/bloc/tracked_locations/tracked_locations_state.dart';
+import 'package:vakit/models/prayer_summary.dart';
+import 'package:vakit/models/tracked_location.dart';
+import 'package:vakit/repositories/prayer_repository.dart';
+import 'package:vakit/services/LocationService.dart';
+import 'package:vakit/services/tracked_location_service.dart';
+import 'package:vakit/utlis/prayer_utils.dart';
 
 class TrackedLocationsCubit extends Cubit<TrackedLocationsState> {
   TrackedLocationsCubit({
@@ -37,7 +37,7 @@ class TrackedLocationsCubit extends Cubit<TrackedLocationsState> {
 
       if (locations.isEmpty && _locationService != null) {
         try {
-          final position = await _locationService!.loadLocationData();
+          final position = await _locationService.loadLocationData();
           final autoLocation = _buildAutoLocation(position);
           locations.add(autoLocation);
           activeId = autoLocation.id;
@@ -92,7 +92,7 @@ class TrackedLocationsCubit extends Cubit<TrackedLocationsState> {
     }
     emit(state.copyWith(isGpsRefreshing: true, errorMessage: null));
     try {
-      final position = await _locationService!.requestLocationPermission();
+      final position = await _locationService.requestLocationPermission();
       await syncCurrentLocation(position);
     } catch (error) {
       emit(state.copyWith(errorMessage: error.toString()));

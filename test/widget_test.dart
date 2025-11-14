@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:namaz/l10n/generated/app_localizations.dart';
+import 'package:vakit/l10n/generated/app_localizations.dart';
 
 void main() {
   testWidgets('AppLocalizations provides Turkish strings', (tester) async {

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:namaz/bloc/quran/quran_event.dart';
-import 'package:namaz/bloc/quran/quran_state.dart';
+import 'package:vakit/bloc/quran/quran_event.dart';
+import 'package:vakit/bloc/quran/quran_state.dart';
 import 'package:quran/quran.dart';
 import 'package:string_validator/string_validator.dart';
 

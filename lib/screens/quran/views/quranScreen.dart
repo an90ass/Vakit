@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:namaz/utlis/thems/colors.dart';
+import 'package:vakit/utlis/thems/colors.dart';
 import 'package:quran/quran.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 

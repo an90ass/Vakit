@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:namaz/models/prayer_times_model.dart';
+import 'package:vakit/models/prayer_times_model.dart';
 
 class WidgetService {
   static const String _widgetName = 'PrayerTimeWidget';

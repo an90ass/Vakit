@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:namaz/models/tracked_location.dart';
+import 'package:vakit/models/tracked_location.dart';
 
 class TrackedLocationService {
   TrackedLocationService(this._prefs);

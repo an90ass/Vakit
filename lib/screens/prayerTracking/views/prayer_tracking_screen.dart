@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -7,19 +6,19 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:namaz/bloc/myPrayers/my_prayers_bloc.dart';
-import 'package:namaz/bloc/myPrayers/my_prayers_event.dart';
-import 'package:namaz/bloc/myPrayers/my_prayers_state.dart';
-import 'package:namaz/bloc/profile/profile_cubit.dart';
-import 'package:namaz/bloc/profile/profile_state.dart';
-import 'package:namaz/models/Prayer.dart';
-import 'package:namaz/models/extra_prayer_type.dart';
-import 'package:namaz/models/qada_record.dart';
-import 'package:namaz/models/user_profile.dart';
-import 'package:namaz/repositories/extra_prayer_repository.dart';
-import 'package:namaz/repositories/qada_repository.dart';
-import 'package:namaz/screens/prayerTracking/views/profile_setup_view.dart';
-import 'package:namaz/l10n/generated/app_localizations.dart';
+import 'package:vakit/bloc/myPrayers/my_prayers_bloc.dart';
+import 'package:vakit/bloc/myPrayers/my_prayers_event.dart';
+import 'package:vakit/bloc/myPrayers/my_prayers_state.dart';
+import 'package:vakit/bloc/profile/profile_cubit.dart';
+import 'package:vakit/bloc/profile/profile_state.dart';
+import 'package:vakit/models/Prayer.dart';
+import 'package:vakit/models/extra_prayer_type.dart';
+import 'package:vakit/models/qada_record.dart';
+import 'package:vakit/models/user_profile.dart';
+import 'package:vakit/repositories/extra_prayer_repository.dart';
+import 'package:vakit/repositories/qada_repository.dart';
+import 'package:vakit/screens/prayerTracking/views/profile_setup_view.dart';
+import 'package:vakit/l10n/generated/app_localizations.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -158,7 +157,7 @@ class _TrackedPrayersView extends StatelessWidget {
 String _getLocalizedPrayerName(BuildContext context, String prayerName) {
   final locale = Localizations.localeOf(context);
   final languageCode = locale.languageCode;
-  
+
   switch (prayerName) {
     case 'Fajr':
       if (languageCode == 'tr') return 'Sabah';
@@ -192,7 +191,7 @@ int _getCurrentPrayerIndex(List<Prayer> prayers) {
   for (int i = 0; i < prayers.length; i++) {
     final timeParts = prayers[i].time.split(':');
     final prayerTime = int.parse(timeParts[0]) * 60 + int.parse(timeParts[1]);
-    
+
     if (currentTime < prayerTime) {
       // Eğer henüz ilk namaz vaktine gelmediyse, hiçbir namaz işaretlenemez
       return i > 0 ? i - 1 : -1;
@@ -240,7 +239,8 @@ Widget _buildMainContent(
           itemBuilder: (context, index) {
             final prayer = prayers[index];
             // Sadece mevcut vakit ve önceki vakitler işaretlenebilir
-            final canMark = currentPrayerIndex >= 0 && index <= currentPrayerIndex;
+            final canMark =
+                currentPrayerIndex >= 0 && index <= currentPrayerIndex;
             return PrayerItem(
               key: ValueKey(prayer.name),
               prayer: prayer,
@@ -286,7 +286,12 @@ Widget _buildMainContent(
   );
 }
 
-Widget _buildProgressCard(BuildContext context, int completed, int total, double progress) {
+Widget _buildProgressCard(
+  BuildContext context,
+  int completed,
+  int total,
+  double progress,
+) {
   return Container(
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
@@ -383,24 +388,54 @@ Widget _buildDateHeader(BuildContext context, String todayKey) {
   final date = DateTime.parse(todayKey);
   final locale = Localizations.localeOf(context);
   final languageCode = locale.languageCode;
-  
+
   String formattedDate;
   if (languageCode == 'tr') {
     final monthsTr = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık',
     ];
     formattedDate = '${date.day} ${monthsTr[date.month - 1]} ${date.year}';
   } else if (languageCode == 'ar') {
     final monthsAr = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
     ];
     formattedDate = '${date.day} ${monthsAr[date.month - 1]} ${date.year}';
   } else {
     final monthsEn = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     formattedDate = '${monthsEn[date.month - 1]} ${date.day}, ${date.year}';
   }
@@ -705,7 +740,10 @@ class _PrayerItemState extends State<PrayerItem>
                         Row(
                           children: [
                             Text(
-                              _getLocalizedPrayerName(context, widget.prayer.name),
+                              _getLocalizedPrayerName(
+                                context,
+                                widget.prayer.name,
+                              ),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -871,8 +909,8 @@ class _ProfileHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
     final qadaStatus =
-        profile.qadaModeEnabled 
-            ? localization.qadaTrackingOn 
+        profile.qadaModeEnabled
+            ? localization.qadaTrackingOn
             : localization.qadaTrackingOff;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -953,13 +991,19 @@ class _ProfileHeaderCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${profile.age} yaş • Hicri: ${profile.hijriAge} yaş',
-                      style: const TextStyle(color: Colors.black54, fontSize: 13),
+                      '${profile.age} ${localization.ageYears} • ${localization.hijriAge}: ${profile.hijriAge} ${localization.ageYears}',
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 13,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       qadaStatus,
-                      style: const TextStyle(color: Colors.black54, fontSize: 13),
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
@@ -967,7 +1011,7 @@ class _ProfileHeaderCard extends StatelessWidget {
               FilledButton.tonalIcon(
                 onPressed: () => _openEdit(context),
                 icon: const Icon(Icons.edit_outlined),
-                label: const Text('Düzenle'),
+                label: Text(localization.editProfile),
               ),
             ],
           ),
@@ -985,7 +1029,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                                   (type) => type.id == id,
                                   orElse: () => ExtraPrayerType.duha,
                                 )
-                                .title,
+                                .titleLocalized(context),
                           ),
                         ),
                       )
@@ -1077,8 +1121,8 @@ class _ExtraPrayerChecklistState extends State<_ExtraPrayerChecklist> {
             final status = _statuses[type.id] ?? false;
             return CheckboxListTile(
               value: status,
-              title: Text(type.title),
-              subtitle: Text(type.description),
+              title: Text(type.titleLocalized(context)),
+              subtitle: Text(type.descriptionLocalized(context)),
               onChanged: (value) async {
                 final resolvedStatus = value ?? false;
                 await _repository.updateStatus(
@@ -1256,7 +1300,10 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(context)!.pendingQadaPrayers,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   if (records.isEmpty)
@@ -1271,10 +1318,24 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
                           columns: [
-                            DataColumn(label: Text(AppLocalizations.of(context)!.date)),
-                            DataColumn(label: Text(AppLocalizations.of(context)!.prayerTime)),
-                            DataColumn(label: Text(AppLocalizations.of(context)!.recorded)),
-                            DataColumn(label: Text(AppLocalizations.of(context)!.completedDate)),
+                            DataColumn(
+                              label: Text(AppLocalizations.of(context)!.date),
+                            ),
+                            DataColumn(
+                              label: Text(
+                                AppLocalizations.of(context)!.prayerTime,
+                              ),
+                            ),
+                            DataColumn(
+                              label: Text(
+                                AppLocalizations.of(context)!.recorded,
+                              ),
+                            ),
+                            DataColumn(
+                              label: Text(
+                                AppLocalizations.of(context)!.completedDate,
+                              ),
+                            ),
                           ],
                           rows:
                               records
@@ -1325,7 +1386,9 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                                 ? null
                                 : () => _copyCsv(csv, context),
                         icon: const Icon(Icons.copy),
-                        label: Text(AppLocalizations.of(context)!.copyToClipboard),
+                        label: Text(
+                          AppLocalizations.of(context)!.copyToClipboard,
+                        ),
                       ),
                     ],
                   ),

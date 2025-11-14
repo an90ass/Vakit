@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:namaz/theme/vakit_palette.dart';
+import 'package:vakit/theme/vakit_palette.dart';
 
 class AppColors {
   static VakitPalette _palette = VakitPalettes.olive;

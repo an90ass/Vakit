@@ -3,16 +3,16 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:namaz/bloc/prayer/prayer_bloc.dart';
-import 'package:namaz/bloc/prayer/prayer_event.dart';
-import 'package:namaz/bloc/prayer/prayer_state.dart';
-import 'package:namaz/bloc/tracked_locations/tracked_locations_cubit.dart';
-import 'package:namaz/bloc/tracked_locations/tracked_locations_state.dart';
-import 'package:namaz/l10n/generated/app_localizations.dart';
-import 'package:namaz/models/prayer_summary.dart';
-import 'package:namaz/models/prayer_times_model.dart';
-import 'package:namaz/models/tracked_location.dart';
-import 'package:namaz/utlis/thems/colors.dart';
+import 'package:vakit/bloc/prayer/prayer_bloc.dart';
+import 'package:vakit/bloc/prayer/prayer_event.dart';
+import 'package:vakit/bloc/prayer/prayer_state.dart';
+import 'package:vakit/bloc/tracked_locations/tracked_locations_cubit.dart';
+import 'package:vakit/bloc/tracked_locations/tracked_locations_state.dart';
+import 'package:vakit/l10n/generated/app_localizations.dart';
+import 'package:vakit/models/prayer_summary.dart';
+import 'package:vakit/models/prayer_times_model.dart';
+import 'package:vakit/models/tracked_location.dart';
+import 'package:vakit/utlis/thems/colors.dart';
 
 String _getLocalizedPrayerName(BuildContext context, String prayerName) {
   final locale = Localizations.localeOf(context);
@@ -747,6 +747,8 @@ class _CityPrayerCircleState extends State<_CityPrayerCircle> {
     'Maghrib',
     'Isha',
   ];
+  
+  bool _allExpanded = false; // Tüm kutucukların durumu
 
   String _getLocalizedPrayerName(String prayerName) {
     final locale = Localizations.localeOf(context);
@@ -894,36 +896,42 @@ class _CityPrayerCircleState extends State<_CityPrayerCircle> {
     final innerRadius = circleRadius * 0.95;
 
     return Center(
-      child: SizedBox(
-        width: diameter,
-        height: diameter,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Çember
-            CustomPaint(
-              size: Size(diameter, diameter),
-              painter: _CityPrayerCirclePainter(
-                angles: farzAngles,
-                prayerNames: prayerNames,
-                nowAngle: _angleFromAksam(widget.prayerTimes, now),
-                kerahatMarkers: [
-                  (
-                    _timeAngleWithOffset(widget.prayerTimes, 'Sunrise', 45),
-                    'K',
-                  ),
-                  (
-                    _timeAngleWithOffset(widget.prayerTimes, 'Dhuhr', -45),
-                    'K',
-                  ),
-                  (
-                    _timeAngleWithOffset(widget.prayerTimes, 'Maghrib', -45),
-                    'K',
-                  ),
-                ],
-                circleRadius: circleRadius,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _allExpanded = !_allExpanded;
+          });
+        },
+        child: SizedBox(
+          width: diameter,
+          height: diameter,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Çember
+              CustomPaint(
+                size: Size(diameter, diameter),
+                painter: _CityPrayerCirclePainter(
+                  angles: farzAngles,
+                  prayerNames: prayerNames,
+                  nowAngle: _angleFromAksam(widget.prayerTimes, now),
+                  kerahatMarkers: [
+                    (
+                      _timeAngleWithOffset(widget.prayerTimes, 'Sunrise', 45),
+                      'K',
+                    ),
+                    (
+                      _timeAngleWithOffset(widget.prayerTimes, 'Dhuhr', -45),
+                      'K',
+                    ),
+                    (
+                      _timeAngleWithOffset(widget.prayerTimes, 'Maghrib', -45),
+                      'K',
+                    ),
+                  ],
+                  circleRadius: circleRadius,
+                ),
               ),
-            ),
 
             // Geri sayım ortada
             if (next != null)
@@ -989,10 +997,12 @@ class _CityPrayerCircleState extends State<_CityPrayerCircle> {
                   child: _CityPrayerBox(
                     label: prayerNames[i],
                     displayLabel: _getLocalizedPrayerName(prayerNames[i]),
+                    isExpanded: _allExpanded,
                   ),
                 );
               }),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1190,44 +1200,40 @@ class _CityPrayerCirclePainter extends CustomPainter {
       old.circleRadius != circleRadius;
 }
 
-class _CityPrayerBox extends StatefulWidget {
+class _CityPrayerBox extends StatelessWidget {
   final String label;
   final String? displayLabel;
-  const _CityPrayerBox({required this.label, this.displayLabel});
-
-  @override
-  State<_CityPrayerBox> createState() => _CityPrayerBoxState();
-}
-
-class _CityPrayerBoxState extends State<_CityPrayerBox> {
-  bool expanded = false;
+  final bool isExpanded;
   
+  const _CityPrayerBox({
+    required this.label,
+    this.displayLabel,
+    required this.isExpanded,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => setState(() => expanded = !expanded),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: expanded ? 50 : 22,
-        height: expanded ? 50 : 22,
-        decoration: BoxDecoration(
-          color: _boxColorFor(widget.label),
-          borderRadius: BorderRadius.circular(expanded ? 8 : 11),
-        ),
-        alignment: Alignment.center,
-        child:
-            expanded
-                ? Text(
-                  widget.displayLabel ?? widget.label,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 9,
-                    color: Colors.white,
-                  ),
-                )
-                : null,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: isExpanded ? 70 : 30,
+      height: isExpanded ? 70 : 30,
+      decoration: BoxDecoration(
+        color: _boxColorFor(label),
+        borderRadius: BorderRadius.circular(isExpanded ? 10 : 15),
       ),
+      alignment: Alignment.center,
+      child:
+          isExpanded
+              ? Text(
+                displayLabel ?? label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                  color: Colors.white,
+                ),
+              )
+              : null,
     );
   }
 
