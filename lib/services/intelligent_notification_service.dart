@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,7 +73,7 @@ class IntelligentNotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    print('Notification tapped: ${response.payload}');
+    debugPrint('Notification tapped: ${response.payload}');
   }
 
   Future<void> _createNotificationChannels() async {
@@ -356,9 +357,9 @@ class IntelligentNotificationService {
       final box = await Hive.openBox(QadaRepository.boxName);
       final repo = QadaRepository(box);
       await repo.recordMissedPrayer(dateKey: dateKey, prayerName: prayerName);
-      print('Missed prayer recorded: $prayerName on $dateKey');
+      debugPrint('Missed prayer recorded: $prayerName on $dateKey');
     } catch (e) {
-      print('Error recording missed prayer: $e');
+      debugPrint('Error recording missed prayer: $e');
     }
   }
 

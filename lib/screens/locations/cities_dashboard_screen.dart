@@ -13,8 +13,6 @@ import 'package:vakit/models/tracked_location.dart';
 import 'package:vakit/services/widget_service.dart';
 import 'package:vakit/utlis/thems/colors.dart';
 
-
-
 class CitiesDashboardScreen extends StatefulWidget {
   const CitiesDashboardScreen({super.key});
 
@@ -33,7 +31,7 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
   }
 
   void _setupTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {}); // Trigger rebuild for countdown
       }
@@ -111,7 +109,10 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                          : const Icon(Icons.my_location, color: Colors.black87),
+                          : const Icon(
+                            Icons.my_location,
+                            color: Colors.black87,
+                          ),
                 ),
                 IconButton(
                   tooltip: localization.citiesRefreshAction,
@@ -181,7 +182,7 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
 
   void _setActive(TrackedLocation location) {
     context.read<TrackedLocationsCubit>().selectLocation(location.id);
-    
+
     // Optimistic update for widget
     final state = context.read<TrackedLocationsCubit>().state;
     final summary = state.prayerSummaries[location.id];
@@ -232,6 +233,7 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
     );
 
     if (shouldDelete == true) {
+      if (!mounted) return;
       await context.read<TrackedLocationsCubit>().removeLocation(id);
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -328,12 +330,13 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
                             isSubmitting
                                 ? null
                                 : () async {
+                                  final messenger = ScaffoldMessenger.of(
+                                    this.context,
+                                  );
                                   final query = addressController.text.trim();
                                   final label = labelController.text.trim();
                                   if (query.isEmpty) {
-                                    ScaffoldMessenger.of(
-                                      this.context,
-                                    ).showSnackBar(
+                                    messenger.showSnackBar(
                                       SnackBar(
                                         content: Text(
                                           localization.addressRequired,
@@ -352,10 +355,8 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
                                               label.isEmpty ? null : label,
                                         );
                                     if (!mounted) return;
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(
-                                      this.context,
-                                    ).showSnackBar(
+                                    Navigator.of(this.context).pop();
+                                    messenger.showSnackBar(
                                       SnackBar(
                                         content: Text(
                                           localization.locationSaved,
@@ -363,11 +364,18 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
                                       ),
                                     );
                                   } on TrackedLocationLimitReached {
-                                    _showLimitSnack();
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          localization.maxLocationsReached(
+                                            TrackedLocationsCubit
+                                                .maxManualLocations,
+                                          ),
+                                        ),
+                                      ),
+                                    );
                                   } on TrackedLocationLookupFailed {
-                                    ScaffoldMessenger.of(
-                                      this.context,
-                                    ).showSnackBar(
+                                    messenger.showSnackBar(
                                       SnackBar(
                                         content: Text(
                                           localization.locationSearchFailed,
@@ -375,9 +383,7 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
                                       ),
                                     );
                                   } on TrackedLocationValidationError {
-                                    ScaffoldMessenger.of(
-                                      this.context,
-                                    ).showSnackBar(
+                                    messenger.showSnackBar(
                                       SnackBar(
                                         content: Text(
                                           localization.addressRequired,
@@ -385,9 +391,7 @@ class _CitiesDashboardScreenState extends State<CitiesDashboardScreen>
                                       ),
                                     );
                                   } catch (_) {
-                                    ScaffoldMessenger.of(
-                                      this.context,
-                                    ).showSnackBar(
+                                    messenger.showSnackBar(
                                       SnackBar(
                                         content: Text(
                                           localization.genericError,
@@ -451,7 +455,7 @@ class _CitySummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -493,7 +497,7 @@ class _CitySummaryCard extends StatelessWidget {
                 children: [
                   if (location.isAuto)
                     Chip(
-                      backgroundColor: AppColors.primary.withOpacity(0.2),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                       label: Text(
                         localization.currentLocation,
                         style: const TextStyle(color: Colors.black87),
@@ -501,7 +505,7 @@ class _CitySummaryCard extends StatelessWidget {
                     ),
                   if (isActive)
                     Chip(
-                      backgroundColor: AppColors.accent.withOpacity(0.2),
+                      backgroundColor: AppColors.accent.withValues(alpha: 0.2),
                       label: Text(
                         localization.active,
                         style: const TextStyle(color: Colors.black87),
@@ -569,7 +573,7 @@ class _SummaryRow extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withOpacity(0.03),
+        color: Colors.white.withValues(alpha: 0.03),
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
@@ -616,7 +620,7 @@ class _EmptyCitiesState extends StatelessWidget {
         children: [
           Icon(
             Icons.travel_explore,
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             size: 56,
           ),
           const SizedBox(height: 16),

@@ -130,12 +130,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               end: Alignment.bottomRight,
               colors: [
                 theme.colorScheme.primary,
-                theme.colorScheme.primary.withOpacity(0.85),
+                theme.colorScheme.primary.withValues(alpha: 0.85),
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: theme.colorScheme.primary.withOpacity(0.3),
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -201,8 +201,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             CircleAvatar(
                               radius: 60,
-                              backgroundColor: AppColors.primary.withOpacity(
-                                0.1,
+                              backgroundColor: AppColors.primary.withValues(
+                                alpha: 0.1,
                               ),
                               backgroundImage:
                                   _profileImagePath != null
@@ -319,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           // Cinsiyet
                           DropdownButtonFormField<String>(
-                            value: _gender,
+                            initialValue: _gender,
                             items: [
                               DropdownMenuItem(
                                 value: 'male',
@@ -388,7 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -414,8 +414,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   });
                                 },
-                                selectedColor: AppColors.primary.withOpacity(
-                                  0.2,
+                                selectedColor: AppColors.primary.withValues(
+                                  alpha: 0.2,
                                 ),
                                 checkmarkColor: AppColors.primary,
                               );
@@ -497,7 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -508,7 +508,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: AppColors.primary),
@@ -536,7 +536,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),

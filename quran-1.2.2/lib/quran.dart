@@ -210,12 +210,13 @@ String getVerse(int surahNumber, int verseNumber,
 
   return verse + (verseEndSymbol ? getVerseEndSymbol(verseNumber) : "");
 }
+
 String getVerseQCF(int surahNumber, int verseNumber,
     {bool verseEndSymbol = false}) {
   String verse = "";
   for (var i in quranText) {
     if (i['surah_number'] == surahNumber && i['verse_number'] == verseNumber) {
-      verse = i['qcfData'].toString();//print(verse);
+      verse = i['qcfData'].toString(); //print(verse);
       break;
     }
   }
@@ -226,6 +227,7 @@ String getVerseQCF(int surahNumber, int verseNumber,
 
   return verse + (verseEndSymbol ? getVerseEndSymbol(verseNumber) : "");
 }
+
 ///Takes [juzNumber] and returns Juz URL (from Quran.com)
 String getJuzURL(int juzNumber) {
   return "https://quran.com/juz/$juzNumber";
@@ -374,12 +376,12 @@ enum Translation {
   enSaheeh,
   trSaheeh,
   mlAbdulHameed,
-  amh_muhammedsadiqan,
-  ind_indonesianislam,
-  jpn_ryoichimita,
-  nld_fredleemhuis,
-  por_helminasr,
-  rus_ministryofawqaf,
+  amhMuhammedsadiqan,
+  indIndonesianislam,
+  jpnRyoichimita,
+  nldFredleemhuis,
+  porHelminasr,
+  rusMinistryofawqaf,
   tafseerMuyassar,
   tafseerjalalayn,
   tafseerSiraj
@@ -507,7 +509,7 @@ String getVerseTranslation(int surahNumber, int verseNumber,
 Map searchWords(String words) {
   List<Map> result = [];
 // print(words);
-  for (var i in quran_text_normal) {
+  for (var i in quranTextNormal) {
     // bool exist = false;
 
     // bool exist = false;

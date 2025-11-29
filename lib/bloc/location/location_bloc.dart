@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vakit/bloc/location/location_event.dart';
 import 'package:vakit/bloc/location/location_state.dart';
-import 'package:vakit/services/LocationService.dart';
+import 'package:vakit/services/location_service.dart';
 
 class LocationBloc extends Bloc<LocationEvent, LocationState> {
   final LocationService _locationService;
@@ -11,16 +11,16 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     on<LocationUpdate>(_onLocationUpdate);
   }
 
-  Future<void> _onLocationLoad(LocationLoad event, Emitter<LocationState> emit) async {
-    print("loading");
+  Future<void> _onLocationLoad(
+    LocationLoad event,
+    Emitter<LocationState> emit,
+  ) async {
     emit(LocationLoading());
     try {
       final position = await _locationService.loadLocationData();
-          print("loading ==> ${position}");
 
       emit(LocationLoaded(position.latitude, position.longitude));
     } catch (e) {
-      print(e);
       emit(LocationError(e.toString()));
     }
   }

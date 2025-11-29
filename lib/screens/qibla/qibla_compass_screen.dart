@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -102,7 +101,9 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
     try {
       // Mevcut konumu al
       _currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
       // Kıble yönünü hesapla
@@ -268,8 +269,8 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
   double _calculateQiblaDirection(double latitude, double longitude) {
     final lat1 = latitude * math.pi / 180;
     final lon1 = longitude * math.pi / 180;
-    final lat2 = _kaabaLatitude * math.pi / 180;
-    final lon2 = _kaabaLongitude * math.pi / 180;
+    const lat2 = _kaabaLatitude * math.pi / 180;
+    const lon2 = _kaabaLongitude * math.pi / 180;
 
     final dLon = lon2 - lon1;
 
@@ -416,12 +417,12 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
                   decoration: BoxDecoration(
                     color:
                         _isFacingQibla
-                            ? Colors.green.withOpacity(
-                              _arModeEnabled ? 0.8 : 0.1,
+                            ? Colors.green.withValues(
+                              alpha: _arModeEnabled ? 0.8 : 0.1,
                             )
                             : (_arModeEnabled
-                                ? Colors.black.withOpacity(0.5)
-                                : AppColors.primary.withOpacity(0.1)),
+                                ? Colors.black.withValues(alpha: 0.5)
+                                : AppColors.primary.withValues(alpha: 0.1)),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: _isFacingQibla ? Colors.green : AppColors.primary,
@@ -488,7 +489,7 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -564,7 +565,7 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -610,12 +611,12 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
               isActive
                   ? AppColors.primary
                   : (_arModeEnabled
-                      ? Colors.black.withOpacity(0.5)
+                      ? Colors.black.withValues(alpha: 0.5)
                       : Colors.white),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -657,14 +658,15 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       margin: const EdgeInsets.symmetric(horizontal: 40),
       decoration: BoxDecoration(
-        color: _arModeEnabled ? Colors.black.withOpacity(0.5) : Colors.white,
+        color:
+            _arModeEnabled ? Colors.black.withValues(alpha: 0.5) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow:
             _arModeEnabled
                 ? null
                 : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 8,
                   ),
                 ],
@@ -723,7 +725,7 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
             height: 250,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               border: Border.all(
                 color: _isFacingQibla ? Colors.green : Colors.white,
                 width: 3,
@@ -792,17 +794,17 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.primary.withOpacity(0.1),
-                  AppColors.primaryLight.withOpacity(0.05),
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.primaryLight.withValues(alpha: 0.05),
                 ],
               ),
               border: Border.all(
-                color: AppColors.primary.withOpacity(0.3),
+                color: AppColors.primary.withValues(alpha: 0.3),
                 width: 3,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.2),
+                  color: AppColors.primary.withValues(alpha: 0.2),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),
@@ -818,7 +820,7 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -845,7 +847,7 @@ class _QiblaCompassScreenState extends State<QiblaCompassScreen>
               boxShadow: [
                 BoxShadow(
                   color: (_isFacingQibla ? Colors.green : AppColors.accent)
-                      .withOpacity(0.3),
+                      .withValues(alpha: 0.3),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
@@ -1083,7 +1085,7 @@ class CompassPainter extends CustomPainter {
 
     // Ok ucu
     final arrowHeadPath = Path();
-    final arrowHeadSize = 12.0;
+    const arrowHeadSize = 12.0;
     final arrowAngle1 = qiblaAngle - math.pi / 6;
     final arrowAngle2 = qiblaAngle + math.pi / 6;
 
@@ -1106,7 +1108,7 @@ class CompassPainter extends CustomPainter {
           ..color = accentColor
           ..style = PaintingStyle.fill;
 
-    final kaabaSize = 16.0;
+    const kaabaSize = 16.0;
     final kaabaRect = RRect.fromRectAndRadius(
       Rect.fromCenter(
         center: qiblaIconCenter,
@@ -1194,7 +1196,7 @@ class _CalibrationDialogState extends State<_CalibrationDialog>
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(

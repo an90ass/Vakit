@@ -15,7 +15,6 @@ ThemeData buildVakitTheme(VakitPalette palette, double softness) {
   final colorScheme = ColorScheme.light(
     primary: palette.primary,
     secondary: palette.accent,
-    background: background,
     surface: surface,
   );
 
@@ -68,7 +67,7 @@ ThemeData buildVakitTheme(VakitPalette palette, double softness) {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: primaryLight.withOpacity(0.25),
+      fillColor: primaryLight.withValues(alpha: 0.25),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: palette.border),
@@ -80,9 +79,9 @@ ThemeData buildVakitTheme(VakitPalette palette, double softness) {
     ),
     sliderTheme: SliderThemeData(
       activeTrackColor: palette.primary,
-      inactiveTrackColor: palette.primary.withOpacity(0.2),
+      inactiveTrackColor: palette.primary.withValues(alpha: 0.2),
       thumbColor: palette.accent,
-      overlayColor: palette.accent.withOpacity(0.2),
+      overlayColor: palette.accent.withValues(alpha: 0.2),
     ),
     dividerColor: palette.border,
   );

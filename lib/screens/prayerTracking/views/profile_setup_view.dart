@@ -44,7 +44,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
     _nameController = TextEditingController(text: profile?.name ?? '');
     _birthYearController = TextEditingController();
     _selectedBirthDate = profile?.birthDate;
-    
+
     _gender = profile?.gender ?? 'unspecified';
     _qadaEnabled = profile?.qadaModeEnabled ?? true;
     _notificationsEnabled = profile?.extraPrayerNotifications ?? false;
@@ -77,9 +77,9 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Resim seçilemedi: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Resim seçilemedi: $e')));
       }
     }
   }
@@ -95,7 +95,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   Widget build(BuildContext context) {
     final localization = AppLocalizations.of(context)!;
     final isEditing = widget.initialProfile != null;
-    final title = isEditing ? localization.profileUpdate : localization.profileSetupTitle;
+    final title =
+        isEditing ? localization.profileUpdate : localization.profileSetupTitle;
 
     return BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
@@ -108,22 +109,21 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       builder: (context, state) {
         final isSaving = state.status == ProfileStatus.saving;
         final localization = AppLocalizations.of(context)!;
-          final theme = Theme.of(context);
+        final theme = Theme.of(context);
 
         return SafeArea(
           minimum: const EdgeInsets.all(16),
           child: SingleChildScrollView(
-         
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                 style: theme.textTheme.headlineSmall?.copyWith(
-        fontWeight: FontWeight.w700,
-        color:Colors.black54,
-        fontSize: 20,
-      ),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54,
+                    fontSize: 20,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -132,169 +132,179 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                     context,
                   ).textTheme.bodySmall?.copyWith(color: Colors.black54),
                 ),
-                  const SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Center(
                   child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
-                        backgroundImage:
-                            _profileImagePath != null
-                                ? FileImage(File(_profileImagePath!))
-                                : null,
-                        child:
-                            _profileImagePath == null
-                                ? Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: AppColors.primary,
-                                )
-                                : null,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                    onTap: _pickImage,
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: AppColors.primary.withValues(
+                            alpha: 0.1,
                           ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            size: 18,
-                            color: Colors.white,
+                          backgroundImage:
+                              _profileImagePath != null
+                                  ? FileImage(File(_profileImagePath!))
+                                  : null,
+                          child:
+                              _profileImagePath == null
+                                  ? Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: AppColors.primary,
+                                  )
+                                  : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.accent,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: localization.profileName,
-                        border: OutlineInputBorder(),
-                      ),
-                      textCapitalization: TextCapitalization.words,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return localization.profileNameRequired;
-                        }
-                        if (value.trim().length < 2) {
-                          return localization.profileNameMinLength;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    InkWell(
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedBirthDate ?? DateTime(2000, 1, 1),
-                          firstDate: DateTime(1930),
-                          lastDate: DateTime.now(),
-                          helpText: localization.profileBirthDateHelp,
-                        );
-                        if (date != null) {
-                          setState(() {
-                            _selectedBirthDate = date;
-                          });
-                        }
-                      },
-                      child: InputDecorator(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
                         decoration: InputDecoration(
-                          labelText: localization.profileBirthDate,
-                          border: OutlineInputBorder(),
-                          suffixIcon: Icon(Icons.calendar_today),
+                          labelText: localization.profileName,
+                          border: const OutlineInputBorder(),
                         ),
-                        child: Text(
-                          _selectedBirthDate != null
-                              ? '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}'
-                              : localization.profileSelectDate,
-                          style: TextStyle(
-                            color: _selectedBirthDate != null
-                                ? Colors.black87
-                                : Colors.black54,
+                        textCapitalization: TextCapitalization.words,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return localization.profileNameRequired;
+                          }
+                          if (value.trim().length < 2) {
+                            return localization.profileNameMinLength;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      InkWell(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate:
+                                _selectedBirthDate ?? DateTime(2000, 1, 1),
+                            firstDate: DateTime(1930),
+                            lastDate: DateTime.now(),
+                            helpText: localization.profileBirthDateHelp,
+                          );
+                          if (date != null) {
+                            setState(() {
+                              _selectedBirthDate = date;
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: localization.profileBirthDate,
+                            border: const OutlineInputBorder(),
+                            suffixIcon: const Icon(Icons.calendar_today),
+                          ),
+                          child: Text(
+                            _selectedBirthDate != null
+                                ? '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}'
+                                : localization.profileSelectDate,
+                            style: TextStyle(
+                              color:
+                                  _selectedBirthDate != null
+                                      ? Colors.black87
+                                      : Colors.black54,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _gender,
-                      items: [
-                        DropdownMenuItem(value: 'male', child: Text(localization.profileGenderMale)),
-                        DropdownMenuItem(value: 'female', child: Text(localization.profileGenderFemale)),
-                        DropdownMenuItem(
-                          value: 'unspecified',
-                          child: Text(localization.profileGenderUnspecified),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        initialValue: _gender,
+                        items: [
+                          DropdownMenuItem(
+                            value: 'male',
+                            child: Text(localization.profileGenderMale),
+                          ),
+                          DropdownMenuItem(
+                            value: 'female',
+                            child: Text(localization.profileGenderFemale),
+                          ),
+                          DropdownMenuItem(
+                            value: 'unspecified',
+                            child: Text(localization.profileGenderUnspecified),
+                          ),
+                        ],
+                        decoration: InputDecoration(
+                          labelText: localization.profileGender,
+                          border: const OutlineInputBorder(),
                         ),
-                      ],
-                      decoration: InputDecoration(
-                        labelText: localization.profileGender,
-                        border: OutlineInputBorder(),
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() => _gender = value);
+                        },
                       ),
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setState(() => _gender = value);
-                      },
-                    ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
                 _buildSwitchTile(
-                title: localization.qadaTracking,
-                subtitle: localization.qadaTrackingSubtitle,
-                value: _qadaEnabled,
+                  title: localization.qadaTracking,
+                  subtitle: localization.qadaTrackingSubtitle,
+                  value: _qadaEnabled,
                   onChanged: (value) => setState(() => _qadaEnabled = value),
                 ),
                 const SizedBox(height: 12),
                 _buildSwitchTile(
-                title: localization.extraPrayerNotifications,
-                subtitle: localization.extraPrayerNotificationsSubtitle,
-                value: _notificationsEnabled,
+                  title: localization.extraPrayerNotifications,
+                  subtitle: localization.extraPrayerNotificationsSubtitle,
+                  value: _notificationsEnabled,
                   onChanged:
                       (value) => setState(() => _notificationsEnabled = value),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   localization.extraPrayers,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children:
-                    ExtraPrayerType.values.map((type) {
-                      final isSelected = _selectedExtraPrayers.contains(type);
-                      return ChoiceChip(
-                        label: Text(type.titleLocalized(context)),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedExtraPrayers.add(type);
-                            } else {
-                              _selectedExtraPrayers.remove(type);
-                            }
-                          });
-                        },
+                  spacing: 8,
+                  runSpacing: 8,
+                  children:
+                      ExtraPrayerType.values.map((type) {
+                        final isSelected = _selectedExtraPrayers.contains(type);
+                        return ChoiceChip(
+                          label: Text(type.titleLocalized(context)),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              if (selected) {
+                                _selectedExtraPrayers.add(type);
+                              } else {
+                                _selectedExtraPrayers.remove(type);
+                              }
+                            });
+                          },
                         );
                       }).toList(),
                 ),
@@ -302,17 +312,23 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    icon:
-                        isSaving
-                            ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.check_circle_outline),
-                      label: Text(isEditing ? localization.save : localization.profileStart),
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      icon:
+                          isSaving
+                              ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : const Icon(Icons.check_circle_outline),
+                      label: Text(
+                        isEditing
+                            ? localization.save
+                            : localization.profileStart,
+                      ),
                       onPressed: isSaving ? null : _submit,
                     ),
                   ),
@@ -338,7 +354,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -356,16 +372,16 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final localization = AppLocalizations.of(context)!;
-    
+
     if (_selectedBirthDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localization.profileBirthDateRequired)),
       );
       return;
     }
-    
+
     final profileCubit = context.read<ProfileCubit>();
     final base = widget.initialProfile;
     final extraIds = _selectedExtraPrayers.map((type) => type.id).toList();
@@ -393,6 +409,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
             );
 
     await profileCubit.saveProfile(profile);
+    if (!mounted) return;
     final prayerState = context.read<PrayerBloc>().state;
     if (prayerState is PrayerLoaded) {
       await profileCubit.scheduleRemindersIfNeeded(

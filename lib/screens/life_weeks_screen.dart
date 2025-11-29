@@ -16,7 +16,7 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
   int _totalWeeksLived = 0;
   bool _loading = true;
   bool _showInfo = false;
-  
+
   static const int lifeYears = 63;
 
   @override
@@ -37,17 +37,16 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedBirthDate = prefs.getString('birthDate');
-      
+
       if (savedBirthDate != null) {
         _birthDateController.text = savedBirthDate;
         await _calculateWeeks(savedBirthDate);
       }
-      
+
       setState(() {
         _loading = false;
       });
     } catch (error) {
-      print('Veri yüklenirken hata: $error');
       setState(() {
         _loading = false;
       });
@@ -59,47 +58,54 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
       final birthDate = DateFormat('dd.MM.yyyy').parseStrict(dateStr);
       final today = DateTime.now();
       int totalWeeks = 0;
-      
-      final updatedWeeks = _lifeWeeks.asMap().entries.map((yearEntry) {
-        final yearIndex = yearEntry.key;
-        final year = yearEntry.value;
-        
-        return year.asMap().entries.map((weekEntry) {
-          final weekIndex = weekEntry.key;
-          final weekDate = birthDate.add(Duration(days: (yearIndex * 52 + weekIndex) * 7));
-          final isPastWeek = weekDate.isBefore(today);
-          
-          if (isPastWeek) totalWeeks++;
-          return isPastWeek;
-        }).toList();
-      }).toList();
-      
+
+      final updatedWeeks =
+          _lifeWeeks.asMap().entries.map((yearEntry) {
+            final yearIndex = yearEntry.key;
+            final year = yearEntry.value;
+
+            return year.asMap().entries.map((weekEntry) {
+              final weekIndex = weekEntry.key;
+              final weekDate = birthDate.add(
+                Duration(days: (yearIndex * 52 + weekIndex) * 7),
+              );
+              final isPastWeek = weekDate.isBefore(today);
+
+              if (isPastWeek) totalWeeks++;
+              return isPastWeek;
+            }).toList();
+          }).toList();
+
       setState(() {
         _lifeWeeks = updatedWeeks;
         _remainingWeeks = lifeYears * 52 - totalWeeks;
         _totalWeeksLived = totalWeeks;
       });
-      
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('birthDate', dateStr);
     } catch (error) {
-      _showErrorDialog('Geçersiz Tarih', 'Lütfen geçerli bir doğum tarihi girin (DD.MM.YYYY formatında).');
+      _showErrorDialog(
+        'Geçersiz Tarih',
+        'Lütfen geçerli bir doğum tarihi girin (DD.MM.YYYY formatında).',
+      );
     }
   }
 
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tamam'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Tamam'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -111,21 +117,22 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
 
   void _formatInput(String text) {
     String formatted = text.replaceAll(RegExp(r'[^0-9.]'), '');
-    
+
     if (formatted.length > 2 && !formatted.contains('.')) {
       formatted = '${formatted.substring(0, 2)}.${formatted.substring(2)}';
     }
     if (formatted.length > 5 && formatted.indexOf('.') == 2) {
       final parts = formatted.split('.');
       if (parts.length >= 2 && parts[1].length > 2) {
-        formatted = '${parts[0]}.${parts[1].substring(0, 2)}.${parts[1].substring(2, parts[1].length > 6 ? 6 : parts[1].length)}';
+        formatted =
+            '${parts[0]}.${parts[1].substring(0, 2)}.${parts[1].substring(2, parts[1].length > 6 ? 6 : parts[1].length)}';
       }
     }
-    
+
     if (formatted.length > 10) {
       formatted = formatted.substring(0, 10);
     }
-    
+
     _birthDateController.text = formatted;
     _birthDateController.selection = TextSelection.fromPosition(
       TextPosition(offset: formatted.length),
@@ -134,7 +141,7 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
 
   Color _getBoxColor(bool isPastWeek, int yearIndex) {
     if (!isPastWeek) return Colors.grey.shade300;
-    
+
     if (yearIndex < 7) return const Color(0xFF4FC3F7);
     if (yearIndex < 18) return const Color(0xFF81C784);
     if (yearIndex < 40) return const Color(0xFFFFD54F);
@@ -145,45 +152,49 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
   Widget _buildWeekBoxes() {
     final screenWidth = MediaQuery.of(context).size.width;
     final boxSize = ((screenWidth - 70) / 52).clamp(5.0, 10.0);
-    
+
     return Column(
-      children: _lifeWeeks.asMap().entries.map((yearEntry) {
-        final yearIndex = yearEntry.key;
-        final year = yearEntry.value;
-        
-        return Row(
-          children: [
-            if (yearIndex % 5 == 0)
-              SizedBox(
-                width: 25,
-                child: Text(
-                  '$yearIndex',
-                  style: const TextStyle(fontSize: 11, color: Colors.black54),
-                ),
-              )
-            else
-              const SizedBox(width: 25),
-            Expanded(
-              child: Wrap(
-                children: year.asMap().entries.map((weekEntry) {
-                  final weekIndex = weekEntry.key;
-                  final isPastWeek = weekEntry.value;
-                  
-                  return Container(
-                    width: boxSize,
-                    height: boxSize,
-                    margin: const EdgeInsets.all(0.5),
-                    decoration: BoxDecoration(
-                      color: _getBoxColor(isPastWeek, yearIndex),
-                      borderRadius: BorderRadius.circular(1),
+      children:
+          _lifeWeeks.asMap().entries.map((yearEntry) {
+            final yearIndex = yearEntry.key;
+            final year = yearEntry.value;
+
+            return Row(
+              children: [
+                if (yearIndex % 5 == 0)
+                  SizedBox(
+                    width: 25,
+                    child: Text(
+                      '$yearIndex',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.black54,
+                      ),
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        );
-      }).toList(),
+                  )
+                else
+                  const SizedBox(width: 25),
+                Expanded(
+                  child: Wrap(
+                    children:
+                        year.asMap().entries.map((weekEntry) {
+                          final isPastWeek = weekEntry.value;
+
+                          return Container(
+                            width: boxSize,
+                            height: boxSize,
+                            margin: const EdgeInsets.all(0.5),
+                            decoration: BoxDecoration(
+                              color: _getBoxColor(isPastWeek, yearIndex),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
     );
   }
 
@@ -199,24 +210,32 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
     return Wrap(
       spacing: 8,
       runSpacing: 4,
-      children: legendItems.map((item) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: item['color'] as Color,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            item['text'] as String,
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
-        ],
-      )).toList(),
+      children:
+          legendItems
+              .map(
+                (item) => Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: item['color'] as Color,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      item['text'] as String,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              .toList(),
     );
   }
 
@@ -317,7 +336,11 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
                       'Bu tablo, Hz. Muhammed (S.A.V.)\'in yaşadığı 63 yıl süresince her hafta için bir kutu gösterir. '
                       'Geçmiş haftalar renkli, gelecekteki haftalar gri olarak görünür. '
                       'Doğum tarihinizi girerek yaşamınızdaki geçen ve kalan haftaları görebilirsiniz.',
-                      style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _buildLegend(),
@@ -325,7 +348,7 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
                 ),
               ),
             ],
-            
+
             // Doğum tarihi girişi
             Row(
               children: [
@@ -335,7 +358,10 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
                     decoration: const InputDecoration(
                       hintText: 'Doğum Tarihi (DD.MM.YYYY)',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 16,
+                      ),
                     ),
                     keyboardType: TextInputType.number,
                     maxLength: 10,
@@ -347,20 +373,26 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
                   onPressed: _handleCalculate,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1e63b4),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                   ),
-                  child: const Text('Hesapla', style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Hesapla',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Hafta kutuları
             _buildWeekBoxes(),
-            
+
             const SizedBox(height: 20),
-            
+
             // İstatistikler
             if (_remainingWeeks != null) ...[
               Container(
@@ -370,7 +402,7 @@ class _LifeWeeksScreenState extends State<LifeWeeksScreen> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       spreadRadius: 1,
                       blurRadius: 2,
                       offset: const Offset(0, 1),

@@ -2,7 +2,7 @@
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
-// import 'package:vakit/screens/quran/views/quranScreen.dart';
+// import 'package:vakit/screens/quran/views/quran_screen.dart';
 // import 'package:vakit/utlis/thems/colors.dart';
 // // import 'package:quran/dart';
 // import 'package:quran/quran.dart';
@@ -49,7 +49,6 @@
 //     });
 //   }
 
-
 //   @override
 //   void initState() {
 //             loadJsonAsset();
@@ -63,7 +62,7 @@
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       backgroundColor:Colors.white,
-   
+
 //       body: isLoading
 //           ? const Center(
 //               child: CircularProgressIndicator(),
@@ -178,7 +177,7 @@
 //                     String suraNameEnglishTranslated =
 //                         filteredData[index]["englishNameTranslation"];
 //                     int suraNumberInQuran = filteredData[index]["number"];
-                  
+
 //                     int ayahCount = getVerseCount(suraNumber);
 
 //                     return Padding(
@@ -226,7 +225,7 @@
 //                   style: const TextStyle(
 //                     fontFamily: "arsura",
 //                     fontSize: 22,color: Colors.black
-             
+
 //                   ),
 //                 )),
 //                           onTap: () async {
@@ -279,7 +278,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vakit/bloc/quran/quran_bloc.dart';
 import 'package:vakit/bloc/quran/quran_event.dart';
 import 'package:vakit/bloc/quran/quran_state.dart';
-import 'package:vakit/screens/quran/views/quranScreen.dart';
+import 'package:vakit/screens/quran/views/quran_screen.dart';
 import 'package:vakit/utlis/thems/colors.dart';
 import 'package:quran/quran.dart';
 
@@ -292,14 +291,12 @@ class QuranPage extends StatefulWidget {
 
 class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
- 
+
   bool _isSearchFocused = false;
 
   @override
   void initState() {
     super.initState();
-    
- 
 
     // Load data
     context.read<QuranBloc>().add(LoadQuranData());
@@ -307,7 +304,6 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-
     _searchController.dispose();
     super.dispose();
   }
@@ -317,22 +313,19 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
       margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.white,
-            Colors.grey.shade50,
-          ],
+          colors: [Colors.white, Colors.grey.shade50],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -363,19 +356,21 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(12),
             child: Icon(
               Icons.search,
-              color: _isSearchFocused ? AppColors.primary : Colors.grey.shade400,
+              color:
+                  _isSearchFocused ? AppColors.primary : Colors.grey.shade400,
               size: 24,
             ),
           ),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.grey),
-                  onPressed: () {
-                    _searchController.clear();
-                    bloc.add(ClearSearch());
-                  },
-                )
-              : null,
+          suffixIcon:
+              _searchController.text.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear, color: Colors.grey),
+                    onPressed: () {
+                      _searchController.clear();
+                      bloc.add(ClearSearch());
+                    },
+                  )
+                  : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide.none,
@@ -409,12 +404,15 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
               height: 80,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                  colors: [
+                    AppColors.primary,
+                    AppColors.primary.withValues(alpha: 0.7),
+                  ],
                 ),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -450,15 +448,11 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.red.withOpacity(0.3)),
+              border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
             ),
-            child: const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red,
-            ),
+            child: const Icon(Icons.error_outline, size: 64, color: Colors.red),
           ),
           const SizedBox(height: 20),
           Text(
@@ -493,15 +487,15 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary.withOpacity(0.1), Colors.white],
+          colors: [AppColors.primary.withValues(alpha: 0.1), Colors.white],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -514,14 +508,17 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
           height: 50,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+              colors: [
+                AppColors.primary,
+                AppColors.primary.withValues(alpha: 0.8),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
+                color: AppColors.primary.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -548,10 +545,7 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
         ),
         subtitle: const Text(
           "Page",
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: Colors.grey, fontSize: 14),
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,
@@ -562,12 +556,13 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => QuranViewPage(
-                shouldHighlightText: false,
-                highlightVerse: "",
-                jsonData: jsonData,
-                pageNumber: pageNumber,
-              ),
+              builder:
+                  (context) => QuranViewPage(
+                    shouldHighlightText: false,
+                    highlightVerse: "",
+                    jsonData: jsonData,
+                    pageNumber: pageNumber,
+                  ),
             ),
           );
         },
@@ -576,281 +571,279 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
   }
 
   Widget _buildSurahCard(dynamic sura, int index, var jsonData) {
-  int suraNumber = index + 1;
-  String suraName = sura["englishName"];
-  String suraNameEnglishTranslated = sura["englishNameTranslation"];
-  int suraNumberInQuran = sura["number"];
-  int ayahCount = getVerseCount(suraNumberInQuran);
+    String suraName = sura["englishName"];
+    String suraNameEnglishTranslated = sura["englishNameTranslation"];
+    int suraNumberInQuran = sura["number"];
+    int ayahCount = getVerseCount(suraNumberInQuran);
 
-  return AnimatedContainer(
-    duration: Duration(milliseconds: 400 + (index * 80)),
-    curve: Curves.easeOutCubic,
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-    child: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFFFFFBFF),
-            const Color(0xFFF8F9FA),
-            const Color(0xFFF1F3F4),
-          ],
-          stops: const [0.0, 0.5, 1.0],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.black.withOpacity(0.06),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-            spreadRadius: -4,
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 400 + (index * 80)),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFFBFF), Color(0xFFF8F9FA), Color(0xFFF1F3F4)],
+            stops: [0.0, 0.5, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 40,
-            offset: const Offset(0, 16),
-            spreadRadius: -8,
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
           borderRadius: BorderRadius.circular(24),
-          splashColor: AppColors.primary.withOpacity(0.1),
-          highlightColor: AppColors.primary.withOpacity(0.05),
-          onTap: () {
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    QuranViewPage(
-                  shouldHighlightText: false,
-                  highlightVerse: "",
-                  jsonData: jsonData,
-                  pageNumber: getPageNumber(suraNumberInQuran, 1),
-                ),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(1.0, 0.0),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.fastOutSlowIn,
-                    )),
-                    child: FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    ),
-                  );
-                },
-                transitionDuration: const Duration(milliseconds: 350),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                // Modern number indicator
-                Hero(
-                  tag: 'surah-$suraNumberInQuran',
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary,
-                          AppColors.primary.withOpacity(0.8),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.06),
+            width: 0.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+              spreadRadius: -4,
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 40,
+              offset: const Offset(0, 16),
+              spreadRadius: -8,
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            splashColor: AppColors.primary.withValues(alpha: 0.1),
+            highlightColor: AppColors.primary.withValues(alpha: 0.05),
+            onTap: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder:
+                      (context, animation, secondaryAnimation) => QuranViewPage(
+                        shouldHighlightText: false,
+                        highlightVerse: "",
+                        jsonData: jsonData,
+                        pageNumber: getPageNumber(suraNumberInQuran, 1),
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                          spreadRadius: -2,
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        suraNumberInQuran.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
+                  transitionsBuilder: (
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                  ) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(
+                        CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.fastOutSlowIn,
                         ),
                       ),
-                    ),
-                  ),
+                      child: FadeTransition(opacity: animation, child: child),
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 350),
                 ),
-                
-                const SizedBox(width: 20),
-                
-                // Content section
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // English name
-                      Text(
-                        suraName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1A1A1A),
-                          fontSize: 20,
-                          letterSpacing: -0.5,
-                          height: 1.2,
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 6),
-                      
-                      // Translation and verse count
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              suraNameEnglishTranslated,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(left: 8),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "$ayahCount آیات",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(width: 16),
-                
-                // Arabic name and arrow
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // Arabic name
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  // Modern number indicator
+                  Hero(
+                    tag: 'surah-$suraNumberInQuran',
+                    child: Container(
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.primary.withOpacity(0.08),
-                            AppColors.primary.withOpacity(0.04),
+                            AppColors.primary,
+                            AppColors.primary.withValues(alpha: 0.8),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.primary.withOpacity(0.15),
-                          width: 0.8,
-                        ),
-                      ),
-                      child: Text(
-                        getSurahNameArabic(suraNumberInQuran),
-                        style: TextStyle(
-                          fontFamily: "arsura",
-                          fontSize: 16,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 12),
-                    
-                    // Modern arrow indicator
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppColors.primary.withOpacity(0.15),
-                          width: 1,
-                        ),
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                            spreadRadius: -2,
                           ),
                         ],
                       ),
-                      child: Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: AppColors.primary,
-                        size: 14,
+                      child: Center(
+                        child: Text(
+                          suraNumberInQuran.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+
+                  const SizedBox(width: 20),
+
+                  // Content section
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // English name
+                        Text(
+                          suraName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1A1A1A),
+                            fontSize: 20,
+                            letterSpacing: -0.5,
+                            height: 1.2,
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // Translation and verse count
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                suraNameEnglishTranslated,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "$ayahCount آیات",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 16),
+
+                  // Arabic name and arrow
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Arabic name
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.primary.withValues(alpha: 0.08),
+                              AppColors.primary.withValues(alpha: 0.04),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.15),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Text(
+                          getSurahNameArabic(suraNumberInQuran),
+                          style: TextStyle(
+                            fontFamily: "arsura",
+                            fontSize: 16,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Modern arrow indicator
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.15),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: AppColors.primary,
+                          size: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-} Widget _buildAyatCard(dynamic ayatResult, int index, var jsonData) {
+    );
+  }
+
+  Widget _buildAyatCard(dynamic ayatResult, int index, var jsonData) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.amber.shade50,
-            Colors.orange.shade50,
-          ],
+          colors: [Colors.amber.shade50, Colors.orange.shade50],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.1),
+            color: Colors.amber.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -861,16 +854,20 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => QuranViewPage(
-                shouldHighlightText: true,
-                highlightVerse: getVerse(
-                  ayatResult["surah"],
-                  ayatResult["verse"],
-                  verseEndSymbol: false,
-                ),
-                jsonData: jsonData,
-                pageNumber: getPageNumber(ayatResult["surah"], ayatResult["verse"]),
-              ),
+              builder:
+                  (context) => QuranViewPage(
+                    shouldHighlightText: true,
+                    highlightVerse: getVerse(
+                      ayatResult["surah"],
+                      ayatResult["verse"],
+                      verseEndSymbol: false,
+                    ),
+                    jsonData: jsonData,
+                    pageNumber: getPageNumber(
+                      ayatResult["surah"],
+                      ayatResult["verse"],
+                    ),
+                  ),
             ),
           );
         },
@@ -884,9 +881,12 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.2),
+                      color: Colors.amber.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -938,8 +938,7 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
       body: SafeArea(
         child: BlocConsumer<QuranBloc, QuranState>(
           listener: (context, state) {
-            if (state is QuranLoaded) {
-            }
+            if (state is QuranLoaded) {}
           },
           builder: (context, state) {
             if (state is QuranInitial || state is QuranLoading) {
@@ -953,13 +952,11 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
             if (state is QuranLoaded) {
               return CustomScrollView(
                 slivers: [
-               
-              
                   // Search Bar
                   SliverToBoxAdapter(
                     child: _buildModernSearchBar(context.read<QuranBloc>()),
                   ),
-              
+
                   // Page Numbers Section
                   if (state.pageNumbers.isNotEmpty) ...[
                     SliverToBoxAdapter(
@@ -972,13 +969,15 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                               height: 20,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.5)],
+                                  colors: [
+                                    AppColors.primary,
+                                    AppColors.primary.withValues(alpha: 0.5),
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
                             const SizedBox(width: 12),
-                           
                           ],
                         ),
                       ),
@@ -986,7 +985,9 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) => _buildPageNumberCard(
-                          state.pageNumbers[state.pageNumbers.length - 1 - index],
+                          state.pageNumbers[state.pageNumbers.length -
+                              1 -
+                              index],
                           index,
                           state.surahs,
                         ),
@@ -994,7 +995,7 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                       ),
                     ),
                   ],
-              
+
                   // Surah List Section
                   if (state.filteredSurahs.isNotEmpty) ...[
                     SliverToBoxAdapter(
@@ -1007,7 +1008,10 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                               height: 20,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [AppColors.primary, AppColors.primary.withOpacity(0.5)],
+                                  colors: [
+                                    AppColors.primary,
+                                    AppColors.primary.withValues(alpha: 0.5),
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
@@ -1036,9 +1040,10 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                       ),
                     ),
                   ],
-              
+
                   // Ayat Results Section
-                  if (state.ayatResults != null && state.ayatResults["occurences"] > 0) ...[
+                  if (state.ayatResults != null &&
+                      state.ayatResults["occurences"] > 0) ...[
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
@@ -1049,7 +1054,10 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                               height: 20,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Colors.amber, Colors.amber.withOpacity(0.5)],
+                                  colors: [
+                                    Colors.amber,
+                                    Colors.amber.withValues(alpha: 0.5),
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
@@ -1074,17 +1082,16 @@ class _QuranPageState extends State<QuranPage> with TickerProviderStateMixin {
                           index,
                           state.surahs,
                         ),
-                        childCount: state.ayatResults["occurences"] > 10
-                            ? 10
-                            : state.ayatResults["occurences"],
+                        childCount:
+                            state.ayatResults["occurences"] > 10
+                                ? 10
+                                : state.ayatResults["occurences"],
                       ),
                     ),
                   ],
-              
+
                   // Bottom spacing
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 20),
-                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
                 ],
               );
             }

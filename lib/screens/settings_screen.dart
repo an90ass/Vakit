@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -170,7 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _isLoading = false;
       });
     } catch (error) {
-      print('Ayarlar yüklenirken hata: $error');
+      debugPrint('Ayarlar yüklenirken hata: $error');
       setState(() {
         _isLoading = false;
       });
@@ -213,7 +214,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
 
       final currentLocation = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+        ),
       );
 
       setState(() {
@@ -230,12 +233,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _isLoading = false;
       });
 
+      if (!mounted) return;
       _showSuccessDialog(
         localization.locationUpdatedTitle,
         localization.locationUpdatedBodyAuto,
       );
     } catch (error) {
-      print('Konum alınamadı: $error');
+      debugPrint('Konum alınamadı: $error');
+      if (!mounted) return;
       _showErrorDialog(
         AppLocalizations.of(context)!.errorGenericTitle,
         AppLocalizations.of(context)!.locationFetchError,
@@ -278,7 +283,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _locationMethod = 'manual';
       });
     } catch (error) {
-      print('Şehir kaydedilirken hata: $error');
+      debugPrint('Şehir kaydedilirken hata: $error');
     }
   }
 
@@ -340,6 +345,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _isLoading = false;
       });
 
+      if (!mounted) return;
       _showSuccessDialog(
         localization.locationUpdatedTitle,
         localization.locationUpdatedBodyManual(
@@ -349,10 +355,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     } catch (error) {
-      print('Manuel konum güncellenirken hata: $error');
+      debugPrint('Manuel konum güncellenirken hata: $error');
       setState(() {
         _isLoading = false;
       });
+      if (!mounted) return;
       _showErrorDialog(
         AppLocalizations.of(context)!.errorGenericTitle,
         AppLocalizations.of(context)!.locationUpdateError,
@@ -503,15 +510,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _isLoading = false;
       });
 
+      if (!mounted) return;
       _showSuccessDialog(
         localization.settingsResetSuccessTitle,
         localization.settingsResetSuccessBody,
       );
     } catch (error) {
-      print('Ayarlar sıfırlanırken hata: $error');
+      debugPrint('Ayarlar sıfırlanırken hata: $error');
       setState(() {
         _isLoading = false;
       });
+      if (!mounted) return;
       _showErrorDialog(
         AppLocalizations.of(context)!.errorGenericTitle,
         AppLocalizations.of(context)!.settingsResetError,
@@ -541,7 +550,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 end: Alignment.bottomRight,
                 colors: [
                   theme.colorScheme.surface,
-                  theme.colorScheme.surface.withOpacity(0.95),
+                  theme.colorScheme.surface.withValues(alpha: 0.95),
                 ],
               ),
             ),
@@ -551,7 +560,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.error.withOpacity(0.1),
+                    color: theme.colorScheme.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -577,7 +586,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   message,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -637,7 +646,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 end: Alignment.bottomRight,
                 colors: [
                   theme.colorScheme.surface,
-                  theme.colorScheme.surface.withOpacity(0.95),
+                  theme.colorScheme.surface.withValues(alpha: 0.95),
                 ],
               ),
             ),
@@ -647,7 +656,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -673,7 +682,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   message,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -719,7 +728,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 2,
             offset: const Offset(0, 1),
@@ -790,7 +799,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         width: cardWidth,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? palette.primary.withOpacity(0.08) : Colors.white,
+          color:
+              isSelected
+                  ? palette.primary.withValues(alpha: 0.08)
+                  : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? palette.primary : Colors.grey.shade300,
@@ -798,7 +810,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -1102,7 +1114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _notificationsEnabled,
                     onChanged: _toggleNotifications,
-                    activeColor: Theme.of(context).colorScheme.primary,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -1141,7 +1153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Switch(
                       value: _notificationSound,
                       onChanged: _toggleNotificationSound,
-                      activeColor: Theme.of(context).colorScheme.primary,
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
                     ),
                   ),
 
@@ -1150,7 +1162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Switch(
                       value: _notificationVibration,
                       onChanged: _toggleNotificationVibration,
-                      activeColor: Theme.of(context).colorScheme.primary,
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],
@@ -1167,7 +1179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _showArabicText,
                     onChanged: _toggleArabicText,
-                    activeColor: Theme.of(context).colorScheme.primary,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -1176,7 +1188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _showHijriDate,
                     onChanged: _toggleHijriDate,
-                    activeColor: Theme.of(context).colorScheme.primary,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -1185,7 +1197,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Switch(
                     value: _showGregorianDate,
                     onChanged: _toggleGregorianDate,
-                    activeColor: Theme.of(context).colorScheme.primary,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -1209,7 +1221,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         border: Border.all(color: Colors.grey.shade200),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -1220,7 +1232,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Text(
                             localization.themePaletteTitle,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -1264,7 +1276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               Text(
                                 localization.themeSofteningLabel,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -1442,7 +1454,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor:
               isSelected
                   ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceVariant,
+                  : theme.colorScheme.surfaceContainerHighest,
           foregroundColor:
               isSelected
                   ? theme.colorScheme.onPrimary

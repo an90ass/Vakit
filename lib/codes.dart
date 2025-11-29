@@ -158,88 +158,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }).toList();
   }
 
-  // Yardımcılar: gece uzunluğu ve bölümleri, gün aşımı orta nokta vb.
-  Duration _frac(Duration d, double f) =>
-      Duration(milliseconds: (d.inMilliseconds * f).round());
-
-  DateTime _midAcrossDays(DateTime start, DateTime end) {
-    // end < start ise ertesi güne taşı
-    if (!end.isAfter(start)) end = end.add(const Duration(days: 1));
-    final half = _frac(end.difference(start), 0.5);
-    return start.add(half);
-  }
-
   Map<String, double> _computeNafileAngles() {
     final res = <String, double>{};
     if (prayerTimes == null) return res;
-
-    final imsakToday = _parseToday(prayerTimes!['İmsak']!);
-    final sunrise = _parseToday(prayerTimes!['Güneş']!);
-    final dhuhr = _parseToday(prayerTimes!['Öğle']!);
-    final asr = _parseToday(prayerTimes!['İkindi']!);
-    final maghrib = _parseToday(prayerTimes!['Akşam']!);
-    final isha = _parseToday(prayerTimes!['Yatsı']!);
-
-    final imsakNext = imsakToday.add(const Duration(days: 1));
-    final nightLen = imsakNext.difference(
-      isha.isAfter(maghrib) ? isha : isha,
-    ); // isha bugün
-
-    DateTime midDuha() {
-      final start = sunrise.add(const Duration(minutes: 45));
-      final end = dhuhr.subtract(const Duration(minutes: 15));
-      return _midAcrossDays(start, end);
-    }
-
-    DateTime midTeheccud() {
-      // Gecenin son üçte biri: orta noktası 5/6 oranında
-      final startNight = isha;
-      final mid = startNight.add(_frac(nightLen, 5 / 6));
-      return mid;
-    }
-
-    DateTime midEvvabin() {
-      final start = maghrib.add(const Duration(minutes: 10));
-      final end = isha.subtract(const Duration(minutes: 10));
-      return _midAcrossDays(start, end);
-    }
-
-    DateTime midIstihare() {
-      // Gecenin ilk üçte birinin ortası: 1/6
-      final startNight = isha;
-      return startNight.add(_frac(nightLen, 1 / 6));
-    }
-
-    DateTime midHacet() {
-      // Öğle-Asr aralığında pratik bir orta
-      final start = dhuhr.add(const Duration(hours: 1));
-      final end = asr.subtract(const Duration(minutes: 30));
-      return _midAcrossDays(start, end);
-    }
-
-    DateTime midTesbih() {
-      // Gün içinde geniş: İkindi-Akşam ortası
-      return _midAcrossDays(asr, maghrib);
-    }
-
-    DateTime pickMid(String name) {
-      switch (name) {
-        case 'Duha (Kuşluk)':
-          return midDuha();
-        case 'Teheccüd':
-          return midTeheccud();
-        case 'Evvabin':
-          return midEvvabin();
-        case 'İstihare':
-          return midIstihare();
-        case 'Hacet':
-          return midHacet();
-        case 'Tesbih':
-          return midTesbih();
-      }
-      // bilmezse öğle ortası
-      return _midAcrossDays(dhuhr, asr);
-    }
 
     return res;
   }

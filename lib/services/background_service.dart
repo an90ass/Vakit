@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:home_widget/home_widget.dart';
@@ -43,7 +44,7 @@ Future<void> widgetUpdateCallback() async {
           iOSName: 'PrayerTimeWidget',
         );
 
-        print(
+        debugPrint(
           'Widget arkaplan guncellemesi tamamlandi - Kalan: $timeRemaining',
         );
       } else {
@@ -52,7 +53,7 @@ Future<void> widgetUpdateCallback() async {
       }
     }
   } catch (e) {
-    print('Widget guncelleme hatasi: $e');
+    debugPrint('Widget guncelleme hatasi: $e');
   }
 }
 
@@ -113,9 +114,9 @@ Future<void> notificationCheckCallback() async {
     if (!notificationsEnabled) return;
 
     // Mevcut namaz vakitlerini kontrol et
-    print('Bildirim kontrolu tamamlandi');
+    debugPrint('Bildirim kontrolu tamamlandi');
   } catch (e) {
-    print('Bildirim kontrol hatasi: $e');
+    debugPrint('Bildirim kontrol hatasi: $e');
   }
 }
 
@@ -123,9 +124,9 @@ Future<void> notificationCheckCallback() async {
 Future<void> syncPrayerTimesCallback() async {
   try {
     // API'den yeni namaz vakitlerini al ve kaydet
-    print('Namaz vakti senkronizasyonu tamamlandi');
+    debugPrint('Namaz vakti senkronizasyonu tamamlandi');
   } catch (e) {
-    print('Namaz vakti senkronizasyon hatasi: $e');
+    debugPrint('Namaz vakti senkronizasyon hatasi: $e');
   }
 }
 
@@ -164,7 +165,7 @@ class BackgroundService {
       rescheduleOnReboot: true,
     );
 
-    print('Widget guncelleme gorevi kaydedildi - Her 1 dakika');
+    debugPrint('Widget guncelleme gorevi kaydedildi - Her 1 dakika');
   }
 
   /// Bildirim kontrol gorevini kaydet
@@ -202,7 +203,7 @@ class BackgroundService {
     await registerWidgetUpdateTask();
     await registerNotificationTask();
     await registerSyncTask();
-    print('Tum arkaplan gorevleri kaydedildi');
+    debugPrint('Tum arkaplan gorevleri kaydedildi');
   }
 
   /// Belirli bir gorevi iptal et

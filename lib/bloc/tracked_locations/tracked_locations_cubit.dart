@@ -7,7 +7,7 @@ import 'package:vakit/bloc/tracked_locations/tracked_locations_state.dart';
 import 'package:vakit/models/prayer_summary.dart';
 import 'package:vakit/models/tracked_location.dart';
 import 'package:vakit/repositories/prayer_repository.dart';
-import 'package:vakit/services/LocationService.dart';
+import 'package:vakit/services/location_service.dart';
 import 'package:vakit/services/tracked_location_service.dart';
 import 'package:vakit/utlis/prayer_utils.dart';
 
@@ -106,7 +106,7 @@ class TrackedLocationsCubit extends Cubit<TrackedLocationsState> {
     String? customLabel,
   }) async {
     if (state.manualLocationCount >= maxManualLocations) {
-      throw TrackedLocationLimitReached(maxManualLocations);
+      throw const TrackedLocationLimitReached(maxManualLocations);
     }
 
     final trimmedQuery = query.trim();

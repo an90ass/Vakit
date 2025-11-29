@@ -3,7 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vakit/screens/homeContent.dart';
+import 'package:vakit/screens/home_content.dart';
 import 'package:vakit/l10n/generated/app_localizations.dart';
 import 'package:vakit/screens/locations/cities_dashboard_screen.dart';
 import 'package:vakit/screens/prayerTracking/views/prayer_tracking_screen.dart';
@@ -11,7 +11,6 @@ import 'package:vakit/screens/qibla/qibla_compass_screen.dart';
 import 'package:vakit/screens/profile/profile_screen.dart';
 import 'package:vakit/screens/settings_screen.dart';
 import 'package:vakit/utlis/thems/colors.dart';
-import 'package:vakit/bloc/app_language/app_language_cubit.dart';
 import 'package:vakit/bloc/profile/profile_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -31,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pages = [
       const CitiesDashboardScreen(),
       const PrayerTrackingScreen(),
-      HomeContent(), // Ana sayfa ortada
+      const HomeContent(), // Ana sayfa ortada
       const QiblaCompassScreen(),
       const SettingsScreen(),
     ];
@@ -61,12 +60,12 @@ class _HomeScreenState extends State<HomeScreen> {
               end: Alignment.bottomRight,
               colors: [
                 theme.colorScheme.primary,
-                theme.colorScheme.primary.withOpacity(0.85),
+                theme.colorScheme.primary.withValues(alpha: 0.85),
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: theme.colorScheme.primary.withOpacity(0.3),
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -85,15 +84,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: [
-                            Colors.white.withOpacity(0.3),
-                            Colors.white.withOpacity(0.1),
+                            Colors.white.withValues(alpha: 0.3),
+                            Colors.white.withValues(alpha: 0.1),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -112,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   : null,
                           child:
                               profile?.profileImagePath == null
-                                  ? Icon(
+                                  ? const Icon(
                                     Icons.person_rounded,
                                     size: 28,
                                     color: Colors.white,
@@ -161,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.25),
+                                  color: Colors.white.withValues(alpha: 0.25),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(
@@ -193,11 +192,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.info_outline,
                           color: Colors.white,
                           size: 24,
@@ -210,11 +209,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 8),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.person_outline,
                           color: Colors.white,
                           size: 24,
@@ -254,59 +253,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _openLanguageSheet(Locale currentLocale) {
-    final localization = AppLocalizations.of(context)!;
-    showModalBottomSheet<void>(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        final options = [
-          _LanguageOption(localization.languageTurkish, const Locale('tr')),
-          _LanguageOption(localization.languageEnglish, const Locale('en')),
-          _LanguageOption(localization.languageArabic, const Locale('ar')),
-        ];
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localization.languageTitle,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  localization.languageSubtitle,
-                  style: TextStyle(color: Colors.black54),
-                ),
-                SizedBox(height: 16),
-                ...options.map(
-                  (option) => RadioListTile<Locale>(
-                    title: Text(option.label),
-                    value: option.locale,
-                    groupValue: currentLocale,
-                    onChanged: (value) {
-                      if (value == null) return;
-                      context.read<AppLanguageCubit>().updateLocale(value);
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        SnackBar(content: Text(localization.languageChanged)),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   void _showInfoDialog(BuildContext context, AppLocalizations localization) {
     showDialog(
       context: context,
@@ -328,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -350,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   localization.appPurposeDescription,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     height: 1.5,
                   ),
                 ),
@@ -377,10 +323,4 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-}
-
-class _LanguageOption {
-  const _LanguageOption(this.label, this.locale);
-  final String label;
-  final Locale locale;
 }

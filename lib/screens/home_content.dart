@@ -14,21 +14,21 @@ import 'package:vakit/bloc/tracked_locations/tracked_locations_cubit.dart';
 import 'package:vakit/bloc/tracked_locations/tracked_locations_state.dart';
 import 'package:vakit/models/prayer_times_model.dart';
 import 'package:vakit/models/tracked_location.dart';
-import 'package:vakit/screens/locations/cities_dashboard_screen.dart';
 import 'package:vakit/services/widget_service.dart';
 import 'package:vakit/services/intelligent_notification_service.dart';
 import 'package:vakit/utlis/thems/colors.dart';
 
 class HomeContent extends StatefulWidget {
+  const HomeContent({super.key});
+
   @override
-  _HomeContentState createState() => _HomeContentState();
+  State<HomeContent> createState() => _HomeContentState();
 }
 
 class _HomeContentState extends State<HomeContent>
     with TickerProviderStateMixin {
   Timer? _timer;
   late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
   bool _showAnimation = false;
   String? _lastRequestedLocationId;
 
@@ -42,7 +42,7 @@ class _HomeContentState extends State<HomeContent>
   }
 
   void _setupTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         final currentState = context.read<PrayerBloc>().state;
         if (currentState is PrayerLoaded) {
@@ -56,27 +56,8 @@ class _HomeContentState extends State<HomeContent>
 
   void _setupAnimation() {
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-  }
-
-  String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60).abs();
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
-    }
-    final seconds = duration.inSeconds.remainder(60).abs();
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  Future<void> _openCitiesDashboard() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const CitiesDashboardScreen()),
     );
   }
 
@@ -257,7 +238,7 @@ class _HomeContentState extends State<HomeContent>
       });
 
       _animationController.forward().then((_) {
-        Future.delayed(Duration(seconds: 4), () {
+        Future.delayed(const Duration(seconds: 4), () {
           if (mounted) {
             setState(() {
               _showAnimation = false;
@@ -275,10 +256,15 @@ class PrayerCircle extends StatefulWidget {
   final PrayerTimes? prayerTimes;
   final String? nextPrayerName;
   final Duration? timeRemaining;
-  PrayerCircle({this.prayerTimes, this.nextPrayerName, this.timeRemaining});
+  const PrayerCircle({
+    super.key,
+    this.prayerTimes,
+    this.nextPrayerName,
+    this.timeRemaining,
+  });
 
   @override
-  _PrayerCircleState createState() => _PrayerCircleState();
+  State<PrayerCircle> createState() => _PrayerCircleState();
 }
 
 class _PrayerCircleState extends State<PrayerCircle>
@@ -339,7 +325,7 @@ class _PrayerCircleState extends State<PrayerCircle>
   @override
   void initState() {
     super.initState();
-    print("prayerTimesprayerTimes ${widget.prayerTimes}");
+    debugPrint("prayerTimesprayerTimes ${widget.prayerTimes}");
 
     _overlayCtr = AnimationController(
       vsync: this,
@@ -359,7 +345,7 @@ class _PrayerCircleState extends State<PrayerCircle>
       return [];
     }
     DateTime now = DateTime.now();
-    DateTime _parseToday(String hhmm) {
+    DateTime parseToday(String hhmm) {
       final parts = hhmm.split(':');
       final d = DateTime.now();
       return DateTime(
@@ -373,21 +359,19 @@ class _PrayerCircleState extends State<PrayerCircle>
 
     final dayStart = DateTime(now.year, now.month, now.day);
     final aksamMins =
-        _parseToday(
+        parseToday(
           prayerTimes.timings['Maghrib']!,
         ).difference(dayStart).inMinutes;
     const total = 24 * 60;
 
     return prayerNames.map((n) {
       final mins =
-          _parseToday(prayerTimes.timings[n]!).difference(dayStart).inMinutes;
+          parseToday(prayerTimes.timings[n]!).difference(dayStart).inMinutes;
       final diff =
           mins >= aksamMins ? mins - aksamMins : total + mins - aksamMins;
       return (diff / total) * 2 * math.pi; // radians
     }).toList();
   }
-
-
 
   DateTime _parseToday(String hhmm) {
     final parts = hhmm.split(':');
@@ -477,7 +461,7 @@ class _PrayerCircleState extends State<PrayerCircle>
             alignment: Alignment.center,
             children: [
               // Hicrî Tarih (üstte, daha belirgin)
-              Positioned(
+              const Positioned(
                 top: 8,
                 left: 0,
                 right: 0,
@@ -486,17 +470,17 @@ class _PrayerCircleState extends State<PrayerCircle>
                     Text(
                       '2025.08.10',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       '2025.08.10',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -577,9 +561,9 @@ class _PrayerCircleState extends State<PrayerCircle>
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
+                            const Text(
                               "",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 42,
                                 color: Colors.black87,
                                 fontFamily: 'Arial',

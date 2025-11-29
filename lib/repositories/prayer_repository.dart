@@ -29,7 +29,6 @@ class PrayerRepository {
       final data = json.decode(response.body);
       // save data to hive
       await PrayerStorage.savePrayerTimes(data['data']['timings']);
-      ;
       return PrayerTimes.fromJson(data['data']['timings']);
     } else {
       throw Exception('Namaz vakitleri alınamadı');

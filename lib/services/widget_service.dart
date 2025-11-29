@@ -17,9 +17,9 @@ class WidgetService {
   static Future<void> startNativeWidgetService() async {
     try {
       await _channel.invokeMethod('startWidgetService');
-      print('Native widget servisi başlatıldı');
+      debugPrint('Native widget servisi başlatıldı');
     } catch (e) {
-      print('Native widget servisi başlatılamadı: $e');
+      debugPrint('Native widget servisi başlatılamadı: $e');
     }
   }
 
@@ -27,9 +27,9 @@ class WidgetService {
   static Future<void> stopNativeWidgetService() async {
     try {
       await _channel.invokeMethod('stopWidgetService');
-      print('Native widget servisi durduruldu');
+      debugPrint('Native widget servisi durduruldu');
     } catch (e) {
-      print('Native widget servisi durdurulamadı: $e');
+      debugPrint('Native widget servisi durdurulamadı: $e');
     }
   }
 
@@ -159,11 +159,11 @@ class WidgetService {
         iOSName: _iosWidgetName,
       );
 
-      print(
+      debugPrint(
         'Widget başarıyla güncellendi - Dil: $languageCode, Vakit: $localizedPrayerName',
       );
     } catch (e) {
-      print('Widget güncellenirken hata: $e');
+      debugPrint('Widget güncellenirken hata: $e');
     }
   }
 
@@ -172,7 +172,7 @@ class WidgetService {
     HomeWidget.setAppGroupId('group.com.vakit.namaz');
     HomeWidget.widgetClicked.listen((uri) {
       // Widget'a tıklandığında yapılacak işlemler
-      print('Widget tıklandı: $uri');
+      debugPrint('Widget tıklandı: $uri');
     });
   }
 
@@ -201,9 +201,9 @@ class WidgetService {
         iOSName: _iosWidgetName,
       );
 
-      print('Widget arkaplan güncellemesi tamamlandı');
+      debugPrint('Widget arkaplan güncellemesi tamamlandı');
     } catch (e) {
-      print('Arkaplan widget güncellemesi hatası: $e');
+      debugPrint('Arkaplan widget güncellemesi hatası: $e');
     }
   }
 
@@ -217,7 +217,7 @@ class WidgetService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('prayer_end_time', endTime.millisecondsSinceEpoch);
     } catch (e) {
-      print('Namaz bitiş zamanı kaydedilirken hata: $e');
+      debugPrint('Namaz bitiş zamanı kaydedilirken hata: $e');
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -94,7 +95,7 @@ class PrayerNotificationService {
 
   void _onNotificationTapped(NotificationResponse response) {
     // Bildirime tiklandiginda yapilacak islem
-    print('Bildirime tiklandi: ${response.payload}');
+    debugPrint('Bildirime tiklandi: ${response.payload}');
   }
 
   /// Tum namaz bildirimlerini planla

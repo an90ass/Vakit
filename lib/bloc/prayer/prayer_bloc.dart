@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vakit/repositories/prayer_repository.dart';
 import 'package:vakit/utlis/prayer_utils.dart';
@@ -22,7 +23,7 @@ class PrayerBloc extends Bloc<PrayerEvent, PrayerState> {
 
       final prayerTimes = await repository.fetchPrayerTimes(event.location);
       final hijriDate = await repository.fetchHijriDate();
-      print('Response data: ${prayerTimes.timings}');
+      debugPrint('Response data: ${prayerTimes.timings}');
       final result = PrayerUtils.calculateNextPrayer(prayerTimes.toMap());
 
       emit(

@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:vakit/hive/prayer_day.dart';
 
 class PrayerStorage {
-  static final _boxName = 'prayers';
+  static const _boxName = 'prayers';
 
   static Box<PrayerDay> get _box => Hive.box<PrayerDay>(_boxName);
 
@@ -10,7 +11,7 @@ class PrayerStorage {
     String key = DateTime.now().toIso8601String().substring(0, 10);
 
     if (_box.containsKey(key)) {
-      print('Prayer times for today already saved.');
+      debugPrint('Prayer times for today already saved.');
       return;
     }
 
@@ -31,7 +32,11 @@ class PrayerStorage {
     await _box.put(key, prayerDay);
   }
 
-  static Future<void> updatePrayerStatus(String dateKey, String prayerName, bool status) async {
+  static Future<void> updatePrayerStatus(
+    String dateKey,
+    String prayerName,
+    bool status,
+  ) async {
     final PrayerDay? dayData = _box.get(dateKey);
 
     if (dayData != null) {

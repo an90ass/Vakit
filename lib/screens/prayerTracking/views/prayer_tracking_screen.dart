@@ -1,10 +1,7 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:excel/excel.dart' hide Border;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vakit/bloc/myPrayers/my_prayers_bloc.dart';
@@ -19,7 +16,6 @@ import 'package:vakit/models/user_profile.dart';
 import 'package:vakit/repositories/extra_prayer_repository.dart';
 import 'package:vakit/repositories/qada_repository.dart';
 import 'package:vakit/screens/prayerTracking/views/profile_setup_view.dart';
-import 'package:vakit/screens/profile/profile_screen.dart';
 import 'package:vakit/l10n/generated/app_localizations.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -247,7 +243,7 @@ Widget _buildMainContent(
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black.withOpacity(0.6),
+            color: Colors.black.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 12),
@@ -323,7 +319,7 @@ Widget _buildProgressCard(
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: AppColors.primary.withOpacity(0.15),
+          color: AppColors.primary.withValues(alpha: 0.15),
           blurRadius: 20,
           offset: const Offset(0, 10),
         ),
@@ -350,7 +346,7 @@ Widget _buildProgressCard(
                   AppLocalizations.of(context)!.keepUpGoodWork,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -358,7 +354,7 @@ Widget _buildProgressCard(
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -376,7 +372,7 @@ Widget _buildProgressCard(
         Container(
           height: 8,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
           child: FractionallySizedBox(
@@ -467,7 +463,7 @@ Widget _buildDateHeader(BuildContext context, String todayKey) {
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
+          color: Colors.grey.withValues(alpha: 0.1),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -478,7 +474,7 @@ Widget _buildDateHeader(BuildContext context, String todayKey) {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -522,7 +518,7 @@ Widget _buildEmptyState() {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(50),
           ),
           child: const Icon(
@@ -594,7 +590,7 @@ class _CenteredLoading extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -634,9 +630,9 @@ class _SavingOverlay extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
+          child: const Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               SizedBox(
                 width: 20,
                 height: 20,
@@ -731,10 +727,13 @@ class _PrayerItemState extends State<PrayerItem>
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: statusColor.withOpacity(0.2), width: 1),
+              border: Border.all(
+                color: statusColor.withValues(alpha: 0.2),
+                width: 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.08),
+                  color: Colors.grey.withValues(alpha: 0.08),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -747,7 +746,7 @@ class _PrayerItemState extends State<PrayerItem>
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(statusIcon, color: statusColor, size: 24),
@@ -777,7 +776,7 @@ class _PrayerItemState extends State<PrayerItem>
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.1),
+                                color: statusColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -939,7 +938,7 @@ class _ProfileHeaderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -1066,7 +1065,7 @@ class _ExtraPrayerChecklistState extends State<_ExtraPrayerChecklist> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -1146,7 +1145,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 16,
                   offset: const Offset(0, 8),
                 ),
@@ -1168,7 +1167,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                   count == 0
                       ? AppLocalizations.of(context)!.noPendingQada
                       : AppLocalizations.of(context)!.pendingQadaMessage(count),
-                  style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -1263,11 +1262,12 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
         await file.writeAsBytes(fileBytes);
 
         // Dosyayı paylaş
+        // ignore: deprecated_member_use
         await Share.shareXFiles([
           XFile(filePath),
         ], text: localization.currentQadaSummary);
 
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(localization.excelExported),
@@ -1277,7 +1277,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
         }
       }
     } catch (error) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context)!.excelExportError),
@@ -1344,8 +1344,8 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                               decoration: BoxDecoration(
                                 color:
                                     record.resolvedAt == null
-                                        ? Colors.orange.withOpacity(0.1)
-                                        : Colors.green.withOpacity(0.1),
+                                        ? Colors.orange.withValues(alpha: 0.1)
+                                        : Colors.green.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
@@ -1504,22 +1504,14 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
   Future<void> _shareCsv(String csv, BuildContext context) async {
     try {
       final localization = AppLocalizations.of(context)!;
+      // ignore: deprecated_member_use
       await Share.share(csv, subject: localization.qadaTable);
     } catch (error) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('CSV paylaşılırken hata oluştu: $error')),
       );
     }
-  }
-
-  Future<void> _copyCsv(String csv, BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: csv));
-    if (!mounted) return;
-    final localization = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(localization.tableCopied)));
   }
 
   String _buildCsv(List<QadaRecord> records) {
