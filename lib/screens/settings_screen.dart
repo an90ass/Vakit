@@ -433,23 +433,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('showGregorianDate', value);
   }
 
- Future<void> _changeLanguage(String language) async {
-  context.read<AppLanguageCubit>().updateLocale(Locale(language));
+  Future<void> _changeLanguage(String language) async {
+    context.read<AppLanguageCubit>().updateLocale(Locale(language));
 
-  setState(() {
-    _appLanguage = language;
-  });
+    setState(() {
+      _appLanguage = language;
+    });
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final localization = AppLocalizations.of(context)!;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final localization = AppLocalizations.of(context)!;
 
-    _showSuccessDialog(
-      localization.languageChangeTitle,
-      localization.languageChangeDescription,
-    );
-  });
-}
-
+      _showSuccessDialog(
+        localization.languageChangeTitle,
+        localization.languageChangeDescription,
+      );
+    });
+  }
 
   void _resetSettings() {
     showDialog(
@@ -903,12 +902,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return Scaffold(
-     
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-                 _buildHeader(localization.tabSettings),
+            _buildHeader(localization.tabSettings),
 
             // Konum Ayarları
             _buildSection(
@@ -1311,20 +1309,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     _buildLanguageButton(
                       code: 'tr',
                       label: localization.languageTurkish,
-                      flag: '🇹🇷',
                     ),
                     const SizedBox(width: 12),
                     _buildLanguageButton(
                       code: 'en',
                       label: localization.languageEnglish,
-                      flag: '🇺🇸',
                     ),
                     const SizedBox(width: 12),
-                    _buildLanguageButton(
-                      code: 'ar',
-                      label: 'العربية',
-                      flag: '🇸🇦',
-                    ),
+                    _buildLanguageButton(code: 'ar', label: 'العربية'),
                   ],
                 ),
               ),
@@ -1439,11 +1431,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildLanguageButton({
-    required String code,
-    required String label,
-    required String flag,
-  }) {
+  Widget _buildLanguageButton({required String code, required String label}) {
     final theme = Theme.of(context);
     final isSelected = _appLanguage == code;
 
@@ -1459,39 +1447,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               isSelected
                   ? theme.colorScheme.onPrimary
                   : theme.colorScheme.onSurface,
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: isSelected ? 2 : 0,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(flag, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 6),
-            Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
-          ],
+        child: Text(
+          label,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
         ),
       ),
     );
   }
-  
-Widget _buildHeader(String title) {
-  final theme = Theme.of(context);
 
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(vertical: 1),
-    child: Text(
-      title,
-      style: theme.textTheme.headlineSmall?.copyWith(
-        fontWeight: FontWeight.w700,
-        color:Colors.black45,
-        fontSize: 20,
+  Widget _buildHeader(String title) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Text(
+        title,
+        style: theme.textTheme.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: Colors.black45,
+          fontSize: 20,
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

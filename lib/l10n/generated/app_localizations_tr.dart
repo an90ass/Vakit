@@ -559,14 +559,171 @@ class AppLocalizationsTr extends AppLocalizations {
   String get prayerAwwabin => 'Evvabin';
 
   @override
-  String get prayerDuhaDesc => 'Güneş doğduktan sonra 20 dakika içinde';
+  String get prayerDuhaDesc => 'Guneş doğduktan sonra 20 dakika icinde';
 
   @override
-  String get prayerIshraqDesc => 'Güneş doğduktan 15 dakika içinde';
+  String get prayerIshraqDesc => 'Guneş doğduktan 15 dakika icinde';
 
   @override
   String get prayerTahajjudDesc => 'Gece yarısından seher vaktine kadar';
 
   @override
   String get prayerAwwabinDesc => 'Akşam ile yatsı arası sessiz vakit';
+
+  @override
+  String get tabQibla => 'Kıble';
+
+  @override
+  String get qiblaCompassTitle => 'Kıble Pusulası';
+
+  @override
+  String get qiblaCompassSubtitle =>
+      'Cihazınızı düz tutun ve kıble yönüne dönün';
+
+  @override
+  String get qiblaFacingCorrect => 'Kıble Yönünde!';
+
+  @override
+  String get qiblaYourLocation => 'Konumunuz';
+
+  @override
+  String get qiblaKaabaDirection => 'Kabe Yönü';
+
+  @override
+  String get qiblaLoading => 'Pusula yükleniyor...';
+
+  @override
+  String get qiblaLocationPermissionRequired =>
+      'Kıble yönünü hesaplamak için konum izni gerekli.';
+
+  @override
+  String get qiblaLocationServiceDisabled =>
+      'Konum servisleri kapalı. Lütfen açın.';
+
+  @override
+  String get qiblaLocationFetchError =>
+      'Konum alınamadı. Lütfen tekrar deneyin.';
+
+  @override
+  String get qiblaGenericError => 'Bir hata oluştu. Lütfen tekrar deneyin.';
+
+  @override
+  String get qiblaRetry => 'Tekrar Dene';
+
+  @override
+  String get qiblaOpenSettings => 'Ayarları Aç';
+
+  @override
+  String get directionNorth => 'Kuzey';
+
+  @override
+  String get directionNorthEast => 'Kuzeydoğu';
+
+  @override
+  String get directionEast => 'Doğu';
+
+  @override
+  String get directionSouthEast => 'Güneydoğu';
+
+  @override
+  String get directionSouth => 'Güney';
+
+  @override
+  String get directionSouthWest => 'Güneybatı';
+
+  @override
+  String get directionWest => 'Batı';
+
+  @override
+  String get directionNorthWest => 'Kuzeybatı';
+
+  @override
+  String get profileSettings => 'Profil Ayarları';
+
+  @override
+  String get profileSave => 'Kaydet';
+
+  @override
+  String get profileSaved => 'Profil kaydedildi';
+
+  @override
+  String get profilePersonalInfo => 'Kişisel Bilgiler';
+
+  @override
+  String get qadaSettings => 'Kaza Ayarları';
+
+  @override
+  String get appPurposeDescription =>
+      'Bu uygulama namaz vakitlerini takip etmenize, namazlarınızı işaretlemenize ve kaza namazlarınızı yönetmenize yardımcı olur.';
+
+  @override
+  String get share => 'Paylaş';
+
+  @override
+  String get exportExcel => 'Excel Olarak Kaydet';
+
+  @override
+  String get excelExported => 'Excel dosyası kaydedildi';
+
+  @override
+  String get excelExportError => 'Excel dosyası kaydedilirken hata oluştu';
+
+  @override
+  String get qadaDetailTitle => 'Kaza Detayı';
+
+  @override
+  String get qadaDetailDate => 'Tarih';
+
+  @override
+  String get qadaDetailPrayer => 'Namaz Vakti';
+
+  @override
+  String get qadaDetailMissedAt => 'Kaçırılma Zamanı';
+
+  @override
+  String get qadaDetailStatus => 'Durum';
+
+  @override
+  String get qadaStatusPending => 'Bekliyor';
+
+  @override
+  String get qadaStatusCompleted => 'Tamamlandı';
+
+  @override
+  String get qiblaCalibrationTitle => 'Pusula Kalibrasyonu';
+
+  @override
+  String get qiblaCalibrationMessage =>
+      'Pusulayı kalibre etmek için telefonunuzu 8 şeklinde hareket ettirin.';
+
+  @override
+  String get qiblaCalibrationButton => 'Kalibre Et';
+
+  @override
+  String get qiblaCameraMode => 'Kamera Modu';
+
+  @override
+  String get qiblaCompassMode => 'Pusula Modu';
+
+  @override
+  String get qiblaCameraPermissionRequired => 'Kamera izni gerekli';
+
+  @override
+  String get cameraPermissionDenied => 'Kamera izni reddedildi';
+
+  @override
+  String get calibrateCompass => 'Kalibre';
+
+  @override
+  String get calibrateCompassDesc =>
+      'Daha doğru sonuçlar için telefonunuzu 8 şeklinde hareket ettirin.';
+
+  @override
+  String get arMode => 'AR';
+
+  @override
+  String get holdVertical => 'Telefonu dik tutun ve Kıble\'ye doğrultun';
+
+  @override
+  String get compassCalibrating => 'Pusula Kalibre Ediliyor...';
 }

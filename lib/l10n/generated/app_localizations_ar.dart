@@ -562,4 +562,160 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get prayerAwwabinDesc => 'بين المغرب والعشاء';
+
+  @override
+  String get tabQibla => 'القبلة';
+
+  @override
+  String get qiblaCompassTitle => 'بوصلة القبلة';
+
+  @override
+  String get qiblaCompassSubtitle => 'امسك جهازك بشكل مستوٍ واتجه نحو القبلة';
+
+  @override
+  String get qiblaFacingCorrect => 'أنت تواجه القبلة!';
+
+  @override
+  String get qiblaYourLocation => 'موقعك';
+
+  @override
+  String get qiblaKaabaDirection => 'اتجاه الكعبة';
+
+  @override
+  String get qiblaLoading => 'جاري تحميل البوصلة...';
+
+  @override
+  String get qiblaLocationPermissionRequired =>
+      'إذن الموقع مطلوب لحساب اتجاه القبلة.';
+
+  @override
+  String get qiblaLocationServiceDisabled =>
+      'خدمات الموقع معطلة. الرجاء تفعيلها.';
+
+  @override
+  String get qiblaLocationFetchError =>
+      'تعذر الحصول على الموقع. حاول مرة أخرى.';
+
+  @override
+  String get qiblaGenericError => 'حدث خطأ. حاول مرة أخرى.';
+
+  @override
+  String get qiblaRetry => 'إعادة المحاولة';
+
+  @override
+  String get qiblaOpenSettings => 'فتح الإعدادات';
+
+  @override
+  String get directionNorth => 'الشمال';
+
+  @override
+  String get directionNorthEast => 'الشمال الشرقي';
+
+  @override
+  String get directionEast => 'الشرق';
+
+  @override
+  String get directionSouthEast => 'الجنوب الشرقي';
+
+  @override
+  String get directionSouth => 'الجنوب';
+
+  @override
+  String get directionSouthWest => 'الجنوب الغربي';
+
+  @override
+  String get directionWest => 'الغرب';
+
+  @override
+  String get directionNorthWest => 'الشمال الغربي';
+
+  @override
+  String get profileSettings => 'إعدادات الملف الشخصي';
+
+  @override
+  String get profileSave => 'حفظ';
+
+  @override
+  String get profileSaved => 'تم حفظ الملف الشخصي';
+
+  @override
+  String get profilePersonalInfo => 'المعلومات الشخصية';
+
+  @override
+  String get qadaSettings => 'إعدادات القضاء';
+
+  @override
+  String get appPurposeDescription =>
+      'يساعدك هذا التطبيق على تتبع أوقات الصلاة وتسجيل صلواتك وإدارة صلوات القضاء.';
+
+  @override
+  String get share => 'مشاركة';
+
+  @override
+  String get exportExcel => 'تصدير كملف Excel';
+
+  @override
+  String get excelExported => 'تم حفظ ملف Excel';
+
+  @override
+  String get excelExportError => 'خطأ في حفظ ملف Excel';
+
+  @override
+  String get qadaDetailTitle => 'تفاصيل القضاء';
+
+  @override
+  String get qadaDetailDate => 'التاريخ';
+
+  @override
+  String get qadaDetailPrayer => 'وقت الصلاة';
+
+  @override
+  String get qadaDetailMissedAt => 'وقت الفوات';
+
+  @override
+  String get qadaDetailStatus => 'الحالة';
+
+  @override
+  String get qadaStatusPending => 'معلق';
+
+  @override
+  String get qadaStatusCompleted => 'مكتمل';
+
+  @override
+  String get qiblaCalibrationTitle => 'معايرة البوصلة';
+
+  @override
+  String get qiblaCalibrationMessage =>
+      'حرك هاتفك على شكل رقم 8 لمعايرة البوصلة.';
+
+  @override
+  String get qiblaCalibrationButton => 'معايرة';
+
+  @override
+  String get qiblaCameraMode => 'وضع الكاميرا';
+
+  @override
+  String get qiblaCompassMode => 'وضع البوصلة';
+
+  @override
+  String get qiblaCameraPermissionRequired => 'إذن الكاميرا مطلوب';
+
+  @override
+  String get cameraPermissionDenied => 'تم رفض إذن الكاميرا';
+
+  @override
+  String get calibrateCompass => 'معايرة';
+
+  @override
+  String get calibrateCompassDesc =>
+      'حرك هاتفك على شكل رقم 8 للحصول على نتائج أكثر دقة.';
+
+  @override
+  String get arMode => 'AR';
+
+  @override
+  String get holdVertical => 'أمسك الهاتف عموديًا ووجهه نحو القبلة';
+
+  @override
+  String get compassCalibrating => 'جاري معايرة البوصلة...';
 }

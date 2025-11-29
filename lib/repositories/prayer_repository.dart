@@ -1,28 +1,35 @@
 import 'dart:convert';
-import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:vakit/models/hijri_date_model.dart';
 import 'package:vakit/models/prayer_times_model.dart';
-import 'package:vakit/hive/prayer_day.dart';
 import 'package:vakit/storage/prayer_storage.dart';
-
 
 class PrayerRepository {
   final Map<String, String> arabicNumerals = {
-    '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤',
-    '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩'
+    '0': '٠',
+    '1': '١',
+    '2': '٢',
+    '3': '٣',
+    '4': '٤',
+    '5': '٥',
+    '6': '٦',
+    '7': '٧',
+    '8': '٨',
+    '9': '٩',
   };
 
   Future<PrayerTimes> fetchPrayerTimes(Position location) async {
-    
-    final response = await http.get(Uri.parse(
-      'https://api.aladhan.com/v1/timings?latitude=${location.latitude}&longitude=${location.longitude}'
-    ));
+    final response = await http.get(
+      Uri.parse(
+        'https://api.aladhan.com/v1/timings?latitude=${location.latitude}&longitude=${location.longitude}',
+      ),
+    );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       // save data to hive
-     await PrayerStorage.savePrayerTimes(data['data']['timings']);;
+      await PrayerStorage.savePrayerTimes(data['data']['timings']);
+      ;
       return PrayerTimes.fromJson(data['data']['timings']);
     } else {
       throw Exception('Namaz vakitleri alınamadı');
@@ -35,9 +42,9 @@ class PrayerRepository {
     final month = now.month;
     final year = now.year;
 
-    final response = await http.get(Uri.parse(
-      'https://api.aladhan.com/v1/gToH?date=$day-$month-$year'
-    ));
+    final response = await http.get(
+      Uri.parse('https://api.aladhan.com/v1/gToH?date=$day-$month-$year'),
+    );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -66,7 +73,8 @@ class PrayerRepository {
 
       return HijriDate(
         turkish: '$dayHijri $translatedMonth $yearHijri',
-        arabic: '${_toArabicNumerals(dayHijri)} $monthArabic ${_toArabicNumerals(yearHijri)}'
+        arabic:
+            '${_toArabicNumerals(dayHijri)} $monthArabic ${_toArabicNumerals(yearHijri)}',
       );
     } else {
       throw Exception('Hicri tarih alınamadı');
@@ -80,5 +88,4 @@ class PrayerRepository {
     });
     return result;
   }
-
 }

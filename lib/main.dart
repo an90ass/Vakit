@@ -9,7 +9,6 @@ import 'package:vakit/bloc/location/location_bloc.dart';
 import 'package:vakit/bloc/location/location_event.dart';
 import 'package:vakit/bloc/prayer/prayer_bloc.dart';
 import 'package:vakit/bloc/profile/profile_cubit.dart';
-import 'package:vakit/bloc/quran/quran_bloc.dart';
 import 'package:vakit/bloc/theme/theme_cubit.dart';
 import 'package:vakit/bloc/theme/theme_state.dart';
 import 'package:vakit/bloc/tracked_locations/tracked_locations_cubit.dart';
@@ -23,6 +22,8 @@ import 'package:vakit/screens/home_screen.dart';
 import 'package:vakit/services/LocationService.dart';
 import 'package:vakit/services/extra_prayer_notification_service.dart';
 import 'package:vakit/services/tracked_location_service.dart';
+import 'package:vakit/services/widget_service.dart';
+import 'package:vakit/services/intelligent_notification_service.dart';
 import 'package:vakit/theme/vakit_theme.dart';
 import 'package:vakit/utlis/thems/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,6 +36,14 @@ void main() async {
   final trackedLocationService = TrackedLocationService(prefs);
   final profileRepository = ProfileRepository(prefs);
   final notificationService = ExtraPrayerNotificationService();
+
+  // Widget ve intelligent notification servislerini başlat
+  await WidgetService.initializeWidget();
+  WidgetService.startNativeWidgetService(); // Native Android widget servisini başlat
+
+  // Intelligent notification servisini başlat
+  final intelligentNotificationService = IntelligentNotificationService();
+  await intelligentNotificationService.initialize();
 
   await Hive.initFlutter();
   Hive.registerAdapter(PrayerDayAdapter());
@@ -51,6 +60,7 @@ void main() async {
         RepositoryProvider.value(value: qadaRepository),
         RepositoryProvider.value(value: extraPrayerRepository),
         RepositoryProvider.value(value: notificationService),
+        RepositoryProvider.value(value: intelligentNotificationService),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -72,7 +82,6 @@ void main() async {
           BlocProvider<PrayerBloc>(
             create: (_) => PrayerBloc(repository: prayerRepository),
           ),
-          BlocProvider<QuranBloc>(create: (_) => QuranBloc()),
           BlocProvider<ProfileCubit>(
             create:
                 (context) => ProfileCubit(

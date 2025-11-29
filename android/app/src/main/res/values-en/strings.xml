@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vakit</string>
+    <string name="widget_description">Shows prayer times on your home screen</string>
+    
+    <!-- Prayer Names - English -->
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_sunrise">Sunrise</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Isha</string>
+    
+    <!-- Widget Labels -->
+    <string name="next_prayer_label">Next prayer</string>
+    <string name="remaining_label">remaining</string>
+    <string name="loading">Loading...</string>
+    
+    <!-- Service -->
+    <string name="widget_service_title">Prayer Time</string>
+    <string name="widget_service_text">Tracking prayer times</string>
+</resources>

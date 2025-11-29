@@ -46,6 +46,6 @@ flutter {
     source = "../.."
 }
 dependencies {
- 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") // ✅ Kotlin DSL syntax
+    implementation("androidx.work:work-runtime-ktx:2.9.0") // WorkManager for background tasks
 }

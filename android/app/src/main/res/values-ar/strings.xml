@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vakit</string>
+    <string name="widget_description">يعرض أوقات الصلاة على شاشتك الرئيسية</string>
+    
+    <!-- Prayer Names - Arabic -->
+    <string name="prayer_fajr">الفجر</string>
+    <string name="prayer_sunrise">الشروق</string>
+    <string name="prayer_dhuhr">الظهر</string>
+    <string name="prayer_asr">العصر</string>
+    <string name="prayer_maghrib">المغرب</string>
+    <string name="prayer_isha">العشاء</string>
+    
+    <!-- Widget Labels -->
+    <string name="next_prayer_label">الصلاة القادمة</string>
+    <string name="remaining_label">متبقي</string>
+    <string name="loading">جاري التحميل...</string>
+    
+    <!-- Service -->
+    <string name="widget_service_title">وقت الصلاة</string>
+    <string name="widget_service_text">تتبع أوقات الصلاة</string>
+</resources>

@@ -2,4 +2,21 @@
 <resources>
     <string name="app_name">Vakit</string>
     <string name="widget_description">Namaz vakitlerini ana ekranınızda gösterir</string>
+    
+    <!-- Prayer Names - Turkish (Default) -->
+    <string name="prayer_fajr">İmsak</string>
+    <string name="prayer_sunrise">Güneş</string>
+    <string name="prayer_dhuhr">Öğle</string>
+    <string name="prayer_asr">İkindi</string>
+    <string name="prayer_maghrib">Akşam</string>
+    <string name="prayer_isha">Yatsı</string>
+    
+    <!-- Widget Labels -->
+    <string name="next_prayer_label">Bir sonraki namaz</string>
+    <string name="remaining_label">kaldı</string>
+    <string name="loading">Yükleniyor...</string>
+    
+    <!-- Service -->
+    <string name="widget_service_title">Namaz Vakti</string>
+    <string name="widget_service_text">Namaz vakti takip ediliyor</string>
 </resources>

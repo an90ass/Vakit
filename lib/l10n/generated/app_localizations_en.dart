@@ -572,4 +572,161 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prayerAwwabinDesc => 'Between Maghrib and Isha';
+
+  @override
+  String get tabQibla => 'Qibla';
+
+  @override
+  String get qiblaCompassTitle => 'Qibla Compass';
+
+  @override
+  String get qiblaCompassSubtitle =>
+      'Hold your device flat and face the Qibla direction';
+
+  @override
+  String get qiblaFacingCorrect => 'Facing Qibla!';
+
+  @override
+  String get qiblaYourLocation => 'Your Location';
+
+  @override
+  String get qiblaKaabaDirection => 'Kaaba Direction';
+
+  @override
+  String get qiblaLoading => 'Loading compass...';
+
+  @override
+  String get qiblaLocationPermissionRequired =>
+      'Location permission is required to calculate Qibla direction.';
+
+  @override
+  String get qiblaLocationServiceDisabled =>
+      'Location services are disabled. Please enable them.';
+
+  @override
+  String get qiblaLocationFetchError =>
+      'Could not get location. Please try again.';
+
+  @override
+  String get qiblaGenericError => 'An error occurred. Please try again.';
+
+  @override
+  String get qiblaRetry => 'Retry';
+
+  @override
+  String get qiblaOpenSettings => 'Open Settings';
+
+  @override
+  String get directionNorth => 'North';
+
+  @override
+  String get directionNorthEast => 'Northeast';
+
+  @override
+  String get directionEast => 'East';
+
+  @override
+  String get directionSouthEast => 'Southeast';
+
+  @override
+  String get directionSouth => 'South';
+
+  @override
+  String get directionSouthWest => 'Southwest';
+
+  @override
+  String get directionWest => 'West';
+
+  @override
+  String get directionNorthWest => 'Northwest';
+
+  @override
+  String get profileSettings => 'Profile Settings';
+
+  @override
+  String get profileSave => 'Save';
+
+  @override
+  String get profileSaved => 'Profile saved';
+
+  @override
+  String get profilePersonalInfo => 'Personal Information';
+
+  @override
+  String get qadaSettings => 'Qada Settings';
+
+  @override
+  String get appPurposeDescription =>
+      'This app helps you track prayer times, mark your prayers, and manage your qada prayers.';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get exportExcel => 'Export as Excel';
+
+  @override
+  String get excelExported => 'Excel file saved';
+
+  @override
+  String get excelExportError => 'Error saving Excel file';
+
+  @override
+  String get qadaDetailTitle => 'Qada Detail';
+
+  @override
+  String get qadaDetailDate => 'Date';
+
+  @override
+  String get qadaDetailPrayer => 'Prayer Time';
+
+  @override
+  String get qadaDetailMissedAt => 'Missed At';
+
+  @override
+  String get qadaDetailStatus => 'Status';
+
+  @override
+  String get qadaStatusPending => 'Pending';
+
+  @override
+  String get qadaStatusCompleted => 'Completed';
+
+  @override
+  String get qiblaCalibrationTitle => 'Compass Calibration';
+
+  @override
+  String get qiblaCalibrationMessage =>
+      'Move your phone in a figure-8 motion to calibrate the compass.';
+
+  @override
+  String get qiblaCalibrationButton => 'Calibrate';
+
+  @override
+  String get qiblaCameraMode => 'Camera Mode';
+
+  @override
+  String get qiblaCompassMode => 'Compass Mode';
+
+  @override
+  String get qiblaCameraPermissionRequired => 'Camera permission required';
+
+  @override
+  String get cameraPermissionDenied => 'Camera permission denied';
+
+  @override
+  String get calibrateCompass => 'Calibrate';
+
+  @override
+  String get calibrateCompassDesc =>
+      'Move your phone in a figure-8 motion for more accurate results.';
+
+  @override
+  String get arMode => 'AR';
+
+  @override
+  String get holdVertical => 'Hold phone vertically and point to Qibla';
+
+  @override
+  String get compassCalibrating => 'Calibrating Compass...';
 }

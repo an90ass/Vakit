@@ -16,6 +16,7 @@ import 'package:vakit/models/prayer_times_model.dart';
 import 'package:vakit/models/tracked_location.dart';
 import 'package:vakit/screens/locations/cities_dashboard_screen.dart';
 import 'package:vakit/services/widget_service.dart';
+import 'package:vakit/services/intelligent_notification_service.dart';
 import 'package:vakit/utlis/thems/colors.dart';
 
 class HomeContent extends StatefulWidget {
@@ -165,6 +166,15 @@ class _HomeContentState extends State<HomeContent>
                     state.nextPrayer,
                     state.timeRemaining,
                   );
+
+                  // Intelligent notification schedule (nagging & missed prayer tracking)
+                  final locale = Localizations.localeOf(context);
+                  context
+                      .read<IntelligentNotificationService>()
+                      .scheduleDailyNotifications(
+                        state.prayerTimes,
+                        locale.languageCode,
+                      );
                 }
               },
               builder: (context, prayerState) {
@@ -201,179 +211,6 @@ class _HomeContentState extends State<HomeContent>
     context.read<PrayerBloc>().add(LoadPrayerData(position));
   }
 
-  Widget _buildActiveLocationBanner(
-    TrackedLocationsState state,
-    AppLocalizations localization,
-  ) {
-    final active = state.activeLocation;
-    if (state.isLoading && active == null) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: SizedBox(
-          height: 120,
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      );
-    }
-
-    if (active == null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            color: Colors.white.withOpacity(0.04),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                localization.locationsHeader,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                localization.locationsSubhead,
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: _openCitiesDashboard,
-                icon: const Icon(Icons.location_city),
-                label: Text(localization.citiesManageButton),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final summary = state.prayerSummaries[active.id];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.border),
-          color: Colors.white.withOpacity(0.04),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        localization.active,
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        active.isAuto
-                            ? localization.currentLocation
-                            : active.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: _openCitiesDashboard,
-                  icon: const Icon(Icons.location_city),
-                  label: Text(localization.tabCities),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: AppColors.accent),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (summary != null)
-              Row(
-                children: [
-                  Icon(Icons.timelapse, color: AppColors.accent),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${localization.nextPrayerLabel}: ${summary.nextPrayer}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        '${localization.remainingLabel} • ${_formatDuration(summary.timeRemaining)}',
-                        style: TextStyle(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            else
-              const LinearProgressIndicator(minHeight: 6),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHijriDateWidget(PrayerState state) {
-    if (state is PrayerLoaded) {
-      return Align(
-        alignment: Alignment.topLeft,
-        child: Container(
-          padding: EdgeInsets.all(3),
-          margin: EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: AppColors.primaryLight.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            children: [
-              Text(
-                state.hijriDate.arabic,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                state.hijriDate.turkish,
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return SizedBox(height: 80);
-  }
-
   Widget _buildPrayerCircle(
     PrayerState prayerState,
     TrackedLocationsState trackedState,
@@ -386,7 +223,11 @@ class _HomeContentState extends State<HomeContent>
     }
 
     if (prayerState is PrayerLoaded) {
-      return PrayerCircle(prayerTimes: prayerState.prayerTimes);
+      return PrayerCircle(
+        prayerTimes: prayerState.prayerTimes,
+        nextPrayerName: prayerState.nextPrayer,
+        timeRemaining: prayerState.timeRemaining,
+      );
     }
 
     if (prayerState is PrayerError) {
@@ -409,112 +250,6 @@ class _HomeContentState extends State<HomeContent>
     );
   }
 
-  Widget _buildNextPrayerWidget(PrayerState state) {
-    if (state is PrayerLoaded && state.nextPrayer.isNotEmpty) {
-      final localization = AppLocalizations.of(context)!;
-      final timeRemaining = state.timeRemaining;
-      final hours = timeRemaining.inHours.toString().padLeft(2, '0');
-      final minutes = (timeRemaining.inMinutes % 60).toString().padLeft(2, '0');
-      final seconds = (timeRemaining.inSeconds % 60).toString().padLeft(2, '0');
-
-      final formattedTime = '$hours:$minutes:$seconds';
-      final arabicTime = _toArabicNumerals(formattedTime);
-
-      return Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.primary, AppColors.primaryLight],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withOpacity(0.3),
-              blurRadius: 10,
-              offset: Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              '${localization.nextPrayerLabel}: ${state.nextPrayer}',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 10),
-            Text(
-              formattedTime,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: AppColors.accent,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 5),
-            Text(
-              arabicTime,
-              style: TextStyle(
-                fontSize: 32,
-                color: Colors.white,
-                fontFamily: 'Arial',
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 5),
-            Text(
-              localization.remainingLabel,
-              style: TextStyle(fontSize: 16, color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
-    }
-    return SizedBox(height: 100);
-  }
-
-  Widget _buildPrayerTimeAnimation(PrayerState state) {
-    if (state is PrayerLoaded) {
-      return AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Container(
-            color: Colors.black.withOpacity(0.5),
-            child: Center(
-              child: Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    '${state.nextPrayer} vakti!',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    }
-    return SizedBox.shrink();
-  }
-
   void _startPrayerTimeAnimation() {
     if (!_showAnimation) {
       setState(() {
@@ -533,33 +268,14 @@ class _HomeContentState extends State<HomeContent>
       });
     }
   }
-
-  String _toArabicNumerals(String input) {
-    final arabicNumerals = {
-      '0': '٠',
-      '1': '١',
-      '2': '٢',
-      '3': '٣',
-      '4': '٤',
-      '5': '٥',
-      '6': '٦',
-      '7': '٧',
-      '8': '٨',
-      '9': '٩',
-    };
-
-    String result = input;
-    arabicNumerals.forEach((key, value) {
-      result = result.replaceAll(key, value);
-    });
-    return result;
-  }
 }
 
 // PrayerCircle widget remains the same
 class PrayerCircle extends StatefulWidget {
   final PrayerTimes? prayerTimes;
-  PrayerCircle({this.prayerTimes});
+  final String? nextPrayerName;
+  final Duration? timeRemaining;
+  PrayerCircle({this.prayerTimes, this.nextPrayerName, this.timeRemaining});
 
   @override
   _PrayerCircleState createState() => _PrayerCircleState();
@@ -581,7 +297,7 @@ class _PrayerCircleState extends State<PrayerCircle>
   String _getLocalizedPrayerName(String prayerName) {
     final locale = Localizations.localeOf(context);
     final languageCode = locale.languageCode;
-    
+
     switch (prayerName) {
       case 'Imsak':
       case 'Fajr':
@@ -612,6 +328,7 @@ class _PrayerCircleState extends State<PrayerCircle>
         return prayerName;
     }
   }
+
   late final AnimationController _overlayCtr;
   // Gece yarısı Hicrî tarihi yenilemek için timer
   Timer? _midnightTimer;
@@ -670,30 +387,7 @@ class _PrayerCircleState extends State<PrayerCircle>
     }).toList();
   }
 
-  (String, DateTime)? _nextPrayer(PrayerTimes? prayerTimes) {
-    DateTime now = DateTime.now();
 
-    if (prayerTimes == null) return null;
-
-    final items = <(String, DateTime)>[];
-
-    for (final name in prayerNames) {
-      final timeString = prayerTimes.timings[name];
-      if (timeString == null) continue;
-
-      final t = _parseToday(timeString);
-      items.add((name, t));
-      items.add((name, t.add(const Duration(days: 1))));
-    }
-
-    items.sort((a, b) => a.$2.compareTo(b.$2));
-
-    for (final it in items) {
-      if (it.$2.isAfter(now)) return it;
-    }
-
-    return null;
-  }
 
   DateTime _parseToday(String hhmm) {
     final parts = hhmm.split(':');
@@ -705,97 +399,6 @@ class _PrayerCircleState extends State<PrayerCircle>
       int.parse(parts[0]),
       int.parse(parts[1]),
     );
-  }
-
-  DateTime _midAcrossDays(DateTime start, DateTime end) {
-    // end < start ise ertesi güne taşı
-    if (!end.isAfter(start)) end = end.add(const Duration(days: 1));
-    final half = _frac(end.difference(start), 0.5);
-    return start.add(half);
-  }
-
-  Duration _frac(Duration d, double f) =>
-      Duration(milliseconds: (d.inMilliseconds * f).round());
-
-  Map<String, double> _computeNafileAngles(PrayerTimes? prayerTimes) {
-    final res = <String, double>{};
-    if (prayerTimes == null) return res;
-
-    final imsakToday = _parseToday(
-      prayerTimes.timings['Fajr']!,
-    ); // İmsak [Fajr]
-    final sunrise = _parseToday(
-      prayerTimes.timings['Sunrise']!,
-    ); // Güneş [Sunrise]
-    final dhuhr = _parseToday(prayerTimes.timings['Dhuhr']!); // Öğle [Dhuhr]
-    final asr = _parseToday(prayerTimes.timings['Asr']!); // İkindi [Asr]
-    final maghrib = _parseToday(
-      prayerTimes.timings['Maghrib']!,
-    ); // Akşam [Maghrib]
-    final isha = _parseToday(prayerTimes.timings['Isha']!); // Yatsı [Isha]
-
-    final imsakNext = imsakToday.add(const Duration(days: 1));
-    final nightLen = imsakNext.difference(
-      isha.isAfter(maghrib) ? isha : isha,
-    ); // isha bugün
-
-    DateTime midDuha() {
-      final start = sunrise.add(const Duration(minutes: 45));
-      final end = dhuhr.subtract(const Duration(minutes: 15));
-      return _midAcrossDays(start, end);
-    }
-
-    DateTime midTeheccud() {
-      // Gecenin son üçte biri: orta noktası 5/6 oranında
-      final startNight = isha;
-      final mid = startNight.add(_frac(nightLen, 5 / 6));
-      return mid;
-    }
-
-    DateTime midEvvabin() {
-      final start = maghrib.add(const Duration(minutes: 10));
-      final end = isha.subtract(const Duration(minutes: 10));
-      return _midAcrossDays(start, end);
-    }
-
-    DateTime midIstihare() {
-      // Gecenin ilk üçte birinin ortası: 1/6
-      final startNight = isha;
-      return startNight.add(_frac(nightLen, 1 / 6));
-    }
-
-    DateTime midHacet() {
-      // Öğle-Asr aralığında pratik bir orta
-      final start = dhuhr.add(const Duration(hours: 1));
-      final end = asr.subtract(const Duration(minutes: 30));
-      return _midAcrossDays(start, end);
-    }
-
-    DateTime midTesbih() {
-      // Gün içinde geniş: İkindi-Akşam ortası
-      return _midAcrossDays(asr, maghrib);
-    }
-
-    DateTime pickMid(String name) {
-      switch (name) {
-        case 'Duha (Kuşluk)':
-          return midDuha();
-        case 'Teheccüd':
-          return midTeheccud();
-        case 'Evvabin':
-          return midEvvabin();
-        case 'İstihare':
-          return midIstihare();
-        case 'Hacet':
-          return midHacet();
-        case 'Tesbih':
-          return midTesbih();
-      }
-      // bilmezse öğle ortası
-      return _midAcrossDays(dhuhr, asr);
-    }
-
-    return res;
   }
 
   double _angleFromAksam(PrayerTimes? prayerTimes, DateTime t) {
@@ -839,8 +442,6 @@ class _PrayerCircleState extends State<PrayerCircle>
     }
 
     final farzAngles = _angles(widget.prayerTimes);
-    final next = _nextPrayer(widget.prayerTimes);
-    final nafileAngles = _computeNafileAngles(widget.prayerTimes);
 
     // Ekran boyutuna göre dinamik çember
     final size = MediaQuery.of(context).size;
@@ -850,12 +451,13 @@ class _PrayerCircleState extends State<PrayerCircle>
     final innerRadius = circleRadius * 0.95;
 
     // RN'e daha yakın: dakika bazlı tetikleme (aynı dakika içinde sadece 1 kez)
-    if (next != null) {
-      final d = next.$2.difference(now);
+    if (widget.nextPrayerName != null && widget.timeRemaining != null) {
+      final d = widget.timeRemaining!;
       final sameMinute = d.inMinutes == 0 && !d.isNegative; // bu dakika içinde
       if (sameMinute) {
-        if (_lastOverlayPrayer != next.$1 || _lastOverlayMinute != now.minute) {
-          _lastOverlayPrayer = next.$1;
+        if (_lastOverlayPrayer != widget.nextPrayerName ||
+            _lastOverlayMinute != now.minute) {
+          _lastOverlayPrayer = widget.nextPrayerName;
           _lastOverlayMinute = now.minute;
           if (!_overlayCtr.isAnimating) {
             _overlayCtr.forward(from: 0);
@@ -937,7 +539,9 @@ class _PrayerCircleState extends State<PrayerCircle>
               ),
 
               // Geri sayım çemberin ortasında
-              if (widget.prayerTimes != null && next != null)
+              if (widget.prayerTimes != null &&
+                  widget.nextPrayerName != null &&
+                  widget.timeRemaining != null)
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -951,7 +555,7 @@ class _PrayerCircleState extends State<PrayerCircle>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _getLocalizedPrayerName(next.$1),
+                      _getLocalizedPrayerName(widget.nextPrayerName!),
                       style: const TextStyle(
                         fontSize: 22,
                         color: Colors.black87,
@@ -961,8 +565,7 @@ class _PrayerCircleState extends State<PrayerCircle>
                     const SizedBox(height: 8),
                     Builder(
                       builder: (_) {
-                        final d = next.$2.difference(now);
-                        final dur = d.isNegative ? const Duration() : d;
+                        final dur = widget.timeRemaining!;
                         final hhmmss = _fmt(dur);
                         return Column(
                           children: [
@@ -1012,19 +615,6 @@ class _PrayerCircleState extends State<PrayerCircle>
                   );
                 }),
 
-              // Nafile kutucuklar
-              if (nafileAngles.isNotEmpty)
-                ...nafileAngles.entries.map((e) {
-                  final ang = e.value;
-                  final x = innerRadius * math.cos(ang - math.pi / 2);
-                  final y = innerRadius * math.sin(ang - math.pi / 2);
-                  return Transform.translate(
-                    key: ValueKey('nafile-${e.key}'),
-                    offset: Offset(x, y),
-                    child: _PrayerBox(label: e.key),
-                  );
-                }),
-
               // Overlay animasyonu
               AnimatedBuilder(
                 animation: _overlayCtr,
@@ -1041,7 +631,7 @@ class _PrayerCircleState extends State<PrayerCircle>
                         color: Colors.black54,
                         alignment: Alignment.center,
                         child: Text(
-                          '${_nextPrayer(widget.prayerTimes)?.$1} vakti!',
+                          '${_getLocalizedPrayerName(widget.nextPrayerName ?? '')} vakti!',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 30,

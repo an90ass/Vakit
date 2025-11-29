@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:excel/excel.dart' hide Border;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +19,7 @@ import 'package:vakit/models/user_profile.dart';
 import 'package:vakit/repositories/extra_prayer_repository.dart';
 import 'package:vakit/repositories/qada_repository.dart';
 import 'package:vakit/screens/prayerTracking/views/profile_setup_view.dart';
+import 'package:vakit/screens/profile/profile_screen.dart';
 import 'package:vakit/l10n/generated/app_localizations.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -184,20 +186,38 @@ String _getLocalizedPrayerName(BuildContext context, String prayerName) {
   }
 }
 
+/// Mevcut vakti hesapla - Gece yarisi (00:00) sonrasi Yatsi icin ozel mantik
+/// Eger saat 00:00-05:00 arasi ise ve henuz Imsak vakti girmediyse,
+/// kullanici onceki gunun Yatsi namazini isaretleyebilir
 int _getCurrentPrayerIndex(List<Prayer> prayers) {
   final now = DateTime.now();
   final currentTime = now.hour * 60 + now.minute;
+
+  // Gece yarisi sonrasi kontrolu (00:00-05:00 arasi)
+  // Imsak vakti genellikle 04:00-06:00 arasi olur
+  if (now.hour >= 0 && now.hour < 6) {
+    // Imsak vaktini al
+    final imsakTimeParts = prayers[0].time.split(':');
+    final imsakTime =
+        int.parse(imsakTimeParts[0]) * 60 + int.parse(imsakTimeParts[1]);
+
+    // Henuz Imsak vakti girmediyse, tum namazlar isaretlenebilir (Yatsi dahil)
+    if (currentTime < imsakTime) {
+      return prayers.length -
+          1; // Son namaz (Yatsi) dahil hepsini isaretleyebilir
+    }
+  }
 
   for (int i = 0; i < prayers.length; i++) {
     final timeParts = prayers[i].time.split(':');
     final prayerTime = int.parse(timeParts[0]) * 60 + int.parse(timeParts[1]);
 
     if (currentTime < prayerTime) {
-      // Eğer henüz ilk namaz vaktine gelmediyse, hiçbir namaz işaretlenemez
+      // Eger henuz ilk namaz vaktine gelmediyse, hicbir namaz isaretlenemez
       return i > 0 ? i - 1 : -1;
     }
   }
-  // Gün sonunda tüm namazlar işaretlenebilir
+  // Gun sonunda tum namazlar isaretlenebilir
   return prayers.length - 1;
 }
 
@@ -930,52 +950,26 @@ class _ProfileHeaderCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () => _openEdit(context),
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 32,
-                      backgroundColor: AppColors.primary,
-                      backgroundImage:
-                          profile.profileImagePath != null
-                              ? FileImage(File(profile.profileImagePath!))
-                              : null,
-                      child:
-                          profile.profileImagePath == null
-                              ? Text(
-                                profile.name.isEmpty
-                                    ? '?'
-                                    : profile.name
-                                        .substring(0, 1)
-                                        .toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                              : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              CircleAvatar(
+                radius: 32,
+                backgroundColor: AppColors.primary,
+                backgroundImage:
+                    profile.profileImagePath != null
+                        ? FileImage(File(profile.profileImagePath!))
+                        : null,
+                child:
+                    profile.profileImagePath == null
+                        ? Text(
+                          profile.name.isEmpty
+                              ? '?'
+                              : profile.name.substring(0, 1).toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                        : null,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1008,11 +1002,6 @@ class _ProfileHeaderCard extends StatelessWidget {
                   ],
                 ),
               ),
-              FilledButton.tonalIcon(
-                onPressed: () => _openEdit(context),
-                icon: const Icon(Icons.edit_outlined),
-                label: Text(localization.editProfile),
-              ),
             ],
           ),
           if (profile.extraPrayers.isNotEmpty) ...[
@@ -1038,23 +1027,6 @@ class _ProfileHeaderCard extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-
-  void _openEdit(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder:
-          (_) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: ProfileSetupView(initialProfile: profile, isDialog: true),
-          ),
     );
   }
 }
@@ -1228,9 +1200,11 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                             foregroundColor: AppColors.primary,
                           ),
                           onPressed:
-                              count == 0 ? null : () => _exportWidget(context),
+                              count == 0
+                                  ? null
+                                  : () => _exportToExcel(context, pending),
                           icon: const Icon(Icons.ios_share),
-                          label: Text(AppLocalizations.of(context)!.widget),
+                          label: Text(AppLocalizations.of(context)!.share),
                         ),
                       ],
                     ),
@@ -1244,35 +1218,79 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
     );
   }
 
-  Future<void> _exportWidget(BuildContext context) async {
+  Future<void> _exportToExcel(
+    BuildContext context,
+    List<QadaRecord> records,
+  ) async {
     try {
-      final boundary =
-          _exportKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
-      if (boundary == null) return;
-      final image = await boundary.toImage(pixelRatio: 3);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
-      final bytes = byteData.buffer.asUint8List();
+      final localization = AppLocalizations.of(context)!;
+
+      // Excel paketi ile Excel dosyası oluştur
+      final excel = Excel.createExcel();
+      final sheet = excel['Kaza Namazları'];
+
+      // Başlık satırı
+      sheet.appendRow([
+        TextCellValue(localization.qadaDetailDate),
+        TextCellValue(localization.qadaDetailPrayer),
+        TextCellValue(localization.qadaDetailMissedAt),
+        TextCellValue(localization.qadaDetailStatus),
+      ]);
+
+      // Veri satırları
+      for (final record in records) {
+        final status =
+            record.resolvedAt == null
+                ? localization.qadaStatusPending
+                : localization.qadaStatusCompleted;
+        sheet.appendRow([
+          TextCellValue(record.dateKey),
+          TextCellValue(_getLocalizedPrayerName(context, record.prayerName)),
+          TextCellValue(record.missedAt.toLocal().toString().substring(0, 16)),
+          TextCellValue(status),
+        ]);
+      }
+
+      // Dosyayı kaydet
       final directory = await getTemporaryDirectory();
-      final file =
-          await File(
-            '${directory.path}/qada_summary_${DateTime.now().millisecondsSinceEpoch}.png',
-          ).create();
-      await file.writeAsBytes(bytes);
-      await Share.shareXFiles([
-        XFile(file.path),
-      ], text: AppLocalizations.of(context)!.currentQadaSummary);
+      final fileName =
+          'kaza_namazlari_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+      final filePath = '${directory.path}/$fileName';
+
+      final fileBytes = excel.save();
+      if (fileBytes != null) {
+        final file = File(filePath);
+        await file.writeAsBytes(fileBytes);
+
+        // Dosyayı paylaş
+        await Share.shareXFiles([
+          XFile(filePath),
+        ], text: localization.currentQadaSummary);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(localization.excelExported),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Widget dışa aktarılırken hata oluştu: $error')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.excelExportError),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
   void _openDetails(BuildContext context, List<QadaRecord> records) {
     final csv = _buildCsv(records);
+    final localization = AppLocalizations.of(context)!;
+
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -1299,7 +1317,7 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)!.pendingQadaPrayers,
+                    localization.pendingQadaPrayers,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1309,62 +1327,53 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                   if (records.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text(AppLocalizations.of(context)!.noRecordsYet),
+                      child: Text(localization.noRecordsYet),
                     )
                   else
                     SizedBox(
                       height: 320,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: [
-                            DataColumn(
-                              label: Text(AppLocalizations.of(context)!.date),
-                            ),
-                            DataColumn(
-                              label: Text(
-                                AppLocalizations.of(context)!.prayerTime,
+                      child: ListView.separated(
+                        itemCount: records.length,
+                        separatorBuilder: (_, __) => const Divider(),
+                        itemBuilder: (context, index) {
+                          final record = records[index];
+                          return ListTile(
+                            onTap: () => _showRecordDetail(context, record),
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color:
+                                    record.resolvedAt == null
+                                        ? Colors.orange.withOpacity(0.1)
+                                        : Colors.green.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                record.resolvedAt == null
+                                    ? Icons.schedule
+                                    : Icons.check_circle,
+                                color:
+                                    record.resolvedAt == null
+                                        ? Colors.orange
+                                        : Colors.green,
                               ),
                             ),
-                            DataColumn(
-                              label: Text(
-                                AppLocalizations.of(context)!.recorded,
+                            title: Text(
+                              _getLocalizedPrayerName(
+                                context,
+                                record.prayerName,
+                              ),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            DataColumn(
-                              label: Text(
-                                AppLocalizations.of(context)!.completedDate,
-                              ),
+                            subtitle: Text(record.dateKey),
+                            trailing: Icon(
+                              Icons.chevron_right,
+                              color: Colors.grey[400],
                             ),
-                          ],
-                          rows:
-                              records
-                                  .map(
-                                    (record) => DataRow(
-                                      cells: [
-                                        DataCell(Text(record.dateKey)),
-                                        DataCell(Text(record.prayerName)),
-                                        DataCell(
-                                          Text(
-                                            record.missedAt
-                                                .toLocal()
-                                                .toString(),
-                                          ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            record.resolvedAt == null
-                                                ? '-'
-                                                : record.resolvedAt!
-                                                    .toLocal()
-                                                    .toString(),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
+                          );
+                        },
                       ),
                     ),
                   const SizedBox(height: 16),
@@ -1376,19 +1385,17 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
                         onPressed:
                             records.isEmpty
                                 ? null
-                                : () => _shareCsv(csv, context),
-                        icon: const Icon(Icons.share),
-                        label: Text(AppLocalizations.of(context)!.shareCSV),
+                                : () => _exportToExcel(context, records),
+                        icon: const Icon(Icons.table_chart),
+                        label: Text(localization.exportExcel),
                       ),
                       OutlinedButton.icon(
                         onPressed:
                             records.isEmpty
                                 ? null
-                                : () => _copyCsv(csv, context),
-                        icon: const Icon(Icons.copy),
-                        label: Text(
-                          AppLocalizations.of(context)!.copyToClipboard,
-                        ),
+                                : () => _shareCsv(csv, context),
+                        icon: const Icon(Icons.share),
+                        label: Text(localization.shareCSV),
                       ),
                     ],
                   ),
@@ -1396,6 +1403,101 @@ class _QadaSummaryCardState extends State<_QadaSummaryCard> {
               ),
             ),
           ),
+    );
+  }
+
+  void _showRecordDetail(BuildContext context, QadaRecord record) {
+    final localization = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.info_outline, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Text(localization.qadaDetailTitle),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDetailRow(
+                  localization.qadaDetailDate,
+                  record.dateKey,
+                  Icons.calendar_today,
+                ),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                  localization.qadaDetailPrayer,
+                  _getLocalizedPrayerName(context, record.prayerName),
+                  Icons.access_time,
+                ),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                  localization.qadaDetailMissedAt,
+                  record.missedAt.toLocal().toString().substring(0, 16),
+                  Icons.warning_amber,
+                ),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                  localization.qadaDetailStatus,
+                  record.resolvedAt == null
+                      ? localization.qadaStatusPending
+                      : localization.qadaStatusCompleted,
+                  record.resolvedAt == null
+                      ? Icons.schedule
+                      : Icons.check_circle,
+                  color:
+                      record.resolvedAt == null ? Colors.orange : Colors.green,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(localization.dialogOk),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Widget _buildDetailRow(
+    String label,
+    String value,
+    IconData icon, {
+    Color? color,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: color ?? Colors.grey[600]),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: color ?? Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

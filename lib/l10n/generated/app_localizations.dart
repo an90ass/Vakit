@@ -1129,13 +1129,13 @@ abstract class AppLocalizations {
   /// No description provided for @prayerDuhaDesc.
   ///
   /// In tr, this message translates to:
-  /// **'Güneş doğduktan sonra 20 dakika içinde'**
+  /// **'Guneş doğduktan sonra 20 dakika icinde'**
   String get prayerDuhaDesc;
 
   /// No description provided for @prayerIshraqDesc.
   ///
   /// In tr, this message translates to:
-  /// **'Güneş doğduktan 15 dakika içinde'**
+  /// **'Guneş doğduktan 15 dakika icinde'**
   String get prayerIshraqDesc;
 
   /// No description provided for @prayerTahajjudDesc.
@@ -1149,6 +1149,306 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Akşam ile yatsı arası sessiz vakit'**
   String get prayerAwwabinDesc;
+
+  /// No description provided for @tabQibla.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kıble'**
+  String get tabQibla;
+
+  /// No description provided for @qiblaCompassTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kıble Pusulası'**
+  String get qiblaCompassTitle;
+
+  /// No description provided for @qiblaCompassSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cihazınızı düz tutun ve kıble yönüne dönün'**
+  String get qiblaCompassSubtitle;
+
+  /// No description provided for @qiblaFacingCorrect.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kıble Yönünde!'**
+  String get qiblaFacingCorrect;
+
+  /// No description provided for @qiblaYourLocation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Konumunuz'**
+  String get qiblaYourLocation;
+
+  /// No description provided for @qiblaKaabaDirection.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kabe Yönü'**
+  String get qiblaKaabaDirection;
+
+  /// No description provided for @qiblaLoading.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pusula yükleniyor...'**
+  String get qiblaLoading;
+
+  /// No description provided for @qiblaLocationPermissionRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kıble yönünü hesaplamak için konum izni gerekli.'**
+  String get qiblaLocationPermissionRequired;
+
+  /// No description provided for @qiblaLocationServiceDisabled.
+  ///
+  /// In tr, this message translates to:
+  /// **'Konum servisleri kapalı. Lütfen açın.'**
+  String get qiblaLocationServiceDisabled;
+
+  /// No description provided for @qiblaLocationFetchError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Konum alınamadı. Lütfen tekrar deneyin.'**
+  String get qiblaLocationFetchError;
+
+  /// No description provided for @qiblaGenericError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir hata oluştu. Lütfen tekrar deneyin.'**
+  String get qiblaGenericError;
+
+  /// No description provided for @qiblaRetry.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar Dene'**
+  String get qiblaRetry;
+
+  /// No description provided for @qiblaOpenSettings.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ayarları Aç'**
+  String get qiblaOpenSettings;
+
+  /// No description provided for @directionNorth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kuzey'**
+  String get directionNorth;
+
+  /// No description provided for @directionNorthEast.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kuzeydoğu'**
+  String get directionNorthEast;
+
+  /// No description provided for @directionEast.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğu'**
+  String get directionEast;
+
+  /// No description provided for @directionSouthEast.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güneydoğu'**
+  String get directionSouthEast;
+
+  /// No description provided for @directionSouth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güney'**
+  String get directionSouth;
+
+  /// No description provided for @directionSouthWest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güneybatı'**
+  String get directionSouthWest;
+
+  /// No description provided for @directionWest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Batı'**
+  String get directionWest;
+
+  /// No description provided for @directionNorthWest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kuzeybatı'**
+  String get directionNorthWest;
+
+  /// No description provided for @profileSettings.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil Ayarları'**
+  String get profileSettings;
+
+  /// No description provided for @profileSave.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydet'**
+  String get profileSave;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil kaydedildi'**
+  String get profileSaved;
+
+  /// No description provided for @profilePersonalInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kişisel Bilgiler'**
+  String get profilePersonalInfo;
+
+  /// No description provided for @qadaSettings.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaza Ayarları'**
+  String get qadaSettings;
+
+  /// No description provided for @appPurposeDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu uygulama namaz vakitlerini takip etmenize, namazlarınızı işaretlemenize ve kaza namazlarınızı yönetmenize yardımcı olur.'**
+  String get appPurposeDescription;
+
+  /// No description provided for @share.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaş'**
+  String get share;
+
+  /// No description provided for @exportExcel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Excel Olarak Kaydet'**
+  String get exportExcel;
+
+  /// No description provided for @excelExported.
+  ///
+  /// In tr, this message translates to:
+  /// **'Excel dosyası kaydedildi'**
+  String get excelExported;
+
+  /// No description provided for @excelExportError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Excel dosyası kaydedilirken hata oluştu'**
+  String get excelExportError;
+
+  /// No description provided for @qadaDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaza Detayı'**
+  String get qadaDetailTitle;
+
+  /// No description provided for @qadaDetailDate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tarih'**
+  String get qadaDetailDate;
+
+  /// No description provided for @qadaDetailPrayer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Namaz Vakti'**
+  String get qadaDetailPrayer;
+
+  /// No description provided for @qadaDetailMissedAt.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaçırılma Zamanı'**
+  String get qadaDetailMissedAt;
+
+  /// No description provided for @qadaDetailStatus.
+  ///
+  /// In tr, this message translates to:
+  /// **'Durum'**
+  String get qadaDetailStatus;
+
+  /// No description provided for @qadaStatusPending.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bekliyor'**
+  String get qadaStatusPending;
+
+  /// No description provided for @qadaStatusCompleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tamamlandı'**
+  String get qadaStatusCompleted;
+
+  /// No description provided for @qiblaCalibrationTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pusula Kalibrasyonu'**
+  String get qiblaCalibrationTitle;
+
+  /// No description provided for @qiblaCalibrationMessage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pusulayı kalibre etmek için telefonunuzu 8 şeklinde hareket ettirin.'**
+  String get qiblaCalibrationMessage;
+
+  /// No description provided for @qiblaCalibrationButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kalibre Et'**
+  String get qiblaCalibrationButton;
+
+  /// No description provided for @qiblaCameraMode.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kamera Modu'**
+  String get qiblaCameraMode;
+
+  /// No description provided for @qiblaCompassMode.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pusula Modu'**
+  String get qiblaCompassMode;
+
+  /// No description provided for @qiblaCameraPermissionRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kamera izni gerekli'**
+  String get qiblaCameraPermissionRequired;
+
+  /// No description provided for @cameraPermissionDenied.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kamera izni reddedildi'**
+  String get cameraPermissionDenied;
+
+  /// No description provided for @calibrateCompass.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kalibre'**
+  String get calibrateCompass;
+
+  /// No description provided for @calibrateCompassDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Daha doğru sonuçlar için telefonunuzu 8 şeklinde hareket ettirin.'**
+  String get calibrateCompassDesc;
+
+  /// No description provided for @arMode.
+  ///
+  /// In tr, this message translates to:
+  /// **'AR'**
+  String get arMode;
+
+  /// No description provided for @holdVertical.
+  ///
+  /// In tr, this message translates to:
+  /// **'Telefonu dik tutun ve Kıble\'ye doğrultun'**
+  String get holdVertical;
+
+  /// No description provided for @compassCalibrating.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pusula Kalibre Ediliyor...'**
+  String get compassCalibrating;
 }
 
 class _AppLocalizationsDelegate
